@@ -164,6 +164,8 @@ main{flex:1;padding:16px}
 .chiprow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
 .catalog{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .prodcard{padding:11px 12px;border-radius:13px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;text-align:left}
+.prodicon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.prodcard .row1{display:flex;align-items:center;gap:8px}
 .prodcard .nm{font:500 13px/1.25 var(--font-h)}
 .prodcard .row2{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
 .prodcard .pr{font:600 12.5px/1 var(--font-m);color:var(--accent-ink)}
@@ -327,6 +329,10 @@ body.app-shell .tk-aside{position:sticky;top:0}
     <h2 id="tt-title"></h2>
     <p class="hint">Sélectionne un ticket ou ouvres-en un nouveau pour cette table.</p>
     <div class="stattiles" id="tt-stats" hidden></div>
+    <div id="tt-offerswrap" hidden style="margin-bottom:14px">
+      <span class="pricemode">🎁 Offert à cette table</span>
+      <div class="card" id="tt-offers"></div>
+    </div>
     <div class="card" id="tt-list" style="margin-bottom:14px"></div>
     <button class="btn primary block" id="tt-new" type="button">+ Nouveau ticket client</button>
     <button class="backlink" id="tt-close" type="button" style="width:100%;margin-top:6px">Fermer</button>
@@ -364,6 +370,10 @@ body.app-shell .tk-aside{position:sticky;top:0}
     <div class="tk-body-grid">
       <div class="tk-main">
         <div class="tk-lines" id="tk-lines"></div>
+        <div id="tk-offerswrap" hidden style="margin:0 0 12px">
+          <span class="pricemode">🎁 Offert par une autre table</span>
+          <div class="card" id="tk-offers"></div>
+        </div>
         <span class="pricemode" id="tk-pricemode"></span>
         <div class="tk-addhead">
           <span>Ajouter un article</span>
@@ -560,6 +570,22 @@ function h(tag, attrs){
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
 function money(n){ return Number(n||0).toLocaleString("fr-FR") + " FCFA"; }
+function catIcon(cat){
+  var k = norm(cat);
+  if (k.indexOf("biere") >= 0) return "🍺";
+  if (k.indexOf("cocktail") >= 0) return "🍹";
+  if (k.indexOf("soft") >= 0 || k.indexOf("boisson") >= 0) return "🥤";
+  if (k.indexOf("snack") >= 0) return "🍟";
+  return "🍽️";
+}
+function catColor(cat){
+  var k = norm(cat);
+  if (k.indexOf("biere") >= 0) return "#f3dba8";
+  if (k.indexOf("cocktail") >= 0) return "#f2cfe0";
+  if (k.indexOf("soft") >= 0 || k.indexOf("boisson") >= 0) return "#c9e8f2";
+  if (k.indexOf("snack") >= 0) return "#f6ddb4";
+  return "var(--surface2)";
+}
 function fmtDate(t){ try{ return new Date(t).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}); }catch(e){ return ""; } }
 var toastTimer;
 function toast(msg){
@@ -651,6 +677,16 @@ function ticketTotal(t){
   return t.lines.reduce(function(sum,l){ return sum + l.price * l.qty; }, 0);
 }
 function ticketDue(t){ return Math.max(0, ticketTotal(t) - (t.advance||0)); }
+function offersToTable(tableId, excludeTicketId){
+  var out = [];
+  state.tickets.forEach(function(t){
+    if (t.id === excludeTicketId) return;
+    t.lines.forEach(function(l){
+      if (l.offeredToTableId === tableId) out.push({ ticket: t, line: l });
+    });
+  });
+  return out;
+}
 function isNight(){
   var h = new Date().getHours();
   var start = state.settings.nightStartHour;
@@ -746,7 +782,7 @@ function renderSalle(){
     var open = openTicketsForTable(tid);
     var total = open.reduce(function(s,t){ return s + ticketDue(t); }, 0);
     var card = h("div", { class:"tablecard" + (open.length ? " busy" : ""), onclick:function(){ openTableTickets(tid); } },
-      h("div", {class:"top"}, h("span",{class:"dot"}), open.length ? h("span",{class:"cnt"}, String(open.length)) : null),
+      h("div", {class:"top"}, h("span",{style:"font-size:18px"},"🍽️"), open.length ? h("span",{class:"cnt"}, String(open.length)) : h("span",{class:"dot"})),
       h("div", null, h("div",{class:"name"}, tid), h("div",{class:"sub"}, open.length ? money(total) : "libre"))
     );
     box.append(card);
@@ -775,6 +811,21 @@ function openTableTickets(tableId){
   } else {
     stats.hidden = true;
   }
+
+  var offers = offersToTable(tableId);
+  var offersWrap = $("tt-offerswrap"), offersBox = $("tt-offers");
+  offersBox.textContent = "";
+  if (offers.length){
+    offers.forEach(function(o){
+      offersBox.append(h("div",{class:"row"},
+        h("div",{class:"info"}, h("div",{class:"name"}, o.line.qty + " × " + o.line.name), h("div",{class:"sub"}, "offert par " + o.ticket.client + " (" + o.ticket.ref + ")"))
+      ));
+    });
+    offersWrap.hidden = false;
+  } else {
+    offersWrap.hidden = true;
+  }
+
   if (!open.length){
     list.append(h("div",{class:"empty"},"Aucun ticket ouvert sur cette table."));
   }
@@ -868,6 +919,20 @@ function renderTicket(){
     ));
   });
 
+  var offersWrap = $("tk-offerswrap"), offersBox = $("tk-offers");
+  offersBox.textContent = "";
+  var incomingOffers = t.tableId ? offersToTable(t.tableId, t.id) : [];
+  if (incomingOffers.length){
+    incomingOffers.forEach(function(o){
+      offersBox.append(h("div",{class:"row"},
+        h("div",{class:"info"}, h("div",{class:"name"}, o.line.qty + " × " + o.line.name), h("div",{class:"sub"}, "offert par " + o.ticket.client + " (" + o.ticket.ref + ")"))
+      ));
+    });
+    offersWrap.hidden = false;
+  } else {
+    offersWrap.hidden = true;
+  }
+
   var total = ticketTotal(t), due = ticketDue(t);
   $("tk-total").textContent = money(total);
   $("tk-advrow").hidden = !t.advance;
@@ -919,7 +984,10 @@ function renderTicketCatalog(){
   var locked = t && t.status === "payé";
   list.forEach(function(p){
     box.append(h("button",{class:"prodcard", type:"button", disabled: locked, onclick:function(){ addToTicket(p.id); }},
-      h("span",{class:"nm"}, p.name),
+      h("div",{class:"row1"},
+        h("span",{class:"prodicon", style:"background:"+catColor(p.cat)}, catIcon(p.cat)),
+        h("span",{class:"nm"}, p.name)
+      ),
       h("div",{class:"row2"}, h("span",{class:"pr"}, money(activePrice(p))), h("span",{class:"st"}, p.qty<=0?"rupture":p.qty+" en stock"))
     ));
   });
@@ -1070,10 +1138,18 @@ function printTicket(){
   var lb = $("rc-lines"); lb.textContent = "";
   t.lines.forEach(function(l){
     lb.append(h("tr", null,
-      h("td", null, l.qty + " × " + l.name),
+      h("td", null, l.qty + " × " + l.name + (l.offeredToTableId ? " (offert à " + l.offeredToTableId + ")" : "")),
       h("td", {style:"text-align:right"}, money(l.price*l.qty))
     ));
   });
+  if (t.tableId){
+    offersToTable(t.tableId, t.id).forEach(function(o){
+      lb.append(h("tr", null,
+        h("td", {style:"font-style:italic"}, o.line.qty + " × " + o.line.name + " — offert (" + o.ticket.ref + ")"),
+        h("td", {style:"text-align:right;font-style:italic"}, "—")
+      ));
+    });
+  }
   $("rc-total").textContent = money(ticketTotal(t));
   var paid = t.status === "payé";
   $("rc-advrow").hidden = !t.advance;
@@ -1116,6 +1192,7 @@ function renderStock(){
       ? money(p.priceDay)
       : "jour " + money(p.priceDay) + " · nuit " + money(p.priceNight);
     box.append(h("div",{class:"row"},
+      h("span",{class:"prodicon", style:"background:"+catColor(p.cat)}, catIcon(p.cat)),
       h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, p.cat + " · " + priceLabel)),
       h("div",{class:"qty"},
         h("button",{type:"button", onclick:function(){ quickAdjust(p.id,-1); }},"−"),
