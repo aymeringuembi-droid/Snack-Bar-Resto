@@ -536,8 +536,10 @@ body.app-shell .tk-aside{position:sticky;top:0}
   <table>
     <tr class="tot"><td>Total</td><td style="text-align:right" id="rc-total"></td></tr>
     <tr id="rc-advrow"><td>Avance</td><td style="text-align:right" id="rc-adv"></td></tr>
-    <tr id="rc-payrow"><td id="rc-paylabel">Payé</td><td style="text-align:right" id="rc-paid"></td></tr>
-    <tr id="rc-changerow"><td>Rendu</td><td style="text-align:right" id="rc-change"></td></tr>
+    <tr id="rc-duerow"><td>Reste dû</td><td style="text-align:right" id="rc-due"></td></tr>
+    <tr id="rc-methodrow"><td>Réglé par</td><td style="text-align:right" id="rc-method"></td></tr>
+    <tr id="rc-givenrow"><td>Montant donné</td><td style="text-align:right" id="rc-given"></td></tr>
+    <tr id="rc-changerow" class="tot"><td>Monnaie rendue</td><td style="text-align:right" id="rc-change"></td></tr>
   </table>
   <hr>
   <p class="c">Merci de votre visite !</p>
@@ -1152,12 +1154,16 @@ function printTicket(){
   }
   $("rc-total").textContent = money(ticketTotal(t));
   var paid = t.status === "payé";
+  var isCash = paid && t.paymentMethod === "Espèces";
   $("rc-advrow").hidden = !t.advance;
   $("rc-adv").textContent = money(t.advance||0);
-  $("rc-payrow").hidden = !paid;
-  $("rc-paylabel").textContent = "Payé (" + (t.paymentMethod||"") + ")";
-  $("rc-paid").textContent = money(t.paidAmount||0);
-  $("rc-changerow").hidden = !(paid && t.paymentMethod === "Espèces");
+  $("rc-duerow").hidden = paid;
+  $("rc-due").textContent = money(ticketDue(t));
+  $("rc-methodrow").hidden = !paid;
+  $("rc-method").textContent = t.paymentMethod || "";
+  $("rc-givenrow").hidden = !isCash;
+  $("rc-given").textContent = money(t.paidAmount||0);
+  $("rc-changerow").hidden = !isCash;
   $("rc-change").textContent = money(t.change||0);
   window.print();
 }
