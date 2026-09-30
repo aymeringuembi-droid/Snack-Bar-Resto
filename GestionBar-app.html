@@ -46,7 +46,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .joinlink{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);text-align:center}
 .joinlink button{background:none;border:1px solid var(--line);border-radius:14px;min-height:46px;padding:0 16px;font:600 13.5px/1 var(--font-h);width:100%}
 .joinform{display:flex;flex-direction:column;gap:10px;padding-top:18px}
-.field input{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:13px;border:1px solid var(--line);background:var(--surface);outline:none;font-size:15.5px}
+.field input,.field select{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:13px;border:1px solid var(--line);background:var(--surface);outline:none;font-size:15.5px}
 .field input:focus{border-color:var(--accent)}
 .backlink{text-align:center;font:500 13px/1 var(--font-h);color:var(--muted);background:none;border:0;padding:10px}
 
@@ -177,18 +177,20 @@ main{flex:1;padding:16px}
 .tk-actionrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .tk-actionrow .btn{flex:1;min-width:120px}
 
-/* ---------- Print receipt ---------- */
-#receipt{display:none}
+/* ---------- Print receipt / order sheet ---------- */
+#receipt,#ordersheet{display:none}
 @media print{
   body *{visibility:hidden}
-  #receipt,#receipt *{visibility:visible}
-  #receipt{display:block;position:absolute;left:0;top:0;width:80mm;padding:6mm;font-family:var(--font-m);font-size:12px;color:#000}
-  #receipt h2{font-size:15px;margin:0 0 2px;text-align:center}
-  #receipt .c{text-align:center}
-  #receipt hr{border:none;border-top:1px dashed #000;margin:6px 0}
-  #receipt table{width:100%;border-collapse:collapse}
-  #receipt td{padding:2px 0;font-size:11.5px;vertical-align:top}
-  #receipt .tot{font-size:13px;font-weight:700}
+  body.printing-ticket #receipt,body.printing-ticket #receipt *{visibility:visible}
+  body.printing-ticket #receipt{display:block;position:absolute;left:0;top:0;width:80mm;padding:6mm;font-family:var(--font-m);font-size:12px;color:#000}
+  body.printing-order #ordersheet,body.printing-order #ordersheet *{visibility:visible}
+  body.printing-order #ordersheet{display:block;position:absolute;left:0;top:0;width:100%;padding:10mm;font-family:var(--font-m);font-size:13px;color:#000}
+  #receipt h2,#ordersheet h2{font-size:15px;margin:0 0 2px;text-align:center}
+  #receipt .c,#ordersheet .c{text-align:center}
+  #receipt hr,#ordersheet hr{border:none;border-top:1px dashed #000;margin:6px 0}
+  #receipt table,#ordersheet table{width:100%;border-collapse:collapse}
+  #receipt td,#ordersheet td{padding:2px 0;font-size:11.5px;vertical-align:top}
+  #receipt .tot,#ordersheet .tot{font-size:13px;font-weight:700}
 }
 
 /* ---------- Desktop layout (gated by the .app-shell class the JS sets, not by viewport width, so the manual PC/Téléphone toggle can override the automatic breakpoint) ---------- */
@@ -294,7 +296,11 @@ body.app-shell .tk-aside{position:sticky;top:0}
       <div class="card" id="stocklist" style="margin-bottom:20px"></div>
       <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Commande à faire (pour atteindre le stock optimal)</h2>
       <div class="card" id="restocklist" style="margin-bottom:12px"></div>
-      <button class="btn block" id="copyrestock" type="button">Copier la liste de commande</button>
+      <div class="grid3">
+        <button class="btn" id="copyrestock" type="button">Copier</button>
+        <button class="btn" id="printrestock" type="button">🖶 Imprimer</button>
+        <button class="btn primary" id="whatsapprestock" type="button">💬 WhatsApp</button>
+      </div>
     </section>
 
     <section class="panel" id="panel-bilan" hidden>
@@ -481,6 +487,16 @@ body.app-shell .tk-aside{position:sticky;top:0}
       <label class="field"><span>Prix jour (FCFA)</span><input id="pd-priceday" type="number" min="0" inputmode="numeric"></label>
       <label class="field"><span>Prix nuit (FCFA)</span><input id="pd-pricenight" type="number" min="0" inputmode="numeric"></label>
     </div>
+    <label class="field"><span>Prix d'achat (FCFA) — pour calculer le bénéfice</span><input id="pd-cost" type="number" min="0" inputmode="numeric"></label>
+    <div class="grid2">
+      <label class="field"><span>Vente par</span>
+        <select id="pd-salemode">
+          <option value="unite">Unité</option>
+          <option value="bloc">Bloc / casier</option>
+        </select>
+      </label>
+      <label class="field" id="pd-blockwrap" hidden><span>Pièces par bloc</span><input id="pd-unitsperblock" type="number" min="1" inputmode="numeric"></label>
+    </div>
     <p class="hint" style="margin-top:-6px">Le stock optimal sert à générer la commande à faire en fin de journée. Laisse à 0 pour un article préparé à la demande (pas de suivi de stock).</p>
     <div class="actions">
       <button class="btn danger" id="pd-del" type="button" hidden>Supprimer</button>
@@ -545,6 +561,15 @@ body.app-shell .tk-aside{position:sticky;top:0}
   <p class="c">Merci de votre visite !</p>
 </div>
 
+<div id="ordersheet">
+  <h2>Le Baobab — Commande fournisseur</h2>
+  <p class="c" id="os-date"></p>
+  <hr>
+  <table id="os-lines"></table>
+  <hr>
+  <p class="c">Quantités calculées pour atteindre le stock optimal.</p>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -607,19 +632,19 @@ function defaultState(){
     ],
     tables: ["T1","T2","T3","T4","T5","T6","T7","T8","T9"],
     products: [
-      { id:"p1", name:"Régab 33cl", cat:"Bières", qty:20, min:5, optimal:24, priceDay:1200, priceNight:1400 },
-      { id:"p2", name:"Castel 65cl", cat:"Bières", qty:15, min:5, optimal:20, priceDay:2000, priceNight:2400 },
-      { id:"p3", name:"Heineken 33cl", cat:"Bières", qty:10, min:4, optimal:20, priceDay:1800, priceNight:2200 },
-      { id:"p4", name:"Mojito", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4000, priceNight:4500 },
-      { id:"p5", name:"Piña Colada", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4500, priceNight:5000 },
-      { id:"p6", name:"Punch coco", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:3500, priceNight:4000 },
-      { id:"p7", name:"Coca-Cola 33cl", cat:"Softs", qty:30, min:8, optimal:40, priceDay:1000, priceNight:1000 },
-      { id:"p8", name:"Eau minérale 50cl", cat:"Softs", qty:40, min:10, optimal:50, priceDay:800, priceNight:800 },
-      { id:"p9", name:"Jus de bissap", cat:"Softs", qty:12, min:4, optimal:20, priceDay:1500, priceNight:1500 },
-      { id:"p10", name:"Brochettes de bœuf (3)", cat:"Snacks", qty:18, min:5, optimal:24, priceDay:2500, priceNight:2500 },
-      { id:"p11", name:"Frites", cat:"Snacks", qty:25, min:6, optimal:30, priceDay:2000, priceNight:2000 },
-      { id:"p12", name:"Beignets (5)", cat:"Snacks", qty:20, min:5, optimal:24, priceDay:1500, priceNight:1500 },
-      { id:"p13", name:"Poulet braisé (1/4)", cat:"Snacks", qty:10, min:3, optimal:15, priceDay:3500, priceNight:3500 }
+      { id:"p1", name:"Régab 33cl", cat:"Bières", qty:20, min:5, optimal:24, priceDay:1200, priceNight:1400, costPrice:700, saleMode:"bloc", unitsPerBlock:24 },
+      { id:"p2", name:"Castel 65cl", cat:"Bières", qty:15, min:5, optimal:20, priceDay:2000, priceNight:2400, costPrice:1200, saleMode:"bloc", unitsPerBlock:12 },
+      { id:"p3", name:"Heineken 33cl", cat:"Bières", qty:10, min:4, optimal:20, priceDay:1800, priceNight:2200, costPrice:1100, saleMode:"bloc", unitsPerBlock:24 },
+      { id:"p4", name:"Mojito", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4000, priceNight:4500, costPrice:1500, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p5", name:"Piña Colada", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4500, priceNight:5000, costPrice:1700, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p6", name:"Punch coco", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:3500, priceNight:4000, costPrice:1300, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p7", name:"Coca-Cola 33cl", cat:"Softs", qty:30, min:8, optimal:40, priceDay:1000, priceNight:1000, costPrice:500, saleMode:"bloc", unitsPerBlock:24 },
+      { id:"p8", name:"Eau minérale 50cl", cat:"Softs", qty:40, min:10, optimal:50, priceDay:800, priceNight:800, costPrice:400, saleMode:"bloc", unitsPerBlock:24 },
+      { id:"p9", name:"Jus de bissap", cat:"Softs", qty:12, min:4, optimal:20, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p10", name:"Brochettes de bœuf (3)", cat:"Snacks", qty:18, min:5, optimal:24, priceDay:2500, priceNight:2500, costPrice:1400, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p11", name:"Frites", cat:"Snacks", qty:25, min:6, optimal:30, priceDay:2000, priceNight:2000, costPrice:900, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p12", name:"Beignets (5)", cat:"Snacks", qty:20, min:5, optimal:24, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p13", name:"Poulet braisé (1/4)", cat:"Snacks", qty:10, min:3, optimal:15, priceDay:3500, priceNight:3500, costPrice:1800, saleMode:"unite", unitsPerBlock:1 }
     ],
     tickets: [],
     log: [],
@@ -633,7 +658,10 @@ function normalizeProduct(p){
   var qty = Math.max(0, Math.trunc(Number(p.qty)) || 0);
   var min = Math.max(0, Math.trunc(Number(p.min)) || 0);
   var optimal = p.optimal != null ? Math.max(0, Math.trunc(Number(p.optimal)) || 0) : Math.max(qty, min*2);
-  return { id:p.id, name:p.name, cat:p.cat, qty:qty, min:min, optimal:optimal, priceDay:priceDay, priceNight:priceNight };
+  var costPrice = Math.max(0, Math.trunc(Number(p.costPrice)) || 0);
+  var saleMode = p.saleMode === "bloc" ? "bloc" : "unite";
+  var unitsPerBlock = saleMode === "bloc" ? Math.max(1, Math.trunc(Number(p.unitsPerBlock)) || 1) : 1;
+  return { id:p.id, name:p.name, cat:p.cat, qty:qty, min:min, optimal:optimal, priceDay:priceDay, priceNight:priceNight, costPrice:costPrice, saleMode:saleMode, unitsPerBlock:unitsPerBlock };
 }
 function normalize(s){
   var d = defaultState();
@@ -1165,7 +1193,9 @@ function printTicket(){
   $("rc-given").textContent = money(t.paidAmount||0);
   $("rc-changerow").hidden = !isCash;
   $("rc-change").textContent = money(t.change||0);
+  document.body.classList.add("printing-ticket");
   window.print();
+  document.body.classList.remove("printing-ticket");
 }
 $("tk-print").addEventListener("click", printTicket);
 
@@ -1197,9 +1227,15 @@ function renderStock(){
     var priceLabel = p.priceDay === p.priceNight
       ? money(p.priceDay)
       : "jour " + money(p.priceDay) + " · nuit " + money(p.priceNight);
+    var subParts = [p.cat, priceLabel];
+    if (p.costPrice > 0){
+      var margin = p.priceDay - p.costPrice;
+      subParts.push("marge " + (margin >= 0 ? "+" : "") + money(margin));
+    }
+    if (p.saleMode === "bloc") subParts.push("casier de " + p.unitsPerBlock);
     box.append(h("div",{class:"row"},
       h("span",{class:"prodicon", style:"background:"+catColor(p.cat)}, catIcon(p.cat)),
-      h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, p.cat + " · " + priceLabel)),
+      h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, subParts.join(" · "))),
       h("div",{class:"qty"},
         h("button",{type:"button", onclick:function(){ quickAdjust(p.id,-1); }},"−"),
         h("output",null,String(p.qty)),
@@ -1221,6 +1257,19 @@ function restockNeeds(){
     .map(function(p){ return { p: p, need: p.optimal - p.qty }; })
     .sort(function(a,b){ return b.need - a.need; });
 }
+function restockQtyLabel(e){
+  var p = e.p;
+  if (p.saleMode === "bloc" && p.unitsPerBlock > 1){
+    var blocks = Math.ceil(e.need / p.unitsPerBlock);
+    return blocks + " casier" + (blocks > 1 ? "s" : "") + " de " + p.unitsPerBlock + " (" + e.need + " unité" + (e.need > 1 ? "s" : "") + ")";
+  }
+  return e.need + " unité" + (e.need > 1 ? "s" : "");
+}
+function buildOrderText(){
+  var need = restockNeeds();
+  var lines = need.map(function(e){ return "- " + e.p.name + " : " + restockQtyLabel(e); });
+  return "Le Baobab — Commande fournisseur — " + new Date().toLocaleDateString("fr-FR") + "\n\n" + lines.join("\n");
+}
 function renderRestockList(){
   var box = $("restocklist"); box.textContent = "";
   var need = restockNeeds();
@@ -1231,20 +1280,38 @@ function renderRestockList(){
   need.forEach(function(e){
     box.append(h("div",{class:"row"},
       h("div",{class:"info"}, h("div",{class:"name"}, e.p.name), h("div",{class:"sub"}, e.p.cat + " · en stock " + e.p.qty + " / optimal " + e.p.optimal)),
-      h("b",{style:"font-family:var(--font-m);color:var(--accent-ink)"}, "+" + e.need)
+      h("b",{style:"font-family:var(--font-m);color:var(--accent-ink);text-align:right;white-space:nowrap"}, restockQtyLabel(e))
     ));
   });
 }
 $("copyrestock").addEventListener("click", function(){
-  var need = restockNeeds();
-  if (!need.length){ toast("Rien à commander pour le moment."); return; }
-  var text = "Commande à faire — " + new Date().toLocaleDateString("fr-FR") + "\n" +
-    need.map(function(e){ return "- " + e.p.name + " : " + e.need; }).join("\n");
+  if (!restockNeeds().length){ toast("Rien à commander pour le moment."); return; }
+  var text = buildOrderText();
   if (navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(function(){ toast("Liste copiée dans le presse-papiers."); }, function(){ toast(text); });
   } else {
     toast("Copie indisponible sur cet appareil.");
   }
+});
+$("printrestock").addEventListener("click", function(){
+  var need = restockNeeds();
+  if (!need.length){ toast("Rien à commander pour le moment."); return; }
+  $("os-date").textContent = new Date().toLocaleString("fr-FR", { dateStyle:"long", timeStyle:"short" });
+  var lb = $("os-lines"); lb.textContent = "";
+  need.forEach(function(e){
+    lb.append(h("tr", null,
+      h("td", null, e.p.name),
+      h("td", {style:"text-align:right"}, restockQtyLabel(e))
+    ));
+  });
+  document.body.classList.add("printing-order");
+  window.print();
+  document.body.classList.remove("printing-order");
+});
+$("whatsapprestock").addEventListener("click", function(){
+  if (!restockNeeds().length){ toast("Rien à commander pour le moment."); return; }
+  var url = "https://wa.me/?text=" + encodeURIComponent(buildOrderText());
+  window.open(url, "_blank");
 });
 function quickAdjust(id,d){
   var p = findProduct(id); if (!p) return;
@@ -1267,24 +1334,33 @@ function openProduct(id){
   $("pd-optimal").value = p ? p.optimal : 0;
   $("pd-priceday").value = p ? p.priceDay : "";
   $("pd-pricenight").value = p ? p.priceNight : "";
+  $("pd-cost").value = p ? p.costPrice : "";
+  $("pd-salemode").value = p ? p.saleMode : "unite";
+  $("pd-unitsperblock").value = p ? p.unitsPerBlock : 12;
+  $("pd-blockwrap").hidden = $("pd-salemode").value !== "bloc";
   $("pd-del").hidden = !p; $("pd-del").textContent = "Supprimer";
   $("ov-product").hidden = false;
   $("pd-name").focus();
 }
 $("addproduct").addEventListener("click", function(){ openProduct(null); });
 $("pd-cancel").addEventListener("click", function(){ $("ov-product").hidden = true; });
+$("pd-salemode").addEventListener("change", function(){ $("pd-blockwrap").hidden = $("pd-salemode").value !== "bloc"; });
 $("pd-save").addEventListener("click", function(){
   var name = $("pd-name").value.trim();
   if (!name){ toast("Le nom du produit est obligatoire."); return; }
   var priceDay = Math.max(0, Math.trunc(Number($("pd-priceday").value)||0));
   var priceNightRaw = $("pd-pricenight").value;
+  var saleMode = $("pd-salemode").value === "bloc" ? "bloc" : "unite";
   var vals = {
     name: name, cat: $("pd-cat").value.trim() || "Divers",
     qty: Math.max(0, Math.trunc(Number($("pd-qty").value)||0)),
     min: Math.max(0, Math.trunc(Number($("pd-min").value)||0)),
     optimal: Math.max(0, Math.trunc(Number($("pd-optimal").value)||0)),
     priceDay: priceDay,
-    priceNight: priceNightRaw === "" ? priceDay : Math.max(0, Math.trunc(Number(priceNightRaw)||0))
+    priceNight: priceNightRaw === "" ? priceDay : Math.max(0, Math.trunc(Number(priceNightRaw)||0)),
+    costPrice: Math.max(0, Math.trunc(Number($("pd-cost").value)||0)),
+    saleMode: saleMode,
+    unitsPerBlock: saleMode === "bloc" ? Math.max(1, Math.trunc(Number($("pd-unitsperblock").value)||1)) : 1
   };
   if (editingProductId){
     var p = findProduct(editingProductId);
