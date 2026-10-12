@@ -13,7 +13,7 @@ export function Nav() {
     <header className="border-b border-black/10 dark:border-white/10">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-1 px-4 py-3 sm:gap-2">
         <Link href="/" className="mr-4 font-semibold">
-          🍽️ Snack-Bar-Resto
+          🍽️ N-Commercial
         </Link>
         <nav className="flex flex-wrap gap-1 text-sm">
           {links.map((link) => (

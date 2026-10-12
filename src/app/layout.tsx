@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Snack-Bar-Resto | Gestion",
-  description: "Système de gestion interne pour Snack-Bar-Resto",
+  title: "N-Commercial | Gestion",
+  description: "Système de gestion interne pour N-Commercial",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

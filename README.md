@@ -1,4 +1,4 @@
-# Snack-Bar-Resto
+# N-Commercial
 
 Système de gestion interne pour un snack-bar / restaurant : commandes, stock,
 tables & réservations, et caisse.

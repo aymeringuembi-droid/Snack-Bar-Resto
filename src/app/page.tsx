@@ -31,7 +31,7 @@ export default function Home() {
       <div>
         <h1 className="text-2xl font-semibold">Tableau de bord</h1>
         <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          Système de gestion interne pour Snack-Bar-Resto.
+          Système de gestion interne pour N-Commercial.
         </p>
       </div>
 
