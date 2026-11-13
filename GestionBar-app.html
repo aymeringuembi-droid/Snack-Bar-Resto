@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#15181b">
+<meta name="app-version" content="1.0">
 <title>Le Baobab — Caisse</title>
 <style>
 :root{
@@ -289,6 +290,21 @@ body.app-shell .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .switch input{width:20px;height:20px;accent-color:var(--accent)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font:500 13.5px/1.3 var(--font);max-width:90%;text-align:center;box-shadow:var(--shadow-lg)}
 body.app-shell .toast{bottom:28px}
+.updatebar{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:30;width:calc(100% - 24px);max-width:560px;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 14px;border-radius:16px;background:var(--ink);color:var(--bg);box-shadow:var(--shadow-lg)}
+.updatebar .tx{flex:1;min-width:0;font-size:13.5px;line-height:1.35}
+.updatebar .tx b{display:block;font-weight:650}
+.updatebar .btn{min-height:40px;flex:none}
+.updatebar .iconbtn{color:inherit;opacity:.7}
+.updatebar .iconbtn:hover{background:rgba(127,127,127,.2);color:inherit;opacity:1}
+.verline{font:500 11.5px/1.3 var(--font);color:var(--faint);text-align:center;margin-top:18px}
+.side .verline{color:var(--side-muted);text-align:left;padding:10px 8px 0;margin:0}
+.changelog{display:flex;flex-direction:column;gap:14px}
+.changelog .rel{border-left:3px solid var(--line2);padding-left:14px}
+.changelog .rel.cur{border-left-color:var(--accent)}
+.changelog .rel b{font:650 14.5px/1.3 var(--font)}
+.changelog .rel small{display:block;color:var(--muted);font-size:12px;margin:2px 0 6px}
+.changelog ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink)}
+.changelog li{margin:3px 0}
 
 /* ---------- Ticket ---------- */
 #ov-ticket .sheet{max-width:600px}
@@ -403,6 +419,7 @@ body.app-shell .toolbtn{min-height:54px}
         <div class="keypad" id="keypad"></div>
         <div class="pinhint" id="pinhint" hidden>Code PIN par défaut : <b>1234</b>. Pensez à le modifier dans Réglages › Équipe.</div>
         <div class="joinlink"><button class="linkbtn" id="openjoin" type="button">Nouvel employé ? Rejoindre avec un code</button></div>
+        <p class="verline" data-appver></p>
       </div>
 
       <div id="login-join" hidden>
@@ -431,6 +448,7 @@ body.app-shell .toolbtn{min-height:54px}
     <div class="foot">
       <div class="usercard"><span class="av" id="who-av"></span><div><b id="who-name"></b><small id="who-role"></small></div></div>
       <div class="tools" id="sidetools"></div>
+      <p class="verline" data-appver></p>
     </div>
   </aside>
 
@@ -747,6 +765,22 @@ body.app-shell .toolbtn{min-height:54px}
       <p class="hint" style="margin-top:12px">Une table avec un ticket en cours ne peut pas être supprimée.</p>
     </div>
 
+    <div id="st-pane-updates" hidden>
+      <div class="kpis" style="margin-bottom:14px">
+        <div class="card kpi"><span>Version installée</span><b id="up-current"></b></div>
+        <div class="card kpi"><span>Dernière vérification</span><b id="up-checked" style="font-size:15px"></b></div>
+      </div>
+      <p class="hint" id="up-status" style="margin:0 0 12px"></p>
+      <div class="g2" style="margin-bottom:18px">
+        <button class="btn" id="up-check" type="button"><i data-ic="refresh"></i>Vérifier les mises à jour</button>
+        <button class="btn primary" id="up-apply" type="button" hidden><i data-ic="download"></i>Installer la mise à jour</button>
+      </div>
+      <label class="switch"><input type="checkbox" id="up-auto">Vérifier automatiquement (au démarrage et toutes les 15 minutes)</label>
+      <div class="sectionhead"><h3>Historique des versions</h3></div>
+      <div class="changelog" id="up-log"></div>
+      <p class="hint" style="margin-top:14px">Les mises à jour ne modifient jamais vos données (produits, tickets, équipe, réglages). Pensez quand même à faire une sauvegarde régulière.</p>
+    </div>
+
     <div id="st-pane-data" hidden>
       <p class="hint" style="margin:0 0 14px">Les données sont enregistrées sur cet appareil uniquement. Faites une sauvegarde régulière, et utilisez-la pour transférer la caisse vers un autre appareil.</p>
       <div class="g2">
@@ -785,6 +819,21 @@ body.app-shell .toolbtn{min-height:54px}
       <button class="btn danger" id="cf-yes" type="button">Confirmer</button>
     </div>
   </div>
+</div>
+
+<!-- Nouveautés -->
+<div class="overlay" id="ov-whatsnew" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="wn-title">
+    <div class="sheet-head"><div class="t"><h2 id="wn-title"></h2><p class="hint" id="wn-sub"></p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="changelog" id="wn-log"></div>
+    <div class="actions"><button class="btn primary" data-close type="button">Compris</button></div>
+  </div>
+</div>
+
+<div class="updatebar" id="updatebar" role="status" hidden>
+  <div class="tx"><b id="ub-title"></b><span>Vos données sont conservées.</span></div>
+  <button class="btn primary" id="ub-apply" type="button">Mettre à jour</button>
+  <button class="iconbtn" id="ub-later" type="button" aria-label="Plus tard" title="Plus tard"><i data-ic="x"></i></button>
 </div>
 
 <div class="toast" id="toast" role="status" hidden></div>
@@ -869,6 +918,7 @@ var ICONS = {
   pencil:"M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z",
   gift:"M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z",
   x:"M18 6 6 18 M6 6l12 12",
+  refresh:"M3 12a9 9 0 0 1 15-6.7L21 8 M21 3v5h-5 M21 12a9 9 0 0 1-15 6.7L3 16 M3 21v-5h5",
   check:"M20 6 9 17l-5-5",
   download:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3",
   upload:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M17 8l-5-5-5 5 M12 3v12",
@@ -949,12 +999,51 @@ function download(name, text, type){
 }
 function slug(s){ return norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "caisse"; }
 
+/* ---------- Version ----------
+   Pour publier une mise à jour :
+   1. augmenter APP_VERSION ici ET la balise <meta name="app-version"> en haut du fichier ;
+   2. ajouter une entrée en tête de CHANGELOG ;
+   3. si le format des données change, ajouter une étape dans MIGRATIONS (jamais de suppression de données). */
+var APP_VERSION = "1.0";
+var CHANGELOG = [
+  { v:"1.0", date:"13 novembre 2026", items:[
+    "Nouveau design professionnel, thème clair et sombre, affichage téléphone et ordinateur",
+    "Établissement personnalisable : nom, adresse, téléphone, devise, couleur, message du ticket",
+    "Rôles gérant et employés, gestion de l'équipe et des tables",
+    "Remise, note et envoi du ticket par WhatsApp",
+    "Encaissement : compte juste, montants suggérés, référence carte et mobile money",
+    "Journal par période avec export Excel, bilan avec marge et panier moyen",
+    "Système de mises à jour"
+  ]}
+];
+function cmpVersion(a, b){
+  var pa = String(a).split("."), pb = String(b).split(".");
+  for (var i = 0; i < Math.max(pa.length, pb.length); i++){
+    var x = Number(pa[i]) || 0, y = Number(pb[i]) || 0;
+    if (x !== y) return x > y ? 1 : -1;
+  }
+  return 0;
+}
+/* Migrations des données, appliquées une seule fois dans l'ordre, au premier lancement d'une nouvelle version.
+   Exemple pour une future 1.1 : { v:"1.1", run:function(s){ s.products.forEach(function(p){ if (p.tva == null) p.tva = 0; }); } } */
+var MIGRATIONS = [];
+function migrate(s){
+  var from = s.dataVersion || "0";
+  MIGRATIONS.forEach(function(m){
+    if (cmpVersion(m.v, from) > 0 && cmpVersion(m.v, APP_VERSION) <= 0){
+      try{ m.run(s); }catch(e){}
+    }
+  });
+  s.dataVersion = APP_VERSION;
+  return s;
+}
+
 /* ---------- État ---------- */
 var LS_KEY = "baobab-caisse-state";
 var state = null;
 var DEFAULT_BIZ = { name:"Le Baobab", tagline:"Bar-restaurant", address:"", phone:"", currency:"FCFA", footer:"Merci de votre visite !" };
 function defaultSettings(){
-  return { nightStartHour: 20, nightEndHour: 6, aiApiKey: "", layoutOverride: null, theme: null, accent: "terracotta", inviteCode: "BAOBAB", biz: Object.assign({}, DEFAULT_BIZ) };
+  return { nightStartHour: 20, nightEndHour: 6, aiApiKey: "", layoutOverride: null, theme: null, accent: "terracotta", inviteCode: "BAOBAB", autoUpdate: true, lastSeenVersion: null, biz: Object.assign({}, DEFAULT_BIZ) };
 }
 function defaultState(){
   return {
@@ -1014,11 +1103,12 @@ function normalize(s){
     tickets: Array.isArray(s.tickets) ? s.tickets : [],
     log: Array.isArray(s.log) ? s.log : [],
     ticketSeq: Number(s.ticketSeq) || 0,
+    dataVersion: s.dataVersion || null,
     settings: set
   };
 }
 function load(){
-  try{ return normalize(JSON.parse(localStorage.getItem(LS_KEY))); }
+  try{ return migrate(normalize(JSON.parse(localStorage.getItem(LS_KEY)))); }
   catch(e){ return defaultState(); }
 }
 function persist(){
@@ -2181,7 +2271,7 @@ function renderBilan(){
 }
 
 /* ---------- Réglages ---------- */
-var ST_PANES = [["biz","Établissement"],["tarifs","Tarifs"],["team","Équipe"],["tables","Tables"],["data","Données"]];
+var ST_PANES = [["biz","Établissement"],["tarifs","Tarifs"],["team","Équipe"],["tables","Tables"],["data","Données"],["updates","Mises à jour"]];
 var stPane = "biz", stAccent = null;
 function renderSettings(){
   var tabs = $("st-tabs"); tabs.textContent = "";
@@ -2202,6 +2292,7 @@ function renderSettings(){
       icon("pencil", 16)
     ));
   });
+  renderUpdatesPane();
   var tl = $("st-tablelist"); tl.textContent = "";
   state.tables.forEach(function(tid){
     var busy = openTicketsForTable(tid).length > 0;
@@ -2326,7 +2417,7 @@ $("importdata").addEventListener("change", function(e){
     var incoming = null;
     try{
       var raw = JSON.parse(String(reader.result));
-      if (raw && typeof raw === "object" && Array.isArray(raw.products)) incoming = normalize(raw);
+      if (raw && typeof raw === "object" && Array.isArray(raw.products)) incoming = migrate(normalize(raw));
     }catch(err){}
     e.target.value = "";
     if (!incoming){ toast("Ce fichier n'est pas une sauvegarde valide."); return; }
@@ -2340,6 +2431,101 @@ $("importdata").addEventListener("change", function(e){
     });
   };
   reader.readAsText(file);
+});
+
+/* ---------- Mises à jour ---------- */
+var update = { available: null, checking: false, lastCheck: null, error: false, dismissed: null };
+function changelogNodes(box, list){
+  box.textContent = "";
+  list.forEach(function(r){
+    box.append(h("div",{class:"rel" + (r.v === APP_VERSION ? " cur" : "")},
+      h("b", null, "Version " + r.v + (r.v === APP_VERSION ? " (installée)" : "")),
+      h("small", null, r.date),
+      h("ul", null, r.items.map(function(it){ return h("li", null, it); }))
+    ));
+  });
+}
+function renderUpdatesPane(){
+  $("up-current").textContent = APP_VERSION;
+  $("up-checked").textContent = update.lastCheck ? new Date(update.lastCheck).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "—";
+  $("up-auto").checked = state.settings.autoUpdate !== false;
+  var st = $("up-status");
+  if (update.checking) st.textContent = "Recherche d'une mise à jour…";
+  else if (update.available) st.textContent = "La version " + update.available + " est disponible.";
+  else if (update.error) st.textContent = "Vérification impossible pour le moment (pas de connexion internet ?).";
+  else if (update.lastCheck) st.textContent = "Votre caisse est à jour.";
+  else st.textContent = "";
+  $("up-apply").hidden = !update.available;
+  $("up-check").disabled = update.checking;
+  changelogNodes($("up-log"), CHANGELOG);
+}
+function renderUpdateBar(){
+  var show = !!update.available && update.dismissed !== update.available;
+  $("updatebar").hidden = !show;
+  if (show) $("ub-title").textContent = "Mise à jour " + update.available + " disponible";
+}
+function checkForUpdate(manual){
+  if (update.checking) return;
+  if (location.protocol === "file:"){
+    if (manual){ update.error = true; update.lastCheck = Date.now(); renderUpdatesPane(); toast("Vérification possible uniquement depuis la version en ligne."); }
+    return;
+  }
+  update.checking = true;
+  if (!$("ov-settings").hidden) renderUpdatesPane();
+  var url = location.pathname + "?_v=" + Date.now();
+  fetch(url, { cache: "no-store" }).then(function(r){
+    if (!r.ok) throw new Error("http " + r.status);
+    return r.text();
+  }).then(function(html){
+    var m = html.match(/<meta name="app-version" content="([^"]+)"/);
+    update.error = !m;
+    update.available = m && cmpVersion(m[1], APP_VERSION) > 0 ? m[1] : null;
+    if (manual && m) toast(update.available ? "Mise à jour " + update.available + " disponible." : "Votre caisse est à jour (version " + APP_VERSION + ").");
+  }).catch(function(){
+    update.error = true;
+    if (manual) toast("Vérification impossible. Vérifiez la connexion internet.");
+  }).then(function(){
+    update.checking = false;
+    update.lastCheck = Date.now();
+    renderUpdateBar();
+    if (!$("ov-settings").hidden) renderUpdatesPane();
+  });
+}
+function applyUpdate(){
+  var open = openTickets().length;
+  var go = function(){
+    persist();
+    try{ sessionStorage.setItem("caisse-updating", "1"); }catch(e){}
+    location.replace(location.pathname + "?maj=" + encodeURIComponent(update.available || "") + "-" + Date.now());
+  };
+  if (open) askConfirm("Installer la mise à jour " + update.available + " ?", "Les " + plural(open, "ticket en cours est conservé", "tickets en cours sont conservés") + ", ainsi que toutes vos données. La caisse va se recharger quelques secondes.", "Mettre à jour", go);
+  else go();
+}
+function showWhatsNew(){
+  var seen = state.settings.lastSeenVersion;
+  state.settings.lastSeenVersion = APP_VERSION;
+  persist();
+  if (location.search.indexOf("maj=") >= 0){ try{ history.replaceState(null, "", location.pathname); }catch(e){} }
+  if (!seen || cmpVersion(APP_VERSION, seen) <= 0) return;
+  var news = CHANGELOG.filter(function(r){ return cmpVersion(r.v, seen) > 0; });
+  if (!news.length) return;
+  $("wn-title").textContent = "Nouveautés de la version " + APP_VERSION;
+  $("wn-sub").textContent = "Votre caisse a été mise à jour. Toutes vos données ont été conservées.";
+  changelogNodes($("wn-log"), news);
+  openOv("ov-whatsnew");
+}
+$("up-check").addEventListener("click", function(){ checkForUpdate(true); });
+$("up-apply").addEventListener("click", applyUpdate);
+$("ub-apply").addEventListener("click", applyUpdate);
+$("ub-later").addEventListener("click", function(){ update.dismissed = update.available; renderUpdateBar(); });
+$("up-auto").addEventListener("change", function(){
+  state.settings.autoUpdate = $("up-auto").checked;
+  persist();
+  if (state.settings.autoUpdate) checkForUpdate(false);
+});
+setInterval(function(){ if (state && state.settings.autoUpdate !== false) checkForUpdate(false); }, 15 * 60 * 1000);
+document.addEventListener("visibilitychange", function(){
+  if (document.visibilityState === "visible" && state && state.settings.autoUpdate !== false && (!update.lastCheck || Date.now() - update.lastCheck > 5 * 60 * 1000)) checkForUpdate(false);
 });
 
 /* ---------- Rendu global ---------- */
@@ -2393,6 +2579,8 @@ function init(){
     e.replaceWith(icon(e.getAttribute("data-ic"), Number(e.getAttribute("data-size")) || 18));
   });
   state = load();
+  persist();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-appver]"), function(e){ e.textContent = "Version " + APP_VERSION; });
   applyTheme();
   applyBiz();
   tickClock();
@@ -2404,6 +2592,8 @@ function init(){
     session = { staffId: savedId };
     enterApp();
   }
+  showWhatsNew();
+  if (state.settings.autoUpdate !== false) checkForUpdate(false);
 }
 init();
 })();
