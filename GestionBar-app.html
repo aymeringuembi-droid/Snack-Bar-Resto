@@ -3,360 +3,534 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15181b">
 <title>Le Baobab — Caisse</title>
 <style>
 :root{
-  --bg:#faf8f3; --surface:#ffffff; --surface2:#f1eee6; --ink:#1a1815; --ink-rgb:26,24,21;
-  --muted:rgba(26,24,21,.55); --line:rgba(26,24,21,.12);
-  --accent:#b5541f; --accent-ink:#8a3f15; --danger:#c0392b; --ok:#2f7d4f;
-  --font-h:-apple-system,"Helvetica Neue",Helvetica,system-ui,sans-serif;
-  --font-m:ui-monospace,Menlo,"SF Mono",monospace;
+  --bg:#f5f3ee; --surface:#ffffff; --surface2:#f0ede6; --surface3:#e6e2d8;
+  --ink:#17191c; --muted:#63666a; --faint:#94969a;
+  --line:rgba(23,25,28,.10); --line2:rgba(23,25,28,.20);
+  --accent:#b5541f; --accent-ink:#8f4218; --accent-soft:#f6e9e1;
+  --danger:#c23a2b; --danger-soft:#fbe9e6; --ok:#1f7a4d; --ok-soft:#e2f3e9; --warn:#8a5d00; --warn-soft:#fbf0cf;
+  --side:#15181b; --side-ink:#eceae4; --side-muted:rgba(236,234,228,.55); --side-line:rgba(236,234,228,.10);
+  --shadow:0 1px 2px rgba(20,20,20,.04),0 10px 28px -16px rgba(20,20,20,.22);
+  --shadow-lg:0 24px 60px -20px rgba(10,10,10,.45);
+  --r:14px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1214; --surface:#181c1f; --surface2:#20252a; --surface3:#2b3137;
+  --ink:#eceae4; --muted:#a3a6a2; --faint:#73767a;
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.20);
+  --danger:#f0705f; --danger-soft:#3a1d19; --ok:#5bc48c; --ok-soft:#16301f; --warn:#e3b341; --warn-soft:#33290f;
+  --side:#0a0c0e;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -16px rgba(0,0,0,.6);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--font-h);-webkit-text-size-adjust:100%}
+html{background:var(--bg);color-scheme:light}
+html[data-theme="dark"]{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--font);-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,p{margin:0}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 [hidden]{display:none!important}
-.wrap{max-width:480px;margin:0 auto}
-.brand{display:flex;align-items:center;gap:10px}
-.brand .mark{width:38px;height:38px;border-radius:12px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
-.brand .mark i{width:14px;height:14px;border-radius:4px;background:var(--accent)}
-.brand small{display:block;font:500 10px/1 var(--font-m);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.brand h1{margin:2px 0 0;font:600 20px/1.1 var(--font-h);letter-spacing:-.01em}
+svg.ic{flex:none;display:block}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Marque ---------- */
+.mark{width:40px;height:40px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;font:700 16px/1 var(--font);letter-spacing:.02em}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand b{display:block;font:650 16px/1.2 var(--font);letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand small{display:block;font:500 11.5px/1.2 var(--font);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ---------- Connexion ---------- */
-#login{min-height:100vh;display:flex;flex-direction:column;padding:64px 24px 34px}
-#login .wrap{width:100%;display:flex;flex-direction:column;flex:1}
-.staffgrid{display:flex;gap:8px;padding:22px 0 0;flex-wrap:wrap}
-.staffcard{flex:1;min-width:84px;padding:12px 8px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:5px;min-height:44px}
-.staffcard[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
-.staffcard[aria-pressed="true"] span,.staffcard[aria-pressed="true"] b{color:#faf8f3}
-.staffcard .av{width:30px;height:30px;border-radius:50%;background:var(--surface2);font:600 11.5px/30px var(--font-m);text-align:center}
-.staffcard b{font:500 12.5px/1.2 var(--font-h)}
-.staffcard span{font:400 10px/1 var(--font-m);opacity:.65}
-.pindots{display:flex;justify-content:center;gap:12px;padding:26px 0 6px}
-.pindots i{width:13px;height:13px;border-radius:50%;border:1px solid var(--line);background:transparent}
-.pindots i.on{background:var(--ink)}
-.pinerror{min-height:18px;text-align:center;font:500 11.5px/1 var(--font-m);color:var(--danger);margin-bottom:4px}
+#login{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1fr}
+.login-art{display:none;background:var(--side);color:var(--side-ink);padding:48px;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-art::after{content:"";position:absolute;right:-140px;bottom:-140px;width:420px;height:420px;border-radius:50%;background:var(--accent);opacity:.16}
+.login-art .brand small{color:var(--side-muted)}
+.login-art h1{font:650 40px/1.1 var(--font);letter-spacing:-.025em;max-width:11em;position:relative;z-index:1}
+.login-art p{color:var(--side-muted);margin-top:14px;max-width:30em;position:relative;z-index:1}
+.login-clock{font:600 15px/1 var(--font);color:var(--side-muted);position:relative;z-index:1}
+.login-clock b{display:block;font:650 44px/1 var(--font);color:var(--side-ink);letter-spacing:-.02em;margin-bottom:8px}
+.login-main{display:flex;align-items:center;justify-content:center;padding:32px 20px calc(32px + env(safe-area-inset-bottom,0px))}
+.login-card{width:100%;max-width:400px}
+.login-card .brand{margin-bottom:26px}
+.login-card h2{font:650 24px/1.2 var(--font);letter-spacing:-.02em}
+.login-card .lead{color:var(--muted);font-size:14px;margin-top:6px}
+.staffgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:20px}
+.staffcard{padding:12px 8px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;transition:border-color .12s,background .12s}
+.staffcard:hover{border-color:var(--line2)}
+.staffcard[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset}
+.av{width:34px;height:34px;border-radius:50%;background:var(--surface2);color:var(--ink);font:650 12px/34px var(--font);text-align:center;flex:none;letter-spacing:.02em}
+.staffcard[aria-pressed="true"] .av{background:var(--accent);color:#fff}
+.staffcard b{font:600 13.5px/1.2 var(--font);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.staffcard span.role{font:400 11.5px/1 var(--font);color:var(--muted)}
+.pindots{display:flex;justify-content:center;gap:14px;padding:24px 0 8px}
+.pindots i{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--line2);transition:background .1s,border-color .1s}
+.pindots i.on{background:var(--accent);border-color:var(--accent)}
+.pindots.err{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pinerror{min-height:20px;text-align:center;font:500 13px/1.4 var(--font);color:var(--danger);margin-bottom:6px}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.keypad button{min-height:56px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font:500 20px/1 var(--font-m)}
-.keypad button:active{background:var(--surface2)}
-.joinlink{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);text-align:center}
-.joinlink button{background:none;border:1px solid var(--line);border-radius:14px;min-height:46px;padding:0 16px;font:600 13.5px/1 var(--font-h);width:100%}
-.joinform{display:flex;flex-direction:column;gap:10px;padding-top:18px}
-.field input,.field select{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:13px;border:1px solid var(--line);background:var(--surface);outline:none;font-size:15.5px}
-.field input:focus{border-color:var(--accent)}
-.backlink{text-align:center;font:500 13px/1 var(--font-h);color:var(--muted);background:none;border:0;padding:10px}
+.keypad button{min-height:58px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font:500 22px/1 var(--font);display:flex;align-items:center;justify-content:center;transition:background .08s}
+.keypad button:active{background:var(--surface3)}
+.keypad button.aux{background:transparent;color:var(--muted);font-size:14px;font-weight:600}
+.joinlink{margin-top:18px;text-align:center}
+.linkbtn{background:none;border:0;padding:10px 12px;font:600 13.5px/1 var(--font);color:var(--accent-ink);border-radius:10px;min-height:40px}
+.linkbtn:hover{background:var(--accent-soft)}
+.linkbtn.muted{color:var(--muted)}
+.linkbtn.muted:hover{background:var(--surface2)}
+.joinform{display:flex;flex-direction:column;gap:2px;margin-top:20px}
+.pinhint{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:12.5px;text-align:center}
+@media (min-width:900px){
+  #login{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+  .login-art{display:flex}
+  .login-card .brand{display:none}
+}
 
-/* ---------- App shell ---------- */
-#app{min-height:100vh;display:flex;flex-direction:column}
-.topbar{position:sticky;top:0;z-index:6;background:var(--bg);padding:14px 16px 0}
-.topbar .row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:8px}
-.topbar .who{margin-left:auto;text-align:right}
-.topbar .who small{display:block;font:500 10px/1 var(--font-m);color:var(--muted)}
-.topbar .who b{font:600 13.5px/1.3 var(--font-h)}
-.logoutbtn{background:none;border:1px solid var(--line);border-radius:10px;min-height:36px;padding:0 10px;font:500 12px/1 var(--font-h);color:var(--muted)}
-.tabs{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--line)}
-.tab{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:10px 6px 9px;font:600 13.5px/1 var(--font-h);color:var(--muted);display:flex;justify-content:center;align-items:center;gap:6px}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
-.badge{font-size:10.5px;font-weight:700;min-width:18px;padding:1px 5px;border-radius:999px;background:var(--danger);color:#fff;text-align:center}
-main{flex:1;padding:16px}
-.panel[hidden]{display:none}
-.toolbar{display:flex;gap:8px;margin-bottom:14px}
-.toolbar input[type="search"]{flex:1;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
-.summary{font-size:13px;color:var(--muted);margin:0 0 10px}
+/* ---------- Structure ---------- */
+#app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.side{display:none}
+.content{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{position:sticky;top:0;z-index:6;background:var(--bg);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.top .brand{flex:1}
+.top .mark{width:36px;height:36px;border-radius:11px;font-size:14px}
+.top .pagehead{display:none;flex:1;min-width:0}
+.top>.pricepill{display:none}
+body.app-shell .top>.pricepill{display:inline-flex}
+body.app-shell .pricepill.inl{display:none}
+.pagehead h2{font:650 22px/1.2 var(--font);letter-spacing:-.02em}
+.pagehead p{color:var(--muted);font-size:13px;margin-top:2px}
+.tools{display:flex;align-items:center;gap:4px}
+.iconbtn{width:40px;height:40px;border-radius:11px;border:1px solid transparent;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:none}
+.iconbtn:hover{background:var(--surface2);color:var(--ink)}
+.iconbtn.bordered{border-color:var(--line);background:var(--surface)}
+main{flex:1;padding:16px 16px calc(96px + env(safe-area-inset-bottom,0px));width:100%;max-width:1180px;margin:0 auto}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--surface);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.navbtn{flex:1;background:none;border:0;border-radius:12px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 11.5px/1 var(--font);color:var(--muted);position:relative;min-height:52px}
+.navbtn[aria-current="page"]{color:var(--accent-ink)}
+.navbtn .badge{position:absolute;top:3px;left:calc(50% + 6px)}
+.badge{font:700 10.5px/16px var(--font);min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;text-align:center}
 
-/* ---------- Salle / tables ---------- */
-.tablesgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.tablecard{position:relative;aspect-ratio:1;border-radius:18px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface);border:1px solid var(--line)}
-.tablecard.busy{background:#fff7ec;border-color:#e7c48f}
-.tablecard .top{display:flex;align-items:center;justify-content:space-between}
-.tablecard .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
-.tablecard.busy .dot{background:var(--accent)}
-.tablecard .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--danger);color:#fff;font:600 11.5px/20px var(--font-m);text-align:center}
-.tablecard .name{font:600 21px/1 var(--font-h);letter-spacing:-.02em}
-.tablecard .sub{font:400 10.5px/1 var(--font-m);color:var(--muted)}
+/* Bureau */
+body.app-shell #app{flex-direction:row}
+body.app-shell .side{display:flex;flex-direction:column;width:248px;flex:none;background:var(--side);color:var(--side-ink);padding:22px 14px 16px;position:sticky;top:0;height:100vh}
+body.app-shell .side .brand{padding:0 8px 22px}
+body.app-shell .side .brand small{color:var(--side-muted)}
+body.app-shell .side nav{display:flex;flex-direction:column;gap:2px}
+body.app-shell .side .navbtn{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;padding:0 12px;min-height:44px;font-size:14px;color:var(--side-muted)}
+body.app-shell .side .navbtn:hover{background:var(--side-line);color:var(--side-ink)}
+body.app-shell .side .navbtn[aria-current="page"]{background:var(--side-line);color:#fff}
+body.app-shell .side .navbtn[aria-current="page"] svg{color:var(--accent)}
+body.app-shell .side .navbtn .badge{position:static;margin-left:auto}
+.side .foot{margin-top:auto;border-top:1px solid var(--side-line);padding-top:14px}
+.usercard{display:flex;align-items:center;gap:10px;padding:0 8px 12px}
+.usercard .av{background:var(--side-line);color:var(--side-ink)}
+.usercard b{display:block;font:600 13.5px/1.2 var(--font)}
+.usercard small{display:block;font:400 12px/1.3 var(--font);color:var(--side-muted)}
+.side .tools{justify-content:space-between;padding:0 2px}
+.side .iconbtn{color:var(--side-muted)}
+.side .iconbtn:hover{background:var(--side-line);color:var(--side-ink)}
+body.app-shell .bottomnav{display:none}
+body.app-shell .top{position:static;padding:26px 32px 0;border-bottom:0;background:transparent}
+body.app-shell .top .brand,body.app-shell .top .tools{display:none}
+body.app-shell .top .pagehead{display:block}
+body.app-shell main{padding:22px 32px 40px;margin:0}
 
-/* ---------- Buttons / cards ---------- */
-.btn{border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:11px 14px;font-weight:600;font-size:14px;min-height:44px}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.prodcard:disabled,.qty button:disabled,.chipbtn:disabled{opacity:.4;cursor:not-allowed}
-.btn.primary{background:var(--ink);border-color:var(--ink);color:#faf8f3}
+/* ---------- Éléments communs ---------- */
+.btn{border-radius:12px;border:1px solid var(--line2);background:var(--surface);padding:0 16px;font:600 14px/1 var(--font);min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:background .1s,border-color .1s,opacity .1s}
+.btn:hover{background:var(--surface2)}
+.btn:disabled,.prodcard:disabled,.qty button:disabled,.chip:disabled,.toolbtn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
 .btn.danger{color:var(--danger);border-color:var(--danger);background:none}
-.btn.ghost{background:none;border-color:transparent}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:var(--surface2)}
 .btn.block{width:100%}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
-.row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.btn.lg{min-height:52px;font-size:15.5px;border-radius:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:26px 0 10px}
+.sectionhead:first-child{margin-top:0}
+.sectionhead h3{font:650 15px/1.2 var(--font);letter-spacing:-.005em}
+.sectionhead span{font-size:12.5px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
 .row:last-child{border-bottom:0}
+button.row:hover{background:var(--surface2)}
+button.row:first-child{border-radius:var(--r) var(--r) 0 0}
+button.row:last-child{border-radius:0 0 var(--r) var(--r)}
+button.row:only-child{border-radius:var(--r)}
 .row .info{flex:1;min-width:0}
 .row .name{font-weight:600;overflow-wrap:anywhere}
-.row .sub{font-size:12.5px;color:var(--muted)}
-.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
-.tag.low{background:#f7d774;color:#5a4200}
-.tag.out{background:var(--danger);color:#fff}
-.qty{display:flex;align-items:center;gap:4px}
-.qty button{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface2);font-size:17px;line-height:1}
-.qty output{min-width:32px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
-.edit{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:none}
-.empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:13.5px}
+.row .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.row .amt{font:650 14px/1 var(--font);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-flex;align-items:center;gap:4px;font:650 11px/1 var(--font);padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+.tag.low{background:var(--warn-soft);color:var(--warn)}
+.tag.out{background:var(--danger-soft);color:var(--danger)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.neutral{background:var(--surface2);color:var(--muted)}
+.tag.plain{margin-left:0}
+.qty{display:flex;align-items:center;gap:2px}
+.qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center}
+.qty button:hover{background:var(--surface2)}
+.qty output{min-width:34px;text-align:center;font-weight:650;font-variant-numeric:tabular-nums}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:13.5px}
+.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.searchbox{flex:1;min-width:180px;position:relative}
+.searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.searchbox input{width:100%;min-height:44px;padding:0 12px 0 38px;border-radius:12px;border:1px solid var(--line2);background:var(--surface)}
+.searchbox input:focus,.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:600 12.5px/1 var(--font);padding:0 12px;min-height:34px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.chip:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pill{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--font);padding:6px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pill.accent{background:var(--accent-soft);color:var(--accent-ink)}
 
-/* ---------- Stock chart ---------- */
-.stockchart{margin:0 0 16px;padding:14px 12px 10px;display:flex;flex-direction:column;gap:10px}
-.stockchart .head{display:flex;align-items:baseline;justify-content:space-between;font:500 11px/1 var(--font-m);color:var(--muted)}
-.stockchart .head b{color:var(--danger)}
-.bars{position:relative;height:110px;display:flex;align-items:stretch;gap:6px}
-.bars .lim{position:absolute;left:0;right:0;top:0;border-top:1px dashed var(--line)}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar .fill{flex:1;width:100%;display:flex;align-items:flex-end}
-.bar .fill i{width:100%;border-radius:5px 5px 2px 2px;display:block}
-.bar span{font:500 9px/1 var(--font-m);color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.kpi{padding:14px 16px;min-width:0}
+.kpi span{display:block;font:500 12.5px/1.2 var(--font);color:var(--muted)}
+.kpi b{display:block;font:650 22px/1.15 var(--font);letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:6px;overflow-wrap:anywhere}
+.kpi b small{font:500 12px/1 var(--font);color:var(--muted);letter-spacing:0;margin-left:4px}
+.kpi em{display:block;font:400 12px/1.3 var(--font);color:var(--muted);margin-top:4px;font-style:normal}
+.kpi.alert b{color:var(--danger)}
+body.app-shell .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
 
-/* ---------- Log ---------- */
-.log{padding:6px 12px}
-.log div{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
-.log div:last-child{border-bottom:0}
-.log time{color:var(--muted);margin-right:8px;font-size:11.5px;font-family:var(--font-m)}
+/* ---------- Salle ---------- */
+.tablesgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+body.app-shell .tablesgrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.tablecard{position:relative;min-height:112px;border-radius:16px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface);border:1px solid var(--line);text-align:left;box-shadow:var(--shadow);transition:border-color .12s,transform .08s}
+.tablecard:hover{border-color:var(--line2)}
+.tablecard:active{transform:scale(.985)}
+.tablecard .top2{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.tablecard .state{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 var(--font);color:var(--muted)}
+.tablecard .state i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.tablecard .name{font:650 22px/1 var(--font);letter-spacing:-.02em}
+.tablecard .sub{font:500 12.5px/1.2 var(--font);color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.tablecard.busy{background:var(--accent-soft);border-color:var(--accent)}
+.tablecard.busy .state{color:var(--accent-ink)}
+.tablecard.busy .state i{background:var(--accent)}
+.tablecard.busy .sub{color:var(--accent-ink);font-weight:650}
+.tablecard .cnt{font:650 11.5px/20px var(--font);min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--accent);color:#fff;text-align:center}
 
-/* ---------- Overlays / sheets ---------- */
-.overlay{position:fixed;inset:0;z-index:20;background:rgba(8,14,24,.5);display:flex;align-items:flex-end;justify-content:center}
-.overlay[hidden]{display:none}
-.sheet{width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));max-height:92vh;overflow:auto}
-@media (min-width:640px){.overlay{align-items:center;padding:20px}.sheet{border-radius:18px}}
-.sheet h2{margin:0 0 4px;font:700 20px/1.2 var(--font-h)}
-.sheet .hint{margin:0 0 14px;color:var(--muted);font-size:13px}
+/* ---------- Stock ---------- */
+.prodicon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--surface2);color:var(--muted)}
+.prodicon.c1{background:#f6e7c1;color:#7a5200}
+.prodicon.c2{background:#f3d9e6;color:#8a2d5c}
+.prodicon.c3{background:#d3e9f3;color:#1d5d7d}
+.prodicon.c4{background:#f8dcc5;color:#8a4312}
+:root[data-theme="dark"] .prodicon.c1{background:#3a2f12;color:#e5c06a}
+:root[data-theme="dark"] .prodicon.c2{background:#3a1c2b;color:#e79bc0}
+:root[data-theme="dark"] .prodicon.c3{background:#15303d;color:#8cc8e3}
+:root[data-theme="dark"] .prodicon.c4{background:#3b2414;color:#eda873}
+.meter{height:4px;border-radius:4px;background:var(--surface3);margin-top:7px;max-width:220px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+.meter.low i{background:var(--warn)}
+.meter.out i{background:var(--danger)}
+.stockrow{flex-wrap:wrap}
+.stockrow .side2{display:flex;align-items:center;gap:8px;margin-left:auto}
+
+/* ---------- Journal ---------- */
+.log .row{padding:10px 14px;font-size:13.5px;align-items:baseline}
+.log time{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;width:92px}
+.log .by{color:var(--faint);font-size:12px;white-space:nowrap}
+
+/* ---------- Bilan ---------- */
+.grid-2{display:grid;grid-template-columns:1fr;gap:14px}
+body.app-shell .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panelcard{padding:16px}
+.panelcard h3{font:650 14.5px/1.2 var(--font)}
+.panelcard .cap{font-size:12.5px;color:var(--muted);margin:3px 0 14px}
+.hbars{display:flex;flex-direction:column;gap:12px}
+.hbar .l{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13.5px}
+.hbar .l span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar .l b{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hbar .l small{color:var(--muted);font-weight:400;margin-left:6px}
+.hbar .t{height:8px;border-radius:4px;background:var(--surface2);margin-top:6px}
+.hbar .t i{display:block;height:100%;min-width:4px;border-radius:4px;background:var(--accent)}
+.cols{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:22px;border-bottom:1px solid var(--line2)}
+.col{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;position:relative;min-width:0}
+.col i{display:block;width:100%;max-width:38px;border-radius:4px 4px 0 0;background:var(--accent);opacity:.45;min-height:2px}
+.col.today i,.col:hover i,.col:focus i{opacity:1}
+.col .v{position:absolute;left:50%;transform:translateX(-50%);font:650 11.5px/1 var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink);display:none;background:var(--surface);padding:2px 4px;border-radius:4px;z-index:1}
+.col.lab .v,.col:hover .v,.col:focus .v{display:block}
+.colx{display:flex;gap:8px;margin-top:6px}
+.colx span{flex:1;text-align:center;font:500 11.5px/1 var(--font);color:var(--muted);min-width:0}
+.colx span.today{color:var(--ink);font-weight:650}
+
+/* ---------- Feuilles / dialogues ---------- */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(8,10,12,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:520px;background:var(--surface);border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));max-height:94vh;max-height:94dvh;overflow:auto;box-shadow:var(--shadow-lg);animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(16px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.pindots.err{animation:none}}
+@media (min-width:640px){.overlay{align-items:center;padding:20px}.sheet{border-radius:20px;padding:24px}}
+.sheet-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.sheet-head .t{flex:1;min-width:0}
+.sheet h2{font:650 20px/1.25 var(--font);letter-spacing:-.015em;overflow-wrap:anywhere}
+.sheet .hint{color:var(--muted);font-size:13px;margin-top:3px}
 .field{display:block;margin:0 0 12px}
-.field span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stattiles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.stattile{flex:1;min-width:110px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.stattile span{display:block;font:500 10.5px/1 var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.stattile b{font:700 18px/1.1 var(--font-m)}
-.pricemode{display:inline-flex;align-items:center;gap:5px;font:600 11px/1 var(--font-m);padding:4px 10px;border-radius:99px;background:var(--surface2);color:var(--accent-ink);margin-bottom:10px}
-.picktile{min-height:46px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:var(--surface);font:500 12.5px/1.2 var(--font-h)}
-.picktile[aria-pressed="true"]{background:var(--ink);color:#faf8f3;border-color:var(--ink)}
-.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.field>span{display:block;font:500 12.5px/1.3 var(--font);color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;min-height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--surface);font-size:15.5px}
+.field textarea{padding:12px 14px;min-height:88px;resize:vertical}
+.field .note{font-size:12px;color:var(--muted);margin-top:5px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.picktile{min-height:46px;border-radius:12px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);font:600 13.5px/1.2 var(--font);padding:6px 8px;text-align:center;font-variant-numeric:tabular-nums}
+.picktile:hover{background:var(--surface2)}
+.picktile[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.picktile.col2{flex-direction:column;gap:6px;min-height:72px}
+.actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 .actions .btn{flex:1}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:40;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;max-width:90%;text-align:center}
-.toast[hidden]{display:none}
+.switch{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:14px;min-height:44px}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font:500 13.5px/1.3 var(--font);max-width:90%;text-align:center;box-shadow:var(--shadow-lg)}
+body.app-shell .toast{bottom:28px}
 
-/* ---------- Ticket sheet ---------- */
-#ov-ticket .sheet{max-width:560px}
-.tk-head{margin-bottom:6px}
-.tk-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.tk-ref{font:500 10.5px/1 var(--font-m);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.tk-badge{font:600 10.5px/1 var(--font-m);padding:3px 9px;border-radius:99px;background:var(--surface2)}
-.tk-badge.paid{background:#dff3e4;color:var(--ok)}
-.tk-lines{display:flex;flex-direction:column;gap:8px;margin:12px 0}
-.tk-line{padding:11px 12px;border-radius:13px;background:var(--surface2);display:flex;flex-direction:column;gap:6px}
+/* ---------- Ticket ---------- */
+#ov-ticket .sheet{max-width:600px}
+.tk-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.tk-ref{font:600 12px/1 var(--mono);color:var(--muted)}
+.tk-grid{display:flex;flex-direction:column;gap:16px}
+.tk-lines{display:flex;flex-direction:column;gap:8px}
+.tk-line{padding:10px 12px;border-radius:13px;background:var(--surface2);display:flex;flex-direction:column;gap:8px}
 .tk-line .r1{display:flex;align-items:center;gap:10px}
-.tk-line .nm{flex:1;font:500 14.5px/1.25 var(--font-h);min-width:0;overflow-wrap:anywhere}
-.tk-line .tot{font:600 13.5px/1 var(--font-m)}
+.tk-line .nm{flex:1;font:600 14.5px/1.25 var(--font);min-width:0;overflow-wrap:anywhere}
+.tk-line .nm small{display:block;font:400 12px/1.3 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.tk-line .tot{font:650 14px/1 var(--font);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:64px;text-align:right}
 .tk-line .r2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.chipbtn{font:500 10.5px/1 var(--font-m);padding:4px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
-.chipbtn.on{border-color:var(--accent);color:var(--accent-ink)}
-.tk-addhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 8px}
-.tk-addhead span{font:500 10.5px/1 var(--font-m);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.tk-addhead input{padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--surface);width:150px}
-.chiprow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
-.catalog{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.prodcard{padding:11px 12px;border-radius:13px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;text-align:left}
-.prodicon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
-.prodcard .row1{display:flex;align-items:center;gap:8px}
-.prodcard .nm{font:500 13px/1.25 var(--font-h)}
-.prodcard .row2{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
-.prodcard .pr{font:600 12.5px/1 var(--font-m);color:var(--accent-ink)}
-.prodcard .st{font:400 10.5px/1 var(--font-m);color:var(--muted)}
-.tk-totals{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
-.tk-totals .l{display:flex;align-items:baseline;justify-content:space-between;font-size:13.5px}
-.tk-totals .l.due{font-size:16px;font-weight:700}
-.tk-totals .l b{font-family:var(--font-m)}
-.tk-actionrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.tk-actionrow .btn{flex:1;min-width:120px}
+.tk-line .chip{min-height:28px;font-size:12px;padding:0 10px}
+.tk-line .chip.on{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.tk-cathead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.tk-cathead .searchbox{min-width:140px}
+.catalog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.prodcard{padding:10px;border-radius:13px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:10px;text-align:left;min-height:60px;transition:border-color .1s,transform .06s}
+.prodcard:hover{border-color:var(--accent)}
+.prodcard:active{transform:scale(.98)}
+.prodcard .tx{min-width:0;flex:1}
+.prodcard .nm{display:block;font:600 13.5px/1.25 var(--font);overflow-wrap:anywhere}
+.prodcard .pr{display:block;font:650 13px/1.3 var(--font);color:var(--accent-ink);font-variant-numeric:tabular-nums;margin-top:2px}
+.prodcard .st{display:block;font:400 11.5px/1.2 var(--font);color:var(--muted)}
+.prodcard .st.out{color:var(--danger);font-weight:600}
+.tk-note{padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:13px;overflow-wrap:anywhere}
+.tk-totals{display:flex;flex-direction:column;gap:7px;padding-top:14px;border-top:1px solid var(--line)}
+.tk-totals .l{display:flex;align-items:baseline;justify-content:space-between;font-size:14px;color:var(--muted)}
+.tk-totals .l b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.tk-totals .l.due{font-size:18px;color:var(--ink);font-weight:650;padding-top:8px;border-top:1px dashed var(--line2);margin-top:3px}
+.tk-totals .l.due b{font-weight:700}
+.tk-totals .l.neg b{color:var(--ok)}
+.toolgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.toolbtn{border-radius:12px;border:1px solid var(--line);background:var(--surface);min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:600 12px/1 var(--font);color:var(--ink);padding:6px 4px}
+.toolbtn:hover{background:var(--surface2)}
+.toolbtn svg{color:var(--muted)}
+.toolbtn.danger,.toolbtn.danger svg{color:var(--danger)}
+body.app-shell #ov-ticket .sheet{max-width:1040px;width:100%;height:min(820px,94vh);display:flex;flex-direction:column;overflow:hidden}
+body.app-shell .tk-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"cat lines" "cat foot";gap:0 24px;flex:1;min-height:0}
+body.app-shell .tk-grid.locked{grid-template-columns:minmax(0,1fr);grid-template-areas:"lines" "foot";max-width:520px;width:100%;margin:0 auto}
+body.app-shell .tk-cat{grid-area:cat;overflow:auto;padding-right:4px}
+body.app-shell .tk-bill{grid-area:lines;overflow:auto}
+body.app-shell .tk-foot{grid-area:foot}
+body.app-shell .catalog{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+body.app-shell .toolgrid{grid-template-columns:repeat(4,minmax(0,1fr));margin:12px 0}
+body.app-shell .toolbtn{min-height:54px}
 
-/* ---------- Print receipt / order sheet ---------- */
+/* ---------- Réglages ---------- */
+#ov-settings .sheet{max-width:640px}
+.segtabs{display:flex;gap:4px;padding:4px;background:var(--surface2);border-radius:13px;margin-bottom:18px;overflow:auto}
+.segtabs button{flex:1;border:0;background:none;border-radius:10px;min-height:38px;padding:0 12px;font:600 13px/1 var(--font);color:var(--muted);white-space:nowrap}
+.segtabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{width:40px;height:40px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line2);padding:0}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.tablechips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tablechip{display:inline-flex;align-items:center;gap:4px;padding:0 4px 0 14px;min-height:40px;border-radius:999px;border:1px solid var(--line2);font-weight:650}
+.tablechip button{width:32px;height:32px;border-radius:50%;border:0;background:none;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.tablechip button:hover{background:var(--danger-soft);color:var(--danger)}
+.tablechip button:disabled{opacity:.3;cursor:not-allowed}
+.inline{display:flex;gap:8px}
+.inline input{flex:1;min-width:0;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--surface)}
+
+/* ---------- Impression ---------- */
 #receipt,#ordersheet{display:none}
 @media print{
+  body{background:#fff}
   body *{visibility:hidden}
   body.printing-ticket #receipt,body.printing-ticket #receipt *{visibility:visible}
-  body.printing-ticket #receipt{display:block;position:absolute;left:0;top:0;width:80mm;padding:6mm;font-family:var(--font-m);font-size:12px;color:#000}
+  body.printing-ticket #receipt{display:block;position:absolute;left:0;top:0;width:80mm;padding:5mm;font-family:var(--mono);font-size:12px;color:#000}
   body.printing-order #ordersheet,body.printing-order #ordersheet *{visibility:visible}
-  body.printing-order #ordersheet{display:block;position:absolute;left:0;top:0;width:100%;padding:10mm;font-family:var(--font-m);font-size:13px;color:#000}
-  #receipt h2,#ordersheet h2{font-size:15px;margin:0 0 2px;text-align:center}
-  #receipt .c,#ordersheet .c{text-align:center}
+  body.printing-order #ordersheet{display:block;position:absolute;left:0;top:0;width:100%;padding:10mm;font-family:var(--font);font-size:13px;color:#000}
+  #receipt h2,#ordersheet h2{font-size:16px;margin:0 0 2px;text-align:center}
+  #receipt .c,#ordersheet .c{text-align:center;margin:0}
   #receipt hr,#ordersheet hr{border:none;border-top:1px dashed #000;margin:6px 0}
   #receipt table,#ordersheet table{width:100%;border-collapse:collapse}
   #receipt td,#ordersheet td{padding:2px 0;font-size:11.5px;vertical-align:top}
+  #ordersheet td{padding:5px 0;font-size:13px;border-bottom:1px solid #ccc}
   #receipt .tot,#ordersheet .tot{font-size:13px;font-weight:700}
-}
-
-/* ---------- Desktop layout (gated by the .app-shell class the JS sets, not by viewport width, so the manual PC/Téléphone toggle can override the automatic breakpoint) ---------- */
-body.app-shell #app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
-body.app-shell .topbar{position:static;background:transparent;padding:26px 18px;border-right:1px solid var(--line);grid-column:1;display:flex;flex-direction:column;min-height:100vh}
-body.app-shell .topbar .row1{flex-direction:column;align-items:flex-start;gap:14px}
-body.app-shell .topbar .who{margin-left:0;text-align:left}
-body.app-shell .tabs{flex-direction:column;border-bottom:0;margin-top:22px;gap:2px}
-body.app-shell .tab{justify-content:flex-start;border-bottom:0;border-radius:10px;padding:11px 12px}
-body.app-shell .tab[aria-selected="true"]{background:var(--surface2);border-bottom-color:transparent}
-body.app-shell .logoutbtn{margin-top:auto}
-body.app-shell main{grid-column:2;max-width:1080px;padding:28px 32px}
-body.app-shell .tablesgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-body.app-shell .catalog{grid-template-columns:repeat(3,1fr)}
-body.app-shell #ov-ticket .sheet{max-width:920px}
-body.app-shell .tk-body-grid{display:grid;grid-template-columns:1fr 300px;gap:22px;align-items:start}
-body.app-shell .tk-aside{position:sticky;top:0}
-@media print{
-  body.app-shell #app{display:block}
+  #app,#login,.overlay,.toast{display:none!important}
 }
 </style>
 </head>
 <body>
 
 <div id="login">
-  <div class="wrap">
+  <div class="login-art">
     <div class="brand">
-      <div class="mark"><i></i></div>
-      <div>
-        <small>Bar-restaurant Le Baobab</small>
-        <h1>Connexion caisse</h1>
+      <div class="mark" data-biz="initials"></div>
+      <div><b data-biz="name"></b><small data-biz="tagline"></small></div>
+    </div>
+    <div>
+      <h1>La caisse de votre établissement, simple et fiable.</h1>
+      <p>Salle, tickets, encaissement, stock et bilan — tout au même endroit, sur téléphone comme sur ordinateur.</p>
+    </div>
+    <div class="login-clock"><b id="clock-time"></b><span id="clock-date"></span></div>
+  </div>
+  <div class="login-main">
+    <div class="login-card">
+      <div class="brand">
+        <div class="mark" data-biz="initials"></div>
+        <div><b data-biz="name"></b><small data-biz="tagline"></small></div>
       </div>
-    </div>
-    <p style="margin:8px 0 0;color:var(--muted);font-size:13px">Chaque ticket est signé par l'employé connecté. Code démo : 1234.</p>
 
-    <div id="login-pick">
-      <div class="staffgrid" id="staffgrid"></div>
-      <div class="pindots" id="pindots"></div>
-      <div class="pinerror" id="pinerror"></div>
-      <div class="keypad" id="keypad"></div>
-      <div class="joinlink"><button id="openjoin" type="button">Rejoindre avec un code</button></div>
-    </div>
+      <div id="login-pick">
+        <h2>Connexion</h2>
+        <p class="lead">Choisissez votre profil puis saisissez votre code PIN.</p>
+        <div class="staffgrid" id="staffgrid"></div>
+        <div class="pindots" id="pindots" aria-hidden="true"></div>
+        <div class="pinerror" id="pinerror" role="alert"></div>
+        <div class="keypad" id="keypad"></div>
+        <div class="pinhint" id="pinhint" hidden>Code PIN par défaut : <b>1234</b>. Pensez à le modifier dans Réglages › Équipe.</div>
+        <div class="joinlink"><button class="linkbtn" id="openjoin" type="button">Nouvel employé ? Rejoindre avec un code</button></div>
+      </div>
 
-    <div id="login-join" class="joinform" hidden>
-      <p style="margin:0;color:var(--muted);font-size:13px">Saisis le code d'invitation fourni par le gérant, puis choisis ton nom et un code PIN à 4 chiffres pour rejoindre ce compte.</p>
-      <label class="field"><input id="join-code" placeholder="Code d'invitation" style="text-transform:uppercase;letter-spacing:.2em"></label>
-      <label class="field"><input id="join-name" placeholder="Votre nom"></label>
-      <label class="field"><input id="join-pin" placeholder="Code PIN à 4 chiffres" inputmode="numeric" maxlength="4"></label>
-      <div class="pinerror" id="joinerror"></div>
-      <button class="btn primary block" id="join-submit" type="button">Rejoindre le compte</button>
-      <button class="backlink" id="join-back" type="button">← Retour à la connexion</button>
+      <div id="login-join" hidden>
+        <h2>Rejoindre l'équipe</h2>
+        <p class="lead">Saisissez le code d'invitation fourni par le gérant, puis choisissez votre nom et un code PIN à 4 chiffres.</p>
+        <div class="joinform">
+          <label class="field"><span>Code d'invitation</span><input id="join-code" autocomplete="off" style="text-transform:uppercase;letter-spacing:.16em"></label>
+          <label class="field"><span>Votre nom</span><input id="join-name" autocomplete="off"></label>
+          <label class="field"><span>Code PIN (4 chiffres)</span><input id="join-pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+          <div class="pinerror" id="joinerror" role="alert"></div>
+          <button class="btn primary block lg" id="join-submit" type="button">Créer mon profil</button>
+          <button class="linkbtn muted" id="join-back" type="button">Retour à la connexion</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <div id="app" hidden>
-  <header class="topbar">
-    <div class="row1">
+  <aside class="side">
+    <div class="brand">
+      <div class="mark" data-biz="initials"></div>
+      <div><b data-biz="name"></b><small data-biz="tagline"></small></div>
+    </div>
+    <nav id="sidenav" aria-label="Navigation"></nav>
+    <div class="foot">
+      <div class="usercard"><span class="av" id="who-av"></span><div><b id="who-name"></b><small id="who-role"></small></div></div>
+      <div class="tools" id="sidetools"></div>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="top">
       <div class="brand">
-        <div class="mark"><i></i></div>
-        <div><small>Le Baobab</small><h1 style="font-size:17px">Caisse</h1></div>
+        <div class="mark" data-biz="initials"></div>
+        <div><b data-biz="name"></b><small id="who-mobile"></small></div>
       </div>
-      <div class="who">
-        <small id="who-role"></small>
-        <b id="who-name"></b>
-      </div>
-      <button class="logoutbtn" id="layoutmode" type="button"></button>
-      <button class="logoutbtn" id="logout" type="button">Déconnexion</button>
-    </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tab-salle" aria-selected="true" type="button">Salle</button>
-      <button class="tab" role="tab" id="tab-stock" aria-selected="false" type="button">Stock <span class="badge" id="stockbadge" hidden></span></button>
-      <button class="tab" role="tab" id="tab-journal" aria-selected="false" type="button">Journal</button>
-      <button class="tab" role="tab" id="tab-bilan" aria-selected="false" type="button">Bilan</button>
-    </div>
-  </header>
+      <div class="pagehead"><h2 id="pagetitle"></h2><p id="pagesub"></p></div>
+      <span class="pill accent pricepill"></span>
+      <div class="tools" id="toptools"></div>
+    </header>
 
-  <main>
-    <section class="panel" id="panel-salle">
-      <div class="toolbar">
-        <button class="btn primary block" id="newticket-free" type="button">+ Nouveau ticket</button>
-        <button class="btn" id="opensettings" type="button" title="Réglages">⚙</button>
-      </div>
-      <p class="summary" id="sallesum"></p>
-      <div class="tablesgrid" id="tablesgrid"></div>
-    </section>
+    <main>
+      <section class="panel" id="panel-salle">
+        <div class="kpis" id="sallekpis"></div>
+        <div class="sectionhead">
+          <h3>Plan de salle <span class="pill accent pricepill inl" style="margin-left:8px;vertical-align:middle"></span></h3>
+          <button class="btn primary" id="newticket-free" type="button"><i data-ic="plus"></i>Nouveau ticket</button>
+        </div>
+        <div class="tablesgrid" id="tablesgrid"></div>
+        <div class="sectionhead"><h3>Tickets en cours</h3><span id="opensum"></span></div>
+        <div class="card" id="openlist"></div>
+      </section>
 
-    <section class="panel" id="panel-stock" hidden>
-      <div class="toolbar">
-        <input type="search" id="stocksearch" placeholder="Rechercher un produit">
-        <button class="btn primary" id="addproduct" type="button">Ajouter</button>
-      </div>
-      <div class="card stockchart">
-        <div class="head"><span>% du stock voulu</span><span><b id="stockalertcount"></b> sous la limite</span></div>
-        <div class="bars" id="stockbars"><div class="lim"></div></div>
-      </div>
-      <div class="toolbar">
-        <label class="btn block" style="text-align:center;border-style:dashed">
-          <input type="file" id="importfile" accept=".csv,.txt" hidden>Importer un fichier .csv
-        </label>
-      </div>
-      <p class="summary" id="stocksum"></p>
-      <div class="card" id="stocklist" style="margin-bottom:20px"></div>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Commande à faire (pour atteindre le stock optimal)</h2>
-      <div class="card" id="restocklist" style="margin-bottom:12px"></div>
-      <div class="grid3">
-        <button class="btn" id="copyrestock" type="button">Copier</button>
-        <button class="btn" id="printrestock" type="button">🖶 Imprimer</button>
-        <button class="btn primary" id="whatsapprestock" type="button">💬 WhatsApp</button>
-      </div>
-    </section>
+      <section class="panel" id="panel-stock" hidden>
+        <div class="kpis" id="stockkpis"></div>
+        <div class="toolbar">
+          <label class="searchbox"><i data-ic="search"></i><input type="search" id="stocksearch" placeholder="Rechercher un produit" aria-label="Rechercher un produit"></label>
+          <button class="btn primary" id="addproduct" type="button" data-admin><i data-ic="plus"></i>Produit</button>
+          <label class="btn" data-admin title="Format : nom, catégorie, stock, seuil, prix jour, prix nuit, stock optimal"><input type="file" id="importfile" accept=".csv,.txt" hidden><i data-ic="upload"></i>Importer CSV</label>
+        </div>
+        <div class="chiprow" id="stockfilters" style="margin-bottom:12px"></div>
+        <div class="card" id="stocklist"></div>
 
-    <section class="panel" id="panel-bilan" hidden>
-      <p class="summary" id="bilansum"></p>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">En cours par employé</h2>
-      <div class="card" id="bilanserveurs" style="margin-bottom:22px"></div>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Chiffre d'affaires par employé (aujourd'hui)</h2>
-      <div class="card" id="piestaff" style="padding:16px;margin-bottom:22px"></div>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Boissons les plus rentables (aujourd'hui)</h2>
-      <div class="card" id="pieproducts" style="padding:16px"></div>
-    </section>
+        <div class="sectionhead"><h3>Commande fournisseur</h3><span id="restocksum"></span></div>
+        <div class="card" id="restocklist" style="margin-bottom:12px"></div>
+        <div class="g3">
+          <button class="btn" id="copyrestock" type="button"><i data-ic="copy"></i>Copier</button>
+          <button class="btn" id="printrestock" type="button"><i data-ic="print"></i>Imprimer</button>
+          <button class="btn primary" id="whatsapprestock" type="button"><i data-ic="send"></i>WhatsApp</button>
+        </div>
+      </section>
 
-    <section class="panel" id="panel-journal" hidden>
-      <p class="summary" id="journalsum"></p>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Tickets réglés</h2>
-      <div class="card" id="historylist" style="margin-bottom:20px"></div>
-      <h2 style="font:700 15px/1 var(--font-h);margin:0 0 8px">Mouvements de stock</h2>
-      <div class="card log" id="loglist"></div>
-      <div class="toolbar" style="margin-top:18px">
-        <button class="btn block" id="exportdata" type="button">Exporter les données</button>
-        <label class="btn block" style="text-align:center">
-          <input type="file" id="importdata" accept=".json" hidden>Importer
-        </label>
-      </div>
-    </section>
-  </main>
+      <section class="panel" id="panel-journal" hidden>
+        <div class="toolbar">
+          <label class="searchbox"><i data-ic="search"></i><input type="search" id="journalsearch" placeholder="Rechercher un ticket, un client, un serveur" aria-label="Rechercher dans le journal"></label>
+          <button class="btn" id="exportcsv" type="button" data-admin><i data-ic="download"></i>Exporter (Excel)</button>
+        </div>
+        <div class="chiprow" id="journalperiod" style="margin-bottom:12px"></div>
+        <div class="sectionhead"><h3>Tickets réglés</h3><span id="journalsum"></span></div>
+        <div class="card" id="historylist"></div>
+        <div class="sectionhead"><h3>Activité</h3><span>50 derniers événements</span></div>
+        <div class="card log" id="loglist"></div>
+      </section>
+
+      <section class="panel" id="panel-bilan" hidden>
+        <div class="chiprow" id="bilanperiod" style="margin-bottom:14px"></div>
+        <div class="kpis" id="bilankpis"></div>
+        <div class="grid-2">
+          <div class="card panelcard"><h3>Chiffre d'affaires — 7 derniers jours</h3><p class="cap" id="weekcap"></p><div id="weekchart"></div></div>
+          <div class="card panelcard"><h3>Moyens de paiement</h3><p class="cap" data-periodcap></p><div id="paychart"></div></div>
+          <div class="card panelcard"><h3>Ventes par employé</h3><p class="cap" data-periodcap></p><div id="staffchart"></div></div>
+          <div class="card panelcard"><h3>Meilleures ventes</h3><p class="cap" data-periodcap></p><div id="prodchart"></div></div>
+        </div>
+        <div class="sectionhead"><h3>En cours par employé</h3><span id="bilanopen"></span></div>
+        <div class="card" id="bilanserveurs"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottomnav" id="bottomnav" aria-label="Navigation"></nav>
 </div>
 
 <!-- Tickets d'une table -->
 <div class="overlay" id="ov-tabletickets" hidden>
-  <div class="sheet">
-    <h2 id="tt-title"></h2>
-    <p class="hint">Sélectionne un ticket ou ouvres-en un nouveau pour cette table.</p>
-    <div class="stattiles" id="tt-stats" hidden></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tt-title">
+    <div class="sheet-head"><div class="t"><h2 id="tt-title"></h2><p class="hint" id="tt-hint"></p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="kpis" id="tt-stats" hidden></div>
     <div id="tt-offerswrap" hidden style="margin-bottom:14px">
-      <span class="pricemode">🎁 Offert à cette table</span>
+      <span class="pill accent" style="margin-bottom:8px"><i data-ic="gift" data-size="14"></i>Offert à cette table</span>
       <div class="card" id="tt-offers"></div>
     </div>
     <div class="card" id="tt-list" style="margin-bottom:14px"></div>
-    <button class="btn primary block" id="tt-new" type="button">+ Nouveau ticket client</button>
-    <button class="backlink" id="tt-close" type="button" style="width:100%;margin-top:6px">Fermer</button>
+    <button class="btn primary block lg" id="tt-new" type="button"><i data-ic="plus"></i>Nouveau ticket sur cette table</button>
   </div>
 </div>
 
 <!-- Nouveau ticket -->
 <div class="overlay" id="ov-newticket" hidden>
-  <div class="sheet">
-    <h2>Nouveau ticket</h2>
-    <p class="hint">Un ticket = un client. La table est facultative — tu peux la lier maintenant ou plus tard.</p>
-    <label class="field"><span>Nom du client</span><input id="nt-client" placeholder="ex. M. Kouassi"></label>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Nouveau ticket</h2><p class="hint">Un ticket par client. La table est facultative et peut être choisie plus tard.</p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <label class="field"><span>Nom du client</span><input id="nt-client" placeholder="ex. M. Kouassi" autocomplete="off"></label>
     <div class="field">
-      <span>Table (facultatif)</span>
-      <div class="grid4" id="nt-tables" style="margin-top:8px"></div>
+      <span>Table</span>
+      <div class="g4" id="nt-tables"></div>
     </div>
     <div class="actions">
-      <button class="btn ghost" id="nt-cancel" type="button">Annuler</button>
+      <button class="btn ghost" data-close type="button">Annuler</button>
       <button class="btn primary" id="nt-submit" type="button">Ouvrir le ticket</button>
     </div>
   </div>
@@ -364,143 +538,162 @@ body.app-shell .tk-aside{position:sticky;top:0}
 
 <!-- Ticket -->
 <div class="overlay" id="ov-ticket" hidden>
-  <div class="sheet">
-    <div class="tk-head">
-      <div class="tk-top">
-        <span class="tk-ref" id="tk-ref"></span>
-        <span class="tk-badge" id="tk-badge"></span>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tk-client">
+    <div class="sheet-head">
+      <div class="t">
+        <div class="tk-meta"><span class="tk-ref" id="tk-ref"></span><span class="tag plain" id="tk-badge"></span><span class="pill" id="tk-pricemode"></span></div>
+        <h2 id="tk-client"></h2>
+        <p class="hint" id="tk-tablelabel"></p>
       </div>
-      <h2 id="tk-client"></h2>
-      <p class="hint" id="tk-tablelabel" style="margin:2px 0 0"></p>
+      <button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button>
     </div>
-    <div class="tk-body-grid">
-      <div class="tk-main">
+    <div class="tk-grid" id="tk-grid">
+      <section class="tk-bill">
         <div class="tk-lines" id="tk-lines"></div>
-        <div id="tk-offerswrap" hidden style="margin:0 0 12px">
-          <span class="pricemode">🎁 Offert par une autre table</span>
+        <div id="tk-offerswrap" hidden style="margin-top:12px">
+          <span class="pill accent" style="margin-bottom:8px"><i data-ic="gift" data-size="14"></i>Offert par une autre table</span>
           <div class="card" id="tk-offers"></div>
         </div>
-        <span class="pricemode" id="tk-pricemode"></span>
-        <div class="tk-addhead">
-          <span>Ajouter un article</span>
-          <input type="search" id="tk-search" placeholder="Rechercher">
+        <div class="tk-note" id="tk-note" hidden style="margin-top:12px"></div>
+      </section>
+      <section class="tk-cat" id="tk-cat">
+        <div class="tk-cathead">
+          <label class="searchbox"><i data-ic="search"></i><input type="search" id="tk-search" placeholder="Ajouter un article" aria-label="Rechercher un article"></label>
         </div>
         <div class="chiprow" id="tk-cats"></div>
         <div class="catalog" id="tk-catalog"></div>
-      </div>
-      <aside class="tk-aside">
+      </section>
+      <section class="tk-foot">
         <div class="tk-totals">
-          <div class="l"><span>Total</span><b id="tk-total"></b></div>
+          <div class="l"><span>Sous-total</span><b id="tk-sub"></b></div>
+          <div class="l neg" id="tk-discrow" hidden><span id="tk-disclabel">Remise</span><b id="tk-disc"></b></div>
           <div class="l" id="tk-advrow" hidden><span>Avance versée</span><b id="tk-adv"></b></div>
-          <div class="l due"><span>Reste dû</span><b id="tk-due"></b></div>
+          <div class="l due"><span id="tk-duelabel">Reste à payer</span><b id="tk-due"></b></div>
+          <div class="l" id="tk-paidrow" hidden><span id="tk-paidlabel"></span><b id="tk-paidval"></b></div>
         </div>
-        <div class="tk-actionrow" style="flex-direction:column">
-          <button class="btn" id="tk-assign" type="button">Changer de table</button>
-          <button class="btn" id="tk-advance" type="button">Avance client</button>
-          <button class="btn" id="tk-print" type="button">🖶 Imprimer le ticket</button>
-          <button class="btn primary" id="tk-pay" type="button">Encaisser</button>
-          <button class="btn danger" id="tk-cancel" type="button">Annuler le ticket</button>
-        </div>
-      </aside>
+        <div class="toolgrid" id="tk-tools"></div>
+        <button class="btn primary block lg" id="tk-pay" type="button"></button>
+      </section>
     </div>
-    <button class="backlink" id="tk-close" type="button" style="width:100%;margin-top:10px">Fermer</button>
   </div>
 </div>
 
 <!-- Offrir un article -->
 <div class="overlay" id="ov-offer" hidden>
-  <div class="sheet">
-    <h2 id="of-title"></h2>
-    <p class="hint">L'article reste payé par le client, mais est servi à la table choisie.</p>
-    <div class="grid3" id="of-tables"></div>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2 id="of-title"></h2><p class="hint">L'article reste facturé sur ce ticket, mais il est servi à la table choisie.</p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="g4" id="of-tables"></div>
     <div class="actions">
-      <button class="btn ghost" id="of-clear" type="button">Annuler l'offre</button>
-      <button class="btn" id="of-close" type="button">Fermer</button>
+      <button class="btn ghost" id="of-clear" type="button">Retirer l'offre</button>
+      <button class="btn" data-close type="button">Fermer</button>
     </div>
   </div>
 </div>
 
 <!-- Changer de table -->
 <div class="overlay" id="ov-assign" hidden>
-  <div class="sheet">
-    <h2>Changer de table</h2>
-    <p class="hint" id="as-hint"></p>
-    <div class="grid3" id="as-tables"></div>
-    <button class="backlink" id="as-close" type="button" style="width:100%;margin-top:6px">Fermer</button>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Changer de table</h2><p class="hint" id="as-hint"></p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="g4" id="as-tables"></div>
   </div>
 </div>
 
 <!-- Avance -->
 <div class="overlay" id="ov-advance" hidden>
-  <div class="sheet">
-    <h2>Avance client</h2>
-    <p class="hint" id="av-hint"></p>
-    <label class="field"><input id="av-input" placeholder="Montant de l'avance" inputmode="numeric"></label>
-    <div class="grid4" id="av-quick" style="margin-bottom:14px"></div>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Avance client</h2><p class="hint" id="av-hint"></p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <label class="field"><span>Montant de l'avance</span><input id="av-input" inputmode="numeric" autocomplete="off"></label>
+    <div class="g4" id="av-quick"></div>
     <div class="actions">
-      <button class="btn ghost" id="av-cancel" type="button">Annuler</button>
+      <button class="btn ghost" data-close type="button">Annuler</button>
       <button class="btn primary" id="av-submit" type="button">Enregistrer l'avance</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remise -->
+<div class="overlay" id="ov-discount" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Remise</h2><p class="hint" id="ds-hint"></p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="g2" id="ds-type" style="margin-bottom:12px"></div>
+    <label class="field"><span id="ds-label"></span><input id="ds-input" inputmode="numeric" autocomplete="off"></label>
+    <div class="g4" id="ds-quick"></div>
+    <div class="actions">
+      <button class="btn ghost" id="ds-clear" type="button">Retirer la remise</button>
+      <button class="btn primary" id="ds-submit" type="button">Appliquer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Note -->
+<div class="overlay" id="ov-note" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Note du ticket</h2><p class="hint">Visible par l'équipe et imprimée sur le ticket (ex. « sans glaçons », « anniversaire »).</p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <label class="field"><textarea id="no-input" maxlength="200" aria-label="Note"></textarea></label>
+    <div class="actions">
+      <button class="btn ghost" data-close type="button">Annuler</button>
+      <button class="btn primary" id="no-submit" type="button">Enregistrer</button>
     </div>
   </div>
 </div>
 
 <!-- Paiement -->
 <div class="overlay" id="ov-pay" hidden>
-  <div class="sheet">
-    <h2 id="py-due"></h2>
-    <p class="hint" id="py-sub"></p>
-    <div class="grid3" id="py-methods" style="margin-bottom:14px"></div>
-    <div id="py-cashbox" class="card" style="padding:14px;margin-bottom:14px">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
-        <span style="font:500 11px/1 var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Montant donné</span>
-        <button class="chipbtn" id="py-clear" type="button">effacer</button>
-      </div>
-      <input id="py-cash" placeholder="0" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font:600 22px/1 var(--font-m)">
-      <div class="grid4" id="py-quick" style="margin:10px 0"></div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;padding-top:8px;border-top:1px solid var(--line)">
-        <span style="font-size:13px;color:var(--muted)">Monnaie à rendre</span>
-        <b id="py-change" style="font:600 20px/1 var(--font-m)"></b>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><p class="hint" id="py-sub" style="margin:0 0 2px"></p><h2 id="py-due" class="num" style="font-size:30px"></h2></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="g3" id="py-methods" style="margin-bottom:14px"></div>
+    <div id="py-cashbox">
+      <label class="field"><span>Montant donné par le client</span><input id="py-cash" placeholder="0" inputmode="numeric" autocomplete="off" class="num" style="font-size:22px;font-weight:650;min-height:56px"></label>
+      <div class="g4" id="py-quick" style="margin-bottom:12px"></div>
+      <div class="card" style="padding:12px 14px;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;box-shadow:none">
+        <span style="font-size:13.5px;color:var(--muted)" id="py-changelabel">Monnaie à rendre</span>
+        <b id="py-change" class="num" style="font-size:22px;font-weight:700"></b>
       </div>
     </div>
-    <div class="card" style="padding:12px 14px;background:var(--surface2);margin-bottom:14px">
-      <span style="font:500 10.5px/1 var(--font-m);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Stock déduit à la validation</span>
-      <div id="py-stockpreview" style="margin-top:8px;display:flex;flex-direction:column;gap:5px"></div>
+    <div id="py-refbox" hidden>
+      <label class="field"><span id="py-reflabel"></span><input id="py-ref" autocomplete="off"></label>
     </div>
-    <button class="btn primary block" id="py-confirm" type="button">Valider l'encaissement</button>
-    <button class="backlink" id="py-close" type="button" style="width:100%;margin-top:6px">Annuler</button>
+    <div id="py-stockwrap" style="margin-bottom:14px">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Stock déduit à la validation</p>
+      <div id="py-stockpreview" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <button class="btn primary block lg" id="py-confirm" type="button"><i data-ic="check"></i>Valider l'encaissement</button>
   </div>
 </div>
 
 <!-- Produit -->
 <div class="overlay" id="ov-product" hidden>
-  <div class="sheet">
-    <h2 id="pd-title">Produit</h2>
-    <label class="field"><span>Nom</span><input id="pd-name"></label>
-    <label class="field"><span>Catégorie</span><input id="pd-cat" list="pd-cats"></label>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2 id="pd-title">Produit</h2></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <label class="field"><span>Nom</span><input id="pd-name" autocomplete="off"></label>
+    <label class="field"><span>Catégorie</span><input id="pd-cat" list="pd-cats" autocomplete="off"></label>
     <datalist id="pd-cats"></datalist>
-    <div class="grid3">
-      <label class="field"><span>En stock</span><input id="pd-qty" type="number" min="0" inputmode="numeric"></label>
-      <label class="field"><span>Seuil d'alerte</span><input id="pd-min" type="number" min="0" inputmode="numeric"></label>
-      <label class="field"><span>Stock optimal</span><input id="pd-optimal" type="number" min="0" inputmode="numeric"></label>
+    <div class="g2">
+      <label class="field"><span id="pd-pricedaylabel">Prix jour</span><input id="pd-priceday" type="number" min="0" inputmode="numeric"></label>
+      <label class="field"><span id="pd-pricenightlabel">Prix nuit</span><input id="pd-pricenight" type="number" min="0" inputmode="numeric"></label>
     </div>
-    <div class="grid2">
-      <label class="field"><span>Prix jour (FCFA)</span><input id="pd-priceday" type="number" min="0" inputmode="numeric"></label>
-      <label class="field"><span>Prix nuit (FCFA)</span><input id="pd-pricenight" type="number" min="0" inputmode="numeric"></label>
+    <label class="field"><span id="pd-costlabel">Prix d'achat</span><input id="pd-cost" type="number" min="0" inputmode="numeric"><div class="note">Sert à calculer la marge dans le bilan.</div></label>
+    <label class="switch"><input type="checkbox" id="pd-track">Suivre le stock de ce produit</label>
+    <div id="pd-stockfields">
+      <div class="g3">
+        <label class="field"><span>En stock</span><input id="pd-qty" type="number" min="0" inputmode="numeric"></label>
+        <label class="field"><span>Seuil d'alerte</span><input id="pd-min" type="number" min="0" inputmode="numeric"></label>
+        <label class="field"><span>Stock optimal</span><input id="pd-optimal" type="number" min="0" inputmode="numeric"></label>
+      </div>
+      <div class="g2">
+        <label class="field"><span>Achat fournisseur par</span>
+          <select id="pd-salemode">
+            <option value="unite">Unité</option>
+            <option value="bloc">Casier / carton</option>
+          </select>
+        </label>
+        <label class="field" id="pd-blockwrap" hidden><span>Pièces par casier</span><input id="pd-unitsperblock" type="number" min="1" inputmode="numeric"></label>
+      </div>
+      <p class="hint" style="margin:-4px 0 0">Le stock optimal sert à calculer la commande fournisseur.</p>
     </div>
-    <label class="field"><span>Prix d'achat (FCFA) — pour calculer le bénéfice</span><input id="pd-cost" type="number" min="0" inputmode="numeric"></label>
-    <div class="grid2">
-      <label class="field"><span>Vente par</span>
-        <select id="pd-salemode">
-          <option value="unite">Unité</option>
-          <option value="bloc">Bloc / casier</option>
-        </select>
-      </label>
-      <label class="field" id="pd-blockwrap" hidden><span>Pièces par bloc</span><input id="pd-unitsperblock" type="number" min="1" inputmode="numeric"></label>
-    </div>
-    <p class="hint" style="margin-top:-6px">Le stock optimal sert à générer la commande à faire en fin de journée. Laisse à 0 pour un article préparé à la demande (pas de suivi de stock).</p>
     <div class="actions">
       <button class="btn danger" id="pd-del" type="button" hidden>Supprimer</button>
-      <button class="btn ghost" id="pd-cancel" type="button">Annuler</button>
+      <button class="btn ghost" data-close type="button">Annuler</button>
       <button class="btn primary" id="pd-save" type="button">Enregistrer</button>
     </div>
   </div>
@@ -508,68 +701,131 @@ body.app-shell .tk-aside{position:sticky;top:0}
 
 <!-- Réglages -->
 <div class="overlay" id="ov-settings" hidden>
-  <div class="sheet">
-    <h2>Réglages</h2>
-    <label class="field"><span>Nuit à partir de (heure, 0–23)</span><input id="st-night" type="number" min="0" max="23" inputmode="numeric"></label>
-    <p class="hint" style="margin-top:-6px">Le tarif nuit s'applique de cette heure jusqu'à 6h du matin ; les autres heures utilisent le tarif jour.</p>
-    <label class="field"><span>Clé API IA (optionnel)</span><input id="st-aikey" type="password" placeholder="Réservée à un usage futur" autocomplete="off"></label>
-    <p class="hint" style="margin-top:-6px">Aucun appel IA n'est envoyé pour l'instant avec cette clé — le champ ne fait que la stocker sur cet appareil, pour préparer une future intégration.</p>
-    <div class="actions">
-      <button class="btn ghost" id="st-cancel" type="button">Fermer</button>
-      <button class="btn primary" id="st-save" type="button">Enregistrer</button>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Réglages</h2></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div class="segtabs" id="st-tabs" role="tablist"></div>
+
+    <div id="st-pane-biz">
+      <div class="g2">
+        <label class="field"><span>Nom de l'établissement</span><input id="st-name" maxlength="40"></label>
+        <label class="field"><span>Activité</span><input id="st-tagline" maxlength="40" placeholder="Bar-restaurant"></label>
+      </div>
+      <div class="g2">
+        <label class="field"><span>Adresse</span><input id="st-address" maxlength="80" placeholder="Quartier, ville"></label>
+        <label class="field"><span>Téléphone</span><input id="st-phone" maxlength="30" inputmode="tel"></label>
+      </div>
+      <div class="g2">
+        <label class="field"><span>Devise</span><input id="st-currency" maxlength="6" placeholder="FCFA"></label>
+        <label class="field"><span>Code d'invitation employés</span><input id="st-invite" maxlength="16" style="text-transform:uppercase"></label>
+      </div>
+      <label class="field"><span>Message en bas du ticket</span><input id="st-footer" maxlength="80"></label>
+      <div class="field"><span>Couleur de la marque</span><div class="swatches" id="st-accents"></div></div>
+      <div class="actions"><button class="btn primary" id="st-savebiz" type="button">Enregistrer</button></div>
+    </div>
+
+    <div id="st-pane-tarifs" hidden>
+      <div class="g2">
+        <label class="field"><span>Début du tarif nuit (heure, 0–23)</span><input id="st-night" type="number" min="0" max="23" inputmode="numeric"></label>
+        <label class="field"><span>Fin du tarif nuit (heure, 0–23)</span><input id="st-nightend" type="number" min="0" max="23" inputmode="numeric"></label>
+      </div>
+      <p class="hint" style="margin:-4px 0 0">Entre ces deux heures, les articles sont vendus au prix nuit. Le reste du temps, au prix jour.</p>
+      <div class="actions"><button class="btn primary" id="st-savetarifs" type="button">Enregistrer</button></div>
+    </div>
+
+    <div id="st-pane-team" hidden>
+      <div class="card" id="st-stafflist" style="margin-bottom:14px;box-shadow:none"></div>
+      <button class="btn block" id="st-addstaff" type="button"><i data-ic="plus"></i>Ajouter un employé</button>
+      <p class="hint" style="margin-top:12px">Seul le rôle « Gérant » accède au bilan, aux réglages, aux prix et aux corrections de stock.</p>
+    </div>
+
+    <div id="st-pane-tables" hidden>
+      <div class="tablechips" id="st-tablelist"></div>
+      <div class="inline">
+        <input id="st-newtable" maxlength="8" placeholder="Nom de la table (ex. T10, Terrasse 1)" aria-label="Nom de la nouvelle table">
+        <button class="btn primary" id="st-addtable" type="button"><i data-ic="plus"></i>Ajouter</button>
+      </div>
+      <p class="hint" style="margin-top:12px">Une table avec un ticket en cours ne peut pas être supprimée.</p>
+    </div>
+
+    <div id="st-pane-data" hidden>
+      <p class="hint" style="margin:0 0 14px">Les données sont enregistrées sur cet appareil uniquement. Faites une sauvegarde régulière, et utilisez-la pour transférer la caisse vers un autre appareil.</p>
+      <div class="g2">
+        <button class="btn" id="exportdata" type="button"><i data-ic="download"></i>Sauvegarder</button>
+        <label class="btn"><input type="file" id="importdata" accept=".json" hidden><i data-ic="upload"></i>Restaurer</label>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Confirmation générique -->
-<div class="overlay" id="ov-confirm" hidden>
-  <div class="sheet">
-    <h2 id="cf-title"></h2>
-    <p class="hint" id="cf-body"></p>
+<!-- Employé -->
+<div class="overlay" id="ov-staff" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2 id="sf-title"></h2></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <label class="field"><span>Nom</span><input id="sf-name" maxlength="24" autocomplete="off"></label>
+    <div class="g2">
+      <label class="field"><span>Rôle</span><select id="sf-role"></select></label>
+      <label class="field"><span>Code PIN (4 chiffres)</span><input id="sf-pin" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+    </div>
+    <div class="pinerror" id="sf-error" role="alert" style="text-align:left"></div>
     <div class="actions">
-      <button class="btn ghost" id="cf-no" type="button">Annuler</button>
+      <button class="btn danger" id="sf-del" type="button" hidden>Supprimer</button>
+      <button class="btn ghost" data-close type="button">Annuler</button>
+      <button class="btn primary" id="sf-save" type="button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation -->
+<div class="overlay" id="ov-confirm" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" style="max-width:420px">
+    <h2 id="cf-title"></h2>
+    <p class="hint" id="cf-body" style="margin-top:6px"></p>
+    <div class="actions">
+      <button class="btn ghost" data-close type="button">Retour</button>
       <button class="btn danger" id="cf-yes" type="button">Confirmer</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <div id="receipt">
-  <h2 id="rc-name">Le Baobab</h2>
-  <p class="c" id="rc-sub">Bar-restaurant</p>
+  <h2 id="rc-name"></h2>
+  <p class="c" id="rc-sub"></p>
+  <p class="c" id="rc-contact"></p>
   <hr>
   <table>
     <tr><td>Ticket</td><td style="text-align:right" id="rc-ref"></td></tr>
     <tr><td>Client</td><td style="text-align:right" id="rc-client"></td></tr>
     <tr><td>Table</td><td style="text-align:right" id="rc-table"></td></tr>
-    <tr><td>Serveur</td><td style="text-align:right" id="rc-staff"></td></tr>
+    <tr><td>Servi par</td><td style="text-align:right" id="rc-staff"></td></tr>
     <tr><td>Date</td><td style="text-align:right" id="rc-date"></td></tr>
   </table>
   <hr>
   <table id="rc-lines"></table>
   <hr>
   <table>
+    <tr id="rc-subrow"><td>Sous-total</td><td style="text-align:right" id="rc-subtotal"></td></tr>
+    <tr id="rc-discrow"><td id="rc-disclabel">Remise</td><td style="text-align:right" id="rc-disc"></td></tr>
     <tr class="tot"><td>Total</td><td style="text-align:right" id="rc-total"></td></tr>
     <tr id="rc-advrow"><td>Avance</td><td style="text-align:right" id="rc-adv"></td></tr>
-    <tr id="rc-duerow"><td>Reste dû</td><td style="text-align:right" id="rc-due"></td></tr>
+    <tr id="rc-duerow"><td>Reste à payer</td><td style="text-align:right" id="rc-due"></td></tr>
     <tr id="rc-methodrow"><td>Réglé par</td><td style="text-align:right" id="rc-method"></td></tr>
     <tr id="rc-givenrow"><td>Montant donné</td><td style="text-align:right" id="rc-given"></td></tr>
     <tr id="rc-changerow" class="tot"><td>Monnaie rendue</td><td style="text-align:right" id="rc-change"></td></tr>
   </table>
+  <p id="rc-note" style="margin:6px 0 0;font-size:11.5px"></p>
   <hr>
-  <p class="c">Merci de votre visite !</p>
+  <p class="c" id="rc-footer"></p>
 </div>
 
 <div id="ordersheet">
-  <h2>Le Baobab — Commande fournisseur</h2>
+  <h2 id="os-title"></h2>
   <p class="c" id="os-date"></p>
   <hr>
   <table id="os-lines"></table>
-  <hr>
-  <p class="c">Quantités calculées pour atteindre le stock optimal.</p>
+  <p class="c" style="margin-top:10px">Quantités calculées pour atteindre le stock optimal.</p>
 </div>
-
 <script>
 (function(){
 "use strict";
@@ -594,35 +850,112 @@ function h(tag, attrs){
   }
   return e;
 }
-function clone(o){ return JSON.parse(JSON.stringify(o)); }
-function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
-function money(n){ return Number(n||0).toLocaleString("fr-FR") + " FCFA"; }
-function catIcon(cat){
-  var k = norm(cat);
-  if (k.indexOf("biere") >= 0) return "🍺";
-  if (k.indexOf("cocktail") >= 0) return "🍹";
-  if (k.indexOf("soft") >= 0 || k.indexOf("boisson") >= 0) return "🥤";
-  if (k.indexOf("snack") >= 0) return "🍟";
-  return "🍽️";
+var ICONS = {
+  grid:"M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
+  box:"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.3 7 12 12l8.7-5 M12 22V12",
+  receipt:"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z M16 8H8 M16 12H8 M13 16H8",
+  chart:"M3 3v18h18 M18 17V9 M13 17V5 M8 17v-3",
+  sliders:"M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M2 14h4 M10 8h4 M18 16h4",
+  plus:"M5 12h14 M12 5v14",
+  search:"M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0 M21 21l-4.3-4.3",
+  print:"M6 9V2h12v7 M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2 M6 14h12v8H6z",
+  send:"M22 2 11 13 M22 2l-7 20-4-9-9-4 20-7z",
+  logout:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9",
+  moon:"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z",
+  sun:"M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0 M12 2v2 M12 20v2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M2 12h2 M20 12h2 M6.34 17.66l-1.41 1.41 M19.07 4.93l-1.41 1.41",
+  monitor:"M2 3h20v14H2z M8 21h8 M12 17v4",
+  phone:"M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z M12 18h.01",
+  auto:"M8 3 4 7l4 4 M4 7h16 M16 21l4-4-4-4 M20 17H4",
+  pencil:"M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z",
+  gift:"M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z",
+  x:"M18 6 6 18 M6 6l12 12",
+  check:"M20 6 9 17l-5-5",
+  download:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3",
+  upload:"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M17 8l-5-5-5 5 M12 3v12",
+  copy:"M8 8h12v12H8z M4 16V4h12",
+  cash:"M2 6h20v12H2z M10 12a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M6 12h.01 M18 12h.01",
+  card:"M2 5h20v14H2z M2 10h20",
+  percent:"M19 5 5 19 M4 6.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M15 17.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0",
+  note:"M12 20h9 M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z",
+  trash:"M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+  back:"M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
+  beer:"M17 11h1a3 3 0 0 1 0 6h-1 M9 12v6 M13 12v6 M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8",
+  glass:"M8 22h8 M12 11v11 M19 3l-7 8-7-8Z",
+  cup:"M6 8l1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8 M5 8h14 M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0 M12 8l1-6h2",
+  food:"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"
+};
+var SVGNS = "http://www.w3.org/2000/svg";
+function icon(name, size){
+  var s = document.createElementNS(SVGNS, "svg");
+  s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("width", size||18); s.setAttribute("height", size||18);
+  s.setAttribute("fill","none"); s.setAttribute("stroke","currentColor"); s.setAttribute("stroke-width","1.9");
+  s.setAttribute("stroke-linecap","round"); s.setAttribute("stroke-linejoin","round");
+  s.setAttribute("class","ic"); s.setAttribute("aria-hidden","true");
+  var p = document.createElementNS(SVGNS, "path"); p.setAttribute("d", ICONS[name] || ""); s.append(p);
+  return s;
 }
-function catColor(cat){
+function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+function currency(){ return (state && state.settings.biz.currency) || "FCFA"; }
+function fmtNum(n){ return Math.round(Number(n)||0).toLocaleString("fr-FR"); }
+function money(n){ return fmtNum(n) + " " + currency(); }
+function fmtCompact(n){
+  n = Number(n)||0;
+  if (n >= 1e6) return (n/1e6).toFixed(1).replace(".",",") + " M";
+  if (n >= 10000) return Math.round(n/1000) + " k";
+  return fmtNum(n);
+}
+function catKind(cat){
   var k = norm(cat);
-  if (k.indexOf("biere") >= 0) return "#f3dba8";
-  if (k.indexOf("cocktail") >= 0) return "#f2cfe0";
-  if (k.indexOf("soft") >= 0 || k.indexOf("boisson") >= 0) return "#c9e8f2";
-  if (k.indexOf("snack") >= 0) return "#f6ddb4";
-  return "var(--surface2)";
+  if (k.indexOf("biere") >= 0 || k.indexOf("vin") >= 0 || k.indexOf("alcool") >= 0) return 1;
+  if (k.indexOf("cocktail") >= 0 || k.indexOf("spirit") >= 0 || k.indexOf("liqueur") >= 0) return 2;
+  if (k.indexOf("soft") >= 0 || k.indexOf("boisson") >= 0 || k.indexOf("jus") >= 0 || k.indexOf("eau") >= 0) return 3;
+  if (k.indexOf("snack") >= 0 || k.indexOf("plat") >= 0 || k.indexOf("grill") >= 0 || k.indexOf("cuisine") >= 0) return 4;
+  return 0;
+}
+function prodIcon(cat){
+  var k = catKind(cat);
+  return h("span",{class:"prodicon c" + k}, icon(["food","beer","glass","cup","food"][k], 18));
 }
 function fmtDate(t){ try{ return new Date(t).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}); }catch(e){ return ""; } }
+function fmtElapsed(t){
+  var m = Math.max(0, Math.round((Date.now() - t) / 60000));
+  if (m < 1) return "à l'instant";
+  if (m < 60) return m + " min";
+  var hh = Math.floor(m/60), mm = m % 60;
+  if (hh >= 24) return Math.floor(hh/24) + " j";
+  return hh + " h " + String(mm).padStart(2,"0");
+}
+function initials(name){
+  var parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  var sig = parts.filter(function(w){ return !/^(le|la|les|l|de|du|des|d|chez|au|aux)$/i.test(w); });
+  if (sig.length < 2) sig = parts;
+  return (sig[0][0] + sig[1][0]).toUpperCase();
+}
+function plural(n, one, many){ return n + " " + (n > 1 ? many : one); }
 var toastTimer;
 function toast(msg){
   var t = $("toast"); t.textContent = msg; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.hidden = true; }, 3000);
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.hidden = true; }, 3200);
 }
+function download(name, text, type){
+  var blob = new Blob([text], { type: type });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+function slug(s){ return norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "caisse"; }
 
 /* ---------- État ---------- */
 var LS_KEY = "baobab-caisse-state";
 var state = null;
+var DEFAULT_BIZ = { name:"Le Baobab", tagline:"Bar-restaurant", address:"", phone:"", currency:"FCFA", footer:"Merci de votre visite !" };
+function defaultSettings(){
+  return { nightStartHour: 20, nightEndHour: 6, aiApiKey: "", layoutOverride: null, theme: null, accent: "terracotta", inviteCode: "BAOBAB", biz: Object.assign({}, DEFAULT_BIZ) };
+}
 function defaultState(){
   return {
     staff: [
@@ -635,9 +968,9 @@ function defaultState(){
       { id:"p1", name:"Régab 33cl", cat:"Bières", qty:20, min:5, optimal:24, priceDay:1200, priceNight:1400, costPrice:700, saleMode:"bloc", unitsPerBlock:24 },
       { id:"p2", name:"Castel 65cl", cat:"Bières", qty:15, min:5, optimal:20, priceDay:2000, priceNight:2400, costPrice:1200, saleMode:"bloc", unitsPerBlock:12 },
       { id:"p3", name:"Heineken 33cl", cat:"Bières", qty:10, min:4, optimal:20, priceDay:1800, priceNight:2200, costPrice:1100, saleMode:"bloc", unitsPerBlock:24 },
-      { id:"p4", name:"Mojito", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4000, priceNight:4500, costPrice:1500, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p5", name:"Piña Colada", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:4500, priceNight:5000, costPrice:1700, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p6", name:"Punch coco", cat:"Cocktails", qty:999, min:0, optimal:0, priceDay:3500, priceNight:4000, costPrice:1300, saleMode:"unite", unitsPerBlock:1 },
+      { id:"p4", name:"Mojito", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:4000, priceNight:4500, costPrice:1500, saleMode:"unite", unitsPerBlock:1, track:false },
+      { id:"p5", name:"Piña Colada", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:4500, priceNight:5000, costPrice:1700, saleMode:"unite", unitsPerBlock:1, track:false },
+      { id:"p6", name:"Punch coco", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:3500, priceNight:4000, costPrice:1300, saleMode:"unite", unitsPerBlock:1, track:false },
       { id:"p7", name:"Coca-Cola 33cl", cat:"Softs", qty:30, min:8, optimal:40, priceDay:1000, priceNight:1000, costPrice:500, saleMode:"bloc", unitsPerBlock:24 },
       { id:"p8", name:"Eau minérale 50cl", cat:"Softs", qty:40, min:10, optimal:50, priceDay:800, priceNight:800, costPrice:400, saleMode:"bloc", unitsPerBlock:24 },
       { id:"p9", name:"Jus de bissap", cat:"Softs", qty:12, min:4, optimal:20, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
@@ -645,27 +978,35 @@ function defaultState(){
       { id:"p11", name:"Frites", cat:"Snacks", qty:25, min:6, optimal:30, priceDay:2000, priceNight:2000, costPrice:900, saleMode:"unite", unitsPerBlock:1 },
       { id:"p12", name:"Beignets (5)", cat:"Snacks", qty:20, min:5, optimal:24, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
       { id:"p13", name:"Poulet braisé (1/4)", cat:"Snacks", qty:10, min:3, optimal:15, priceDay:3500, priceNight:3500, costPrice:1800, saleMode:"unite", unitsPerBlock:1 }
-    ],
+    ].map(normalizeProduct),
     tickets: [],
     log: [],
     ticketSeq: 0,
-    settings: { nightStartHour: 20, aiApiKey: "", layoutOverride: null }
+    settings: defaultSettings()
   };
 }
+function int0(v){ return Math.max(0, Math.trunc(Number(v)) || 0); }
 function normalizeProduct(p){
   var priceDay = p.priceDay != null ? Number(p.priceDay) || 0 : (p.price != null ? Number(p.price) || 0 : 0);
   var priceNight = p.priceNight != null ? Number(p.priceNight) || 0 : priceDay;
-  var qty = Math.max(0, Math.trunc(Number(p.qty)) || 0);
-  var min = Math.max(0, Math.trunc(Number(p.min)) || 0);
-  var optimal = p.optimal != null ? Math.max(0, Math.trunc(Number(p.optimal)) || 0) : Math.max(qty, min*2);
-  var costPrice = Math.max(0, Math.trunc(Number(p.costPrice)) || 0);
+  var qty = int0(p.qty), min = int0(p.min);
+  var optimal = p.optimal != null ? int0(p.optimal) : Math.max(qty, min*2);
   var saleMode = p.saleMode === "bloc" ? "bloc" : "unite";
-  var unitsPerBlock = saleMode === "bloc" ? Math.max(1, Math.trunc(Number(p.unitsPerBlock)) || 1) : 1;
-  return { id:p.id, name:p.name, cat:p.cat, qty:qty, min:min, optimal:optimal, priceDay:priceDay, priceNight:priceNight, costPrice:costPrice, saleMode:saleMode, unitsPerBlock:unitsPerBlock };
+  /* Anciennes données : un article « à la demande » était saisi avec un stock de 999 sans seuil ni optimal. */
+  var track = p.track != null ? !!p.track : !(min === 0 && optimal === 0 && qty >= 999);
+  return {
+    id: p.id || uid(), name: String(p.name || "Sans nom"), cat: String(p.cat || "Divers"),
+    qty: track ? qty : 0, min: min, optimal: optimal, priceDay: priceDay, priceNight: priceNight,
+    costPrice: int0(p.costPrice), saleMode: saleMode,
+    unitsPerBlock: saleMode === "bloc" ? Math.max(1, Math.trunc(Number(p.unitsPerBlock)) || 1) : 1,
+    track: track
+  };
 }
 function normalize(s){
   var d = defaultState();
   if (!s || typeof s !== "object") return d;
+  var set = Object.assign(defaultSettings(), s.settings || {});
+  set.biz = Object.assign({}, DEFAULT_BIZ, (s.settings && s.settings.biz) || {});
   return {
     staff: Array.isArray(s.staff) && s.staff.length ? s.staff : d.staff,
     tables: Array.isArray(s.tables) && s.tables.length ? s.tables : d.tables,
@@ -673,7 +1014,7 @@ function normalize(s){
     tickets: Array.isArray(s.tickets) ? s.tickets : [],
     log: Array.isArray(s.log) ? s.log : [],
     ticketSeq: Number(s.ticketSeq) || 0,
-    settings: Object.assign({ nightStartHour: 20, aiApiKey: "", layoutOverride: null }, s.settings || {})
+    settings: set
   };
 }
 function load(){
@@ -688,28 +1029,51 @@ var memSession = null;
 function sessionGet(key){ try{ return sessionStorage.getItem(key); }catch(e){ return memSession; } }
 function sessionSet(key, val){ memSession = val; try{ sessionStorage.setItem(key, val); }catch(e){} }
 function sessionClear(key){ memSession = null; try{ sessionStorage.removeItem(key); }catch(e){} }
-function addLog(text){
-  state.log.unshift({ t: Date.now(), text: text });
-  if (state.log.length > 200) state.log.length = 200;
-}
 function uid(){ return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+var session = null; // {staffId}
+function currentStaff(){ return state.staff.find(function(u){ return u.id === (session && session.staffId); }) || { name:"—", role:"" }; }
+function hasAdmin(){ return state.staff.some(function(u){ return u.role === "Admin"; }); }
+function isAdmin(){ return !hasAdmin() || currentStaff().role === "Admin"; }
+function roleLabel(r){ return r === "Admin" ? "Gérant" : (r || "Employé"); }
+function addLog(text){
+  state.log.unshift({ t: Date.now(), text: text, by: session ? currentStaff().name : null });
+  if (state.log.length > 300) state.log.length = 300;
+}
 function nextTicketRef(){
   state.ticketSeq += 1;
   return "T-" + String(state.ticketSeq).padStart(4, "0");
 }
 function findProduct(id){ return state.products.find(function(p){ return p.id === id; }); }
 function findTicket(id){ return state.tickets.find(function(t){ return t.id === id; }); }
-function isLow(p){ return p.min > 0 && p.qty <= p.min; }
-function openTicketsForTable(tableId){
-  return state.tickets.filter(function(t){ return t.tableId === tableId && t.status === "ouvert"; });
+function stockStatus(p){
+  if (!p.track) return "none";
+  if (p.qty <= 0) return "out";
+  if (p.min > 0 && p.qty <= p.min) return "low";
+  return "ok";
 }
-function ticketTotal(t){
-  return t.lines.reduce(function(sum,l){ return sum + l.price * l.qty; }, 0);
+function openTickets(){ return state.tickets.filter(function(t){ return t.status === "ouvert"; }); }
+function openTicketsForTable(tableId){ return openTickets().filter(function(t){ return t.tableId === tableId; }); }
+function ticketSubtotal(t){ return t.lines.reduce(function(sum,l){ return sum + l.price * l.qty; }, 0); }
+function ticketDiscount(t){
+  var d = t.discount, sub = ticketSubtotal(t);
+  if (!d || !(d.value > 0)) return 0;
+  if (d.type === "pct") return Math.round(sub * Math.min(100, d.value) / 100);
+  return Math.min(sub, Math.round(d.value));
 }
+function ticketTotal(t){ return ticketSubtotal(t) - ticketDiscount(t); }
 function ticketDue(t){ return Math.max(0, ticketTotal(t) - (t.advance||0)); }
+function ticketCost(t){
+  return t.lines.reduce(function(sum,l){
+    var c = l.cost != null ? l.cost : ((findProduct(l.pid) || {}).costPrice || 0);
+    return sum + c * l.qty;
+  }, 0);
+}
+function ticketItems(t){ return t.lines.reduce(function(s,l){ return s + l.qty; }, 0); }
+function discountLabel(t){ return t.discount && t.discount.type === "pct" ? "Remise " + t.discount.value + " %" : "Remise"; }
 function offersToTable(tableId, excludeTicketId){
   var out = [];
-  state.tickets.forEach(function(t){
+  openTickets().forEach(function(t){
     if (t.id === excludeTicketId) return;
     t.lines.forEach(function(l){
       if (l.offeredToTableId === tableId) out.push({ ticket: t, line: l });
@@ -718,104 +1082,279 @@ function offersToTable(tableId, excludeTicketId){
   return out;
 }
 function isNight(){
-  var h = new Date().getHours();
-  var start = state.settings.nightStartHour;
-  return h >= start || h < 6;
+  var hr = new Date().getHours();
+  var start = state.settings.nightStartHour, end = state.settings.nightEndHour;
+  if (start === end) return false;
+  return start > end ? (hr >= start || hr < end) : (hr >= start && hr < end);
 }
 function activePrice(p){ return isNight() ? p.priceNight : p.priceDay; }
-function todayStart(){ var d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function dayStart(offsetDays){ var d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - (offsetDays||0)); return d.getTime(); }
+var PERIODS = [["today","Aujourd'hui"],["7d","7 jours"],["30d","30 jours"],["all","Tout"]];
+function periodStart(key){ return key === "today" ? dayStart(0) : key === "7d" ? dayStart(6) : key === "30d" ? dayStart(29) : 0; }
+function periodLabel(key){ return key === "today" ? "aujourd'hui" : key === "7d" ? "sur les 7 derniers jours" : key === "30d" ? "sur les 30 derniers jours" : "depuis le début"; }
+function paidTickets(key){
+  var start = periodStart(key);
+  return state.tickets.filter(function(t){ return t.status === "payé" && t.paidAt >= start; });
+}
+function renderPeriodChips(box, current, onpick){
+  box.textContent = "";
+  PERIODS.forEach(function(p){
+    box.append(h("button",{class:"chip", type:"button", "aria-pressed": String(p[0] === current), onclick:function(){ onpick(p[0]); }}, p[1]));
+  });
+}
 
-var session = null; // {staffId}
-var joinMode = false;
-var pin = "";
+/* ---------- Apparence ---------- */
+var ACCENTS = { terracotta:"#b5541f", emeraude:"#0f7a5c", ocean:"#1f5fbf", prune:"#7a3fa0", ambre:"#96650a", rubis:"#b3263c", ardoise:"#3a4a5c" };
+function mixHex(a, b, t){
+  var pa = [1,3,5].map(function(i){ return parseInt(a.slice(i,i+2),16); });
+  var pb = [1,3,5].map(function(i){ return parseInt(b.slice(i,i+2),16); });
+  return "#" + pa.map(function(v,i){ return Math.round(v + (pb[i]-v)*t).toString(16).padStart(2,"0"); }).join("");
+}
+function effectiveTheme(){
+  var t = state.settings.theme;
+  if (t === "light" || t === "dark") return t;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(){
+  var theme = effectiveTheme(), root = document.documentElement;
+  root.setAttribute("data-theme", theme);
+  var a = ACCENTS[state.settings.accent] || ACCENTS.terracotta;
+  root.style.setProperty("--accent", a);
+  root.style.setProperty("--accent-ink", theme === "dark" ? mixHex(a, "#ffffff", .58) : mixHex(a, "#000000", .18));
+  root.style.setProperty("--accent-soft", theme === "dark" ? mixHex(a, "#181c1f", .8) : mixHex(a, "#ffffff", .89));
+}
+function applyBiz(){
+  var b = state.settings.biz;
+  var vals = { name: b.name, tagline: b.tagline, initials: initials(b.name) };
+  Array.prototype.forEach.call(document.querySelectorAll("[data-biz]"), function(e){ e.textContent = vals[e.getAttribute("data-biz")] || ""; });
+  document.title = b.name + " — Caisse";
+}
+function applyLayout(){
+  var override = state.settings.layoutOverride;
+  var wide = override === "pc" ? true : override === "phone" ? false : window.matchMedia("(min-width:900px)").matches;
+  document.body.classList.toggle("app-shell", wide && !$("app").hidden);
+}
+function applyPermissions(){
+  var admin = isAdmin();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-admin]"), function(e){ e.hidden = !admin; });
+}
+
+/* ---------- Dialogues ---------- */
+function openOv(id){ $(id).hidden = false; }
+function closeOv(id){
+  $(id).hidden = true;
+  if (id === "ov-ticket" || id === "ov-settings") renderAll();
+}
+Array.prototype.forEach.call(document.querySelectorAll(".overlay"), function(ov){
+  ov.addEventListener("mousedown", function(e){ if (e.target === ov) closeOv(ov.id); });
+  Array.prototype.forEach.call(ov.querySelectorAll("[data-close]"), function(b){
+    b.addEventListener("click", function(){ closeOv(ov.id); });
+  });
+});
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape"){
+    var open = Array.prototype.filter.call(document.querySelectorAll(".overlay"), function(o){ return !o.hidden; });
+    if (open.length){ closeOv(open[open.length-1].id); return; }
+  }
+  if (!$("login").hidden && !$("login-pick").hidden){
+    if (/^\d$/.test(e.key)) pressKey(e.key);
+    else if (e.key === "Backspace") pressKey("del");
+  }
+});
+var confirmCb = null;
+function askConfirm(title, body, yesLabel, cb){
+  $("cf-title").textContent = title;
+  $("cf-body").textContent = body;
+  $("cf-yes").textContent = yesLabel || "Confirmer";
+  confirmCb = cb;
+  openOv("ov-confirm");
+}
+$("cf-yes").addEventListener("click", function(){ $("ov-confirm").hidden = true; var cb = confirmCb; confirmCb = null; if (cb) cb(); });
 
 /* ---------- Connexion ---------- */
-var selectedStaffId = null;
+var selectedStaffId = null, pin = "";
 function renderStaffGrid(){
   var box = $("staffgrid"); box.textContent = "";
   state.staff.forEach(function(u){
     box.append(h("button", { class:"staffcard", type:"button", "aria-pressed": String(u.id === selectedStaffId),
       onclick:function(){ selectedStaffId = u.id; pin = ""; $("pinerror").textContent = ""; renderStaffGrid(); renderPinDots(); }
     },
-      h("span",{class:"av"}, u.name.slice(0,2).toUpperCase()),
+      h("span",{class:"av"}, initials(u.name)),
       h("b", null, u.name),
-      h("span", null, u.role)
+      h("span", {class:"role"}, roleLabel(u.role))
     ));
   });
+  $("pinhint").hidden = !state.staff.some(function(u){ return u.role === "Admin" && u.pin === "1234"; });
 }
 function renderPinDots(){
   var box = $("pindots"); box.textContent = "";
   for (var i=0;i<4;i++) box.append(h("i", { class: i < pin.length ? "on" : "" }));
 }
-function shakeError(msg){
+function pinError(msg){
   $("pinerror").textContent = msg;
   pin = ""; renderPinDots();
+  var d = $("pindots"); d.classList.remove("err"); void d.offsetWidth; d.classList.add("err");
 }
 function tryLogin(){
   var u = state.staff.find(function(x){ return x.id === selectedStaffId; });
-  if (!u){ shakeError("Choisis d'abord ton nom."); return; }
-  if (pin !== u.pin){ shakeError("Code incorrect."); return; }
+  if (!u){ pinError("Choisissez d'abord votre profil."); return; }
+  if (pin !== u.pin){ pinError("Code incorrect. Réessayez."); return; }
   session = { staffId: u.id };
   sessionSet("baobab-session", u.id);
+  pin = "";
   enterApp();
+}
+function pressKey(k){
+  if (k === "clear") pin = "";
+  else if (k === "del") pin = pin.slice(0,-1);
+  else if (pin.length < 4) pin += k;
+  $("pinerror").textContent = "";
+  renderPinDots();
+  if (pin.length === 4) tryLogin();
 }
 function renderKeypad(){
   var box = $("keypad"); box.textContent = "";
-  var keys = ["1","2","3","4","5","6","7","8","9","C","0","⌫"];
-  keys.forEach(function(k){
-    box.append(h("button", { type:"button", onclick:function(){
-      if (k === "C"){ pin = ""; }
-      else if (k === "⌫"){ pin = pin.slice(0,-1); }
-      else if (pin.length < 4){ pin += k; }
-      $("pinerror").textContent = "";
-      renderPinDots();
-      if (pin.length === 4) tryLogin();
-    }}, k));
+  ["1","2","3","4","5","6","7","8","9","clear","0","del"].forEach(function(k){
+    var aux = k === "clear" || k === "del";
+    box.append(h("button", { type:"button", class: aux ? "aux" : "", "aria-label": k === "clear" ? "Effacer" : k === "del" ? "Supprimer le dernier chiffre" : k,
+      onclick:function(){ pressKey(k); } }, k === "clear" ? "Effacer" : k === "del" ? icon("back", 20) : k));
   });
 }
-$("openjoin").addEventListener("click", function(){ $("login-pick").hidden = true; $("login-join").hidden = false; });
+function tickClock(){
+  var d = new Date();
+  $("clock-time").textContent = d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  var s = d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  $("clock-date").textContent = s.charAt(0).toUpperCase() + s.slice(1);
+}
+$("openjoin").addEventListener("click", function(){ $("login-pick").hidden = true; $("login-join").hidden = false; $("join-code").focus(); });
 $("join-back").addEventListener("click", function(){ $("login-join").hidden = true; $("login-pick").hidden = false; });
 $("join-submit").addEventListener("click", function(){
   var code = $("join-code").value.trim().toUpperCase();
   var name = $("join-name").value.trim();
   var pinv = $("join-pin").value.trim();
-  if (code !== "BAOBAB"){ $("joinerror").textContent = "Code d'invitation invalide."; return; }
-  if (!name){ $("joinerror").textContent = "Indique ton nom."; return; }
-  if (!/^\d{4}$/.test(pinv)){ $("joinerror").textContent = "Le code PIN doit contenir 4 chiffres."; return; }
+  var err = $("joinerror");
+  if (code !== String(state.settings.inviteCode || "").toUpperCase() || !code){ err.textContent = "Code d'invitation invalide."; return; }
+  if (!name){ err.textContent = "Indiquez votre nom."; return; }
+  if (!/^\d{4}$/.test(pinv)){ err.textContent = "Le code PIN doit contenir 4 chiffres."; return; }
   var u = { id: uid(), name: name, role: "Employé", pin: pinv };
   state.staff.push(u);
+  addLog("Nouvel employé : " + name);
   persist();
-  toast("Compte créé. Vous pouvez vous connecter.");
+  toast("Profil créé. Vous pouvez vous connecter.");
   $("login-join").hidden = true; $("login-pick").hidden = false;
-  $("join-code").value = ""; $("join-name").value = ""; $("join-pin").value = ""; $("joinerror").textContent = "";
+  $("join-code").value = ""; $("join-name").value = ""; $("join-pin").value = ""; err.textContent = "";
+  selectedStaffId = u.id;
   renderStaffGrid();
 });
 
-/* ---------- Onglets ---------- */
-["salle","stock","journal","bilan"].forEach(function(name){
-  $("tab-" + name).addEventListener("click", function(){
-    ["salle","stock","journal","bilan"].forEach(function(n){
-      var on = n === name;
-      $("tab-" + n).setAttribute("aria-selected", String(on));
-      $("panel-" + n).hidden = !on;
+/* ---------- Navigation ---------- */
+var PAGES = [
+  { id:"salle", label:"Salle", ic:"grid", sub:function(){ var s = new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}); return s.charAt(0).toUpperCase() + s.slice(1); } },
+  { id:"stock", label:"Stock", ic:"box", sub:function(){ return "Produits, niveaux et commande fournisseur"; } },
+  { id:"journal", label:"Journal", ic:"receipt", sub:function(){ return "Tickets réglés et activité de la caisse"; } },
+  { id:"bilan", label:"Bilan", ic:"chart", admin:true, sub:function(){ return "Chiffre d'affaires, marge et performances"; } }
+];
+var currentPage = "salle";
+function stockAlertCount(){ return state.products.filter(function(p){ var s = stockStatus(p); return s === "low" || s === "out"; }).length; }
+function renderNav(){
+  var admin = isAdmin(), alerts = stockAlertCount();
+  ["sidenav","bottomnav"].forEach(function(cid){
+    var box = $(cid); box.textContent = "";
+    PAGES.forEach(function(p){
+      if (p.admin && !admin) return;
+      box.append(h("button",{class:"navbtn", type:"button", "aria-current": p.id === currentPage ? "page" : null, onclick:function(){ goPage(p.id); }},
+        icon(p.ic, 20), h("span", null, p.label),
+        p.id === "stock" && alerts ? h("span",{class:"badge"}, String(alerts)) : null
+      ));
     });
-    renderAll();
   });
-});
+  var page = PAGES.find(function(p){ return p.id === currentPage; });
+  $("pagetitle").textContent = page.label;
+  $("pagesub").textContent = page.sub();
+}
+function goPage(id){
+  var page = PAGES.find(function(p){ return p.id === id; });
+  if (!page || (page.admin && !isAdmin())) id = "salle";
+  currentPage = id;
+  PAGES.forEach(function(p){ $("panel-" + p.id).hidden = p.id !== id; });
+  window.scrollTo(0,0);
+  renderAll();
+}
+function renderTools(){
+  var dark = effectiveTheme() === "dark";
+  var lo = state.settings.layoutOverride;
+  ["sidetools","toptools"].forEach(function(cid){
+    var box = $(cid); box.textContent = "";
+    box.append(h("button",{class:"iconbtn", type:"button", title: dark ? "Passer en thème clair" : "Passer en thème sombre", "aria-label":"Changer de thème", onclick:toggleTheme}, icon(dark ? "sun" : "moon", 19)));
+    box.append(h("button",{class:"iconbtn", type:"button", title:"Affichage : " + (lo === "pc" ? "ordinateur" : lo === "phone" ? "téléphone" : "automatique"), "aria-label":"Changer le mode d'affichage", onclick:cycleLayout}, icon(lo === "pc" ? "monitor" : lo === "phone" ? "phone" : "auto", 19)));
+    if (isAdmin()) box.append(h("button",{class:"iconbtn", type:"button", title:"Réglages", "aria-label":"Réglages", onclick:openSettings}, icon("sliders", 19)));
+    box.append(h("button",{class:"iconbtn", type:"button", title:"Déconnexion", "aria-label":"Déconnexion", onclick:logout}, icon("logout", 19)));
+  });
+}
+function toggleTheme(){
+  state.settings.theme = effectiveTheme() === "dark" ? "light" : "dark";
+  persist(); applyTheme(); renderTools();
+}
+function cycleLayout(){
+  var order = [null, "pc", "phone"];
+  var next = order[(order.indexOf(state.settings.layoutOverride) + 1) % order.length];
+  state.settings.layoutOverride = next;
+  persist(); applyLayout(); renderTools();
+  toast("Affichage " + (next === "pc" ? "ordinateur" : next === "phone" ? "téléphone" : "automatique"));
+}
+function kpi(label, value, note, cls){
+  return h("div",{class:"card kpi" + (cls ? " " + cls : "")}, h("span",null,label), h("b",null,value), note ? h("em",null,note) : null);
+}
 
 /* ---------- Salle ---------- */
+function ticketRow(t, onclick){
+  return h("button",{class:"row", type:"button", onclick:onclick},
+    h("span",{class:"av"}, initials(t.client)),
+    h("div",{class:"info"},
+      h("div",{class:"name"}, t.client),
+      h("div",{class:"sub"}, [t.ref, t.tableId ? "Table " + t.tableId : "Sans table", plural(ticketItems(t),"article","articles"), t.servedBy, fmtElapsed(t.createdAt)].filter(Boolean).join(" · "))
+    ),
+    h("span",{class:"amt"}, money(ticketDue(t)))
+  );
+}
 function renderSalle(){
+  var open = openTickets();
+  var due = open.reduce(function(s,t){ return s + ticketDue(t); }, 0);
+  var paidToday = paidTickets("today");
+  var revenue = paidToday.reduce(function(s,t){ return s + ticketTotal(t); }, 0);
+  var busy = state.tables.filter(function(tid){ return openTicketsForTable(tid).length; }).length;
+  var k = $("sallekpis"); k.textContent = "";
+  k.append(
+    kpi("Tickets en cours", String(open.length)),
+    kpi("À encaisser", money(due)),
+    kpi("Encaissé aujourd'hui", money(revenue), plural(paidToday.length,"ticket réglé","tickets réglés")),
+    kpi("Tables occupées", busy + " / " + state.tables.length)
+  );
+  var night = isNight();
+  Array.prototype.forEach.call(document.querySelectorAll(".pricepill"), function(pill){
+    pill.textContent = "";
+    pill.append(icon(night ? "moon" : "sun", 14), night ? "Tarif nuit" : "Tarif jour");
+  });
+
   var box = $("tablesgrid"); box.textContent = "";
-  var openCount = state.tickets.filter(function(t){ return t.status === "ouvert"; }).length;
-  $("sallesum").textContent = openCount ? openCount + " ticket(s) en cours" : "Aucun ticket en cours";
   state.tables.forEach(function(tid){
-    var open = openTicketsForTable(tid);
-    var total = open.reduce(function(s,t){ return s + ticketDue(t); }, 0);
-    var card = h("div", { class:"tablecard" + (open.length ? " busy" : ""), onclick:function(){ openTableTickets(tid); } },
-      h("div", {class:"top"}, h("span",{style:"font-size:18px"},"🍽️"), open.length ? h("span",{class:"cnt"}, String(open.length)) : h("span",{class:"dot"})),
-      h("div", null, h("div",{class:"name"}, tid), h("div",{class:"sub"}, open.length ? money(total) : "libre"))
-    );
-    box.append(card);
+    var tix = openTicketsForTable(tid);
+    var total = tix.reduce(function(s,t){ return s + ticketDue(t); }, 0);
+    var oldest = tix.reduce(function(m,t){ return Math.min(m, t.createdAt); }, Infinity);
+    box.append(h("button", { class:"tablecard" + (tix.length ? " busy" : ""), type:"button", onclick:function(){ openTableTickets(tid); },
+        "aria-label":"Table " + tid + (tix.length ? ", occupée, " + money(total) : ", libre") },
+      h("div", {class:"top2"},
+        h("span",{class:"state"}, h("i"), tix.length ? fmtElapsed(oldest).replace(/^à/,"À") : "Libre"),
+        tix.length > 1 ? h("span",{class:"cnt", title: tix.length + " tickets"}, String(tix.length)) : null),
+      h("div", null, h("div",{class:"name"}, tid), h("div",{class:"sub"}, tix.length ? money(total) : " "))
+    ));
+  });
+
+  var list = $("openlist"); list.textContent = "";
+  $("opensum").textContent = open.length ? plural(open.length,"ticket","tickets") + " · " + money(due) : "";
+  if (!open.length) list.append(h("div",{class:"empty"},"Aucun ticket en cours. Touchez une table ou « Nouveau ticket » pour commencer."));
+  open.slice().sort(function(a,b){ return a.createdAt - b.createdAt; }).forEach(function(t){
+    list.append(ticketRow(t, function(){ openTicket(t.id); }));
   });
 }
 $("newticket-free").addEventListener("click", function(){ openNewTicket(null); });
@@ -823,366 +1362,435 @@ $("newticket-free").addEventListener("click", function(){ openNewTicket(null); }
 var currentTableId = null;
 function openTableTickets(tableId){
   currentTableId = tableId;
-  $("tt-title").textContent = "Table " + tableId;
-  var list = $("tt-list"); list.textContent = "";
   var open = openTicketsForTable(tableId);
-  var stats = $("tt-stats");
-  if (open.length){
-    var totalAmount = open.reduce(function(s,t){ return s + ticketTotal(t); }, 0);
-    var totalAdv = open.reduce(function(s,t){ return s + (t.advance||0); }, 0);
-    var totalDue = open.reduce(function(s,t){ return s + ticketDue(t); }, 0);
-    stats.textContent = "";
+  var offers = offersToTable(tableId);
+  if (!open.length && !offers.length){ openNewTicket(tableId); return; }
+  $("tt-title").textContent = "Table " + tableId;
+  $("tt-hint").textContent = open.length ? plural(open.length,"ticket en cours","tickets en cours") : "Aucun ticket en cours";
+  var stats = $("tt-stats"); stats.textContent = "";
+  if (open.length > 1){
     stats.append(
-      h("div",{class:"stattile"}, h("span",null,"Total table"), h("b",null, money(totalAmount))),
-      h("div",{class:"stattile"}, h("span",null,"Avancé"), h("b",null, money(totalAdv))),
-      h("div",{class:"stattile"}, h("span",null,"Reste à payer"), h("b",{style:"color:var(--accent-ink)"}, money(totalDue)))
+      kpi("Total table", money(open.reduce(function(s,t){ return s + ticketTotal(t); }, 0))),
+      kpi("Reste à payer", money(open.reduce(function(s,t){ return s + ticketDue(t); }, 0)))
     );
     stats.hidden = false;
-  } else {
-    stats.hidden = true;
-  }
+  } else stats.hidden = true;
 
-  var offers = offersToTable(tableId);
-  var offersWrap = $("tt-offerswrap"), offersBox = $("tt-offers");
-  offersBox.textContent = "";
-  if (offers.length){
-    offers.forEach(function(o){
-      offersBox.append(h("div",{class:"row"},
-        h("div",{class:"info"}, h("div",{class:"name"}, o.line.qty + " × " + o.line.name), h("div",{class:"sub"}, "offert par " + o.ticket.client + " (" + o.ticket.ref + ")"))
-      ));
-    });
-    offersWrap.hidden = false;
-  } else {
-    offersWrap.hidden = true;
-  }
+  var offersBox = $("tt-offers"); offersBox.textContent = "";
+  offers.forEach(function(o){ offersBox.append(offerRow(o)); });
+  $("tt-offerswrap").hidden = !offers.length;
 
-  if (!open.length){
-    list.append(h("div",{class:"empty"},"Aucun ticket ouvert sur cette table."));
-  }
+  var list = $("tt-list"); list.textContent = "";
+  list.hidden = !open.length;
   open.forEach(function(t){
-    list.append(h("div",{class:"row", onclick:function(){ $("ov-tabletickets").hidden = true; openTicket(t.id); }},
-      h("div",{class:"info"}, h("div",{class:"name"}, t.client), h("div",{class:"sub"}, t.lines.length + " article(s) · " + money(ticketDue(t)))),
-    ));
+    list.append(ticketRow(t, function(){ $("ov-tabletickets").hidden = true; openTicket(t.id); }));
   });
-  $("ov-tabletickets").hidden = false;
+  openOv("ov-tabletickets");
 }
-$("tt-close").addEventListener("click", function(){ $("ov-tabletickets").hidden = true; });
+function offerRow(o){
+  return h("div",{class:"row"},
+    h("div",{class:"info"}, h("div",{class:"name"}, o.line.qty + " × " + o.line.name), h("div",{class:"sub"}, "Offert par " + o.ticket.client + " (" + o.ticket.ref + ")"))
+  );
+}
 $("tt-new").addEventListener("click", function(){ $("ov-tabletickets").hidden = true; openNewTicket(currentTableId); });
 
 /* ---------- Nouveau ticket ---------- */
 var newTicketTableId = null;
+function tablePicker(box, selected, noneLabel, onpick){
+  box.textContent = "";
+  var opts = [[null, noneLabel]].concat(state.tables.map(function(t){ return [t, t]; }));
+  opts.forEach(function(o){
+    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(o[0] === selected), onclick:function(){ onpick(o[0]); }}, o[1]));
+  });
+}
 function openNewTicket(tableId){
   newTicketTableId = tableId;
   $("nt-client").value = "";
-  var box = $("nt-tables"); box.textContent = "";
-  box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(tableId===null), onclick:function(){ newTicketTableId = null; renderNtTables(); }}, "Aucune"));
-  state.tables.forEach(function(tid){
-    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(tableId===tid), onclick:function(){ newTicketTableId = tid; renderNtTables(); }}, tid));
-  });
-  $("ov-newticket").hidden = false;
+  renderNtTables();
+  openOv("ov-newticket");
   $("nt-client").focus();
 }
 function renderNtTables(){
-  Array.prototype.forEach.call($("nt-tables").children, function(btn, i){
-    var val = i === 0 ? null : state.tables[i-1];
-    btn.setAttribute("aria-pressed", String(val === newTicketTableId));
-  });
+  tablePicker($("nt-tables"), newTicketTableId, "Aucune", function(v){ newTicketTableId = v; renderNtTables(); });
 }
-$("nt-cancel").addEventListener("click", function(){ $("ov-newticket").hidden = true; });
-$("nt-submit").addEventListener("click", function(){
-  var client = $("nt-client").value.trim();
-  if (!client){ toast("Le nom du client est obligatoire."); return; }
+function submitNewTicket(){
+  var client = $("nt-client").value.trim() || (newTicketTableId ? "Client " + newTicketTableId : "Client comptoir");
   var t = {
     id: uid(), ref: nextTicketRef(), client: client, tableId: newTicketTableId,
-    lines: [], advance: 0, status: "ouvert", paymentMethod: null,
+    lines: [], advance: 0, discount: null, note: "", status: "ouvert", paymentMethod: null,
     createdAt: Date.now(), paidAt: null, servedBy: currentStaff().name
   };
   state.tickets.push(t);
-  addLog(t.ref + " ouvert pour " + client + (newTicketTableId ? " (" + newTicketTableId + ")" : ""));
+  addLog(t.ref + " ouvert pour " + client + (newTicketTableId ? " (table " + newTicketTableId + ")" : ""));
   persist();
   $("ov-newticket").hidden = true;
   renderAll();
   openTicket(t.id);
-});
+}
+$("nt-submit").addEventListener("click", submitNewTicket);
+$("nt-client").addEventListener("keydown", function(e){ if (e.key === "Enter") submitNewTicket(); });
 
 /* ---------- Ticket ---------- */
 var currentTicketId = null;
 var ticketCatFilter = null;
-function currentStaff(){ return state.staff.find(function(u){ return u.id === (session && session.staffId); }) || { name:"—" }; }
-
 function openTicket(id){
   currentTicketId = id; ticketCatFilter = null;
+  $("tk-search").value = "";
   renderTicket();
-  $("ov-ticket").hidden = false;
+  openOv("ov-ticket");
+}
+function toolBtn(ic, label, onclick, cls){
+  return h("button",{class:"toolbtn" + (cls ? " " + cls : ""), type:"button", onclick:onclick}, icon(ic, 19), label);
 }
 function renderTicket(){
   var t = findTicket(currentTicketId);
   if (!t){ $("ov-ticket").hidden = true; return; }
+  var locked = t.status === "payé";
   $("tk-ref").textContent = t.ref;
-  $("tk-badge").textContent = t.status === "payé" ? "Payé" : "Ouvert";
-  $("tk-badge").className = "tk-badge" + (t.status === "payé" ? " paid" : "");
+  $("tk-badge").textContent = locked ? "Payé" : "En cours";
+  $("tk-badge").className = "tag plain " + (locked ? "ok" : "neutral");
   $("tk-client").textContent = t.client;
-  $("tk-tablelabel").textContent = t.tableId ? "Table " + t.tableId : "Sans table";
+  $("tk-tablelabel").textContent = [t.tableId ? "Table " + t.tableId : "Sans table", t.servedBy ? "servi par " + t.servedBy : null, locked ? "réglé le " + fmtDate(t.paidAt) : "ouvert depuis " + fmtElapsed(t.createdAt)].filter(Boolean).join(" · ");
+  var pm = $("tk-pricemode"); pm.textContent = ""; pm.hidden = locked;
+  pm.append(icon(isNight() ? "moon" : "sun", 13), isNight() ? "Tarif nuit" : "Tarif jour");
+  $("tk-grid").classList.toggle("locked", locked);
+  $("tk-cat").hidden = locked;
 
   var linesBox = $("tk-lines"); linesBox.textContent = "";
-  if (!t.lines.length){
-    linesBox.append(h("div",{class:"empty"},"Ticket vide — choisis un article ci-dessous."));
-  }
-  var ticketLocked = t.status === "payé";
+  if (!t.lines.length) linesBox.append(h("div",{class:"empty"},"Ticket vide. Ajoutez un article depuis la carte."));
   t.lines.forEach(function(l, idx){
-    var p = findProduct(l.pid);
+    var p = findProduct(l.pid), st = p ? stockStatus(p) : "none";
     linesBox.append(h("div",{class:"tk-line"},
       h("div",{class:"r1"},
-        h("span",{class:"nm"}, l.name),
-        h("div",{class:"qty"},
-          h("button",{type:"button", disabled: ticketLocked, onclick:function(){ adjustLine(idx,-1); }},"−"),
+        h("span",{class:"nm"}, l.name, h("small", null, money(l.price) + " l'unité")),
+        locked ? h("span",{class:"tag plain neutral"}, "× " + l.qty) : h("div",{class:"qty"},
+          h("button",{type:"button", "aria-label":"Retirer un " + l.name, onclick:function(){ adjustLine(idx,-1); }},"−"),
           h("output",null,String(l.qty)),
-          h("button",{type:"button", disabled: ticketLocked, onclick:function(){ adjustLine(idx,1); }},"+")
+          h("button",{type:"button", "aria-label":"Ajouter un " + l.name, onclick:function(){ adjustLine(idx,1); }},"+")
         ),
-        h("span",{class:"tot"}, money(l.price*l.qty))
+        h("span",{class:"tot"}, fmtNum(l.price*l.qty))
       ),
-      h("div",{class:"r2"},
-        h("button",{class:"chipbtn" + (l.offeredToTableId ? " on" : ""), type:"button", disabled: ticketLocked, onclick:function(){ openOffer(idx); }},
-          l.offeredToTableId ? ("→ " + l.offeredToTableId) : "Offrir"),
-        p && p.min > 0 && p.qty <= p.min ? h("span",{style:"font:500 10.5px/1 var(--font-m);color:var(--danger)"},"stock bas · " + p.qty) : null
-      )
+      (!locked || l.offeredToTableId) ? h("div",{class:"r2"},
+        h("button",{class:"chip" + (l.offeredToTableId ? " on" : ""), type:"button", disabled: locked, onclick:function(){ openOffer(idx); }},
+          icon("gift", 13), l.offeredToTableId ? "Offert à " + l.offeredToTableId : "Offrir à une table"),
+        !locked && st === "low" ? h("span",{class:"tag plain low"}, "Stock bas · " + p.qty) : null,
+        !locked && st === "out" ? h("span",{class:"tag plain out"}, "Rupture") : null
+      ) : null
     ));
   });
 
-  var offersWrap = $("tk-offerswrap"), offersBox = $("tk-offers");
-  offersBox.textContent = "";
-  var incomingOffers = t.tableId ? offersToTable(t.tableId, t.id) : [];
-  if (incomingOffers.length){
-    incomingOffers.forEach(function(o){
-      offersBox.append(h("div",{class:"row"},
-        h("div",{class:"info"}, h("div",{class:"name"}, o.line.qty + " × " + o.line.name), h("div",{class:"sub"}, "offert par " + o.ticket.client + " (" + o.ticket.ref + ")"))
-      ));
-    });
-    offersWrap.hidden = false;
-  } else {
-    offersWrap.hidden = true;
+  var offersBox = $("tk-offers"); offersBox.textContent = "";
+  var incoming = t.tableId && !locked ? offersToTable(t.tableId, t.id) : [];
+  incoming.forEach(function(o){ offersBox.append(offerRow(o)); });
+  $("tk-offerswrap").hidden = !incoming.length;
+  $("tk-note").hidden = !t.note;
+  $("tk-note").textContent = t.note ? "Note : " + t.note : "";
+
+  var disc = ticketDiscount(t);
+  $("tk-sub").textContent = money(ticketSubtotal(t));
+  $("tk-discrow").hidden = !disc;
+  $("tk-disclabel").textContent = discountLabel(t);
+  $("tk-disc").textContent = "− " + money(disc);
+  $("tk-advrow").hidden = !t.advance;
+  $("tk-adv").textContent = "− " + money(t.advance);
+  $("tk-duelabel").textContent = locked ? "Total réglé" : "Reste à payer";
+  $("tk-due").textContent = money(locked ? ticketTotal(t) : ticketDue(t));
+  $("tk-paidrow").hidden = !locked;
+  if (locked){
+    $("tk-paidlabel").textContent = "Réglé par " + String(t.paymentMethod || "").toLowerCase() + (t.payRef ? " (réf. " + t.payRef + ")" : "");
+    $("tk-paidval").textContent = t.paymentMethod === "Espèces" && t.change ? "monnaie " + money(t.change) : "";
   }
 
-  var total = ticketTotal(t), due = ticketDue(t);
-  $("tk-total").textContent = money(total);
-  $("tk-advrow").hidden = !t.advance;
-  $("tk-adv").textContent = money(t.advance);
-  $("tk-due").textContent = money(due);
+  var tools = $("tk-tools"); tools.textContent = "";
+  if (!locked){
+    tools.append(
+      toolBtn("auto", "Table", openAssign),
+      toolBtn("cash", "Avance", openAdvance),
+      toolBtn("percent", "Remise", openDiscount),
+      toolBtn("note", "Note", openNote)
+    );
+  }
+  tools.append(toolBtn("print", "Imprimer", printTicket), toolBtn("send", "WhatsApp", shareTicket));
+  if (!locked) tools.append(toolBtn("trash", "Annuler", cancelTicket, "danger"));
+  var pay = $("tk-pay"); pay.hidden = locked; pay.textContent = "";
+  pay.disabled = !t.lines.length;
+  pay.append("Encaisser " + money(ticketDue(t)));
 
-  var locked = t.status === "payé";
-  $("tk-pay").disabled = locked;
-  $("tk-assign").disabled = locked;
-  $("tk-advance").disabled = locked;
-  $("tk-cancel").disabled = locked;
-
-  renderTicketCats();
-  renderTicketCatalog();
+  if (!locked){ renderTicketCats(); renderTicketCatalog(); }
 }
 function adjustLine(idx, d){
   var t = findTicket(currentTicketId); if (!t || t.status === "payé") return;
   var l = t.lines[idx];
   l.qty += d;
-  if (l.qty <= 0){ t.lines.splice(idx,1); }
-  persist(); renderTicket(); renderSalle();
+  if (l.qty <= 0) t.lines.splice(idx,1);
+  persist(); renderTicket();
 }
 function addToTicket(productId){
   var t = findTicket(currentTicketId); if (!t || t.status === "payé") return;
   var p = findProduct(productId); if (!p) return;
-  var existing = t.lines.find(function(l){ return l.pid === productId && !l.offeredToTableId; });
+  var price = activePrice(p) || 0;
+  var existing = t.lines.find(function(l){ return l.pid === productId && !l.offeredToTableId && l.price === price; });
   if (existing) existing.qty += 1;
-  else t.lines.push({ pid: p.id, name: p.name, price: activePrice(p) || 0, qty: 1, offeredToTableId: null });
-  persist(); renderTicket(); renderSalle();
+  else t.lines.push({ pid: p.id, name: p.name, price: price, cost: p.costPrice || 0, qty: 1, offeredToTableId: null });
+  persist(); renderTicket();
 }
 function renderTicketCats(){
   var cats = Array.from(new Set(state.products.map(function(p){ return p.cat; })));
   var box = $("tk-cats"); box.textContent = "";
-  box.append(h("button",{class:"chipbtn" + (ticketCatFilter===null?" on":""), type:"button", onclick:function(){ ticketCatFilter=null; renderTicketCats(); renderTicketCatalog(); }},"Tout"));
-  cats.forEach(function(c){
-    box.append(h("button",{class:"chipbtn" + (ticketCatFilter===c?" on":""), type:"button", onclick:function(){ ticketCatFilter=c; renderTicketCats(); renderTicketCatalog(); }}, c));
+  [null].concat(cats).forEach(function(c){
+    box.append(h("button",{class:"chip", type:"button", "aria-pressed": String(ticketCatFilter === c), onclick:function(){ ticketCatFilter = c; renderTicketCats(); renderTicketCatalog(); }}, c === null ? "Tout" : c));
   });
 }
 function renderTicketCatalog(){
-  $("tk-pricemode").textContent = isNight() ? "🌙 Tarif nuit" : "☀️ Tarif jour";
   var q = norm($("tk-search").value);
   var list = state.products.filter(function(p){
     if (ticketCatFilter && p.cat !== ticketCatFilter) return false;
-    if (q && norm(p.name+" "+p.cat).indexOf(q) < 0) return false;
-    return true;
+    return !q || norm(p.name+" "+p.cat).indexOf(q) >= 0;
   });
   var box = $("tk-catalog"); box.textContent = "";
-  var t = findTicket(currentTicketId);
-  var locked = t && t.status === "payé";
+  if (!list.length) box.append(h("div",{class:"empty", style:"grid-column:1/-1"},"Aucun article trouvé."));
   list.forEach(function(p){
-    box.append(h("button",{class:"prodcard", type:"button", disabled: locked, onclick:function(){ addToTicket(p.id); }},
-      h("div",{class:"row1"},
-        h("span",{class:"prodicon", style:"background:"+catColor(p.cat)}, catIcon(p.cat)),
-        h("span",{class:"nm"}, p.name)
-      ),
-      h("div",{class:"row2"}, h("span",{class:"pr"}, money(activePrice(p))), h("span",{class:"st"}, p.qty<=0?"rupture":p.qty+" en stock"))
+    var st = stockStatus(p);
+    box.append(h("button",{class:"prodcard", type:"button", onclick:function(){ addToTicket(p.id); }},
+      prodIcon(p.cat),
+      h("span",{class:"tx"},
+        h("span",{class:"nm"}, p.name),
+        h("span",{class:"pr"}, money(activePrice(p))),
+        st === "none" ? null : h("span",{class:"st" + (st === "out" ? " out" : "")}, st === "out" ? "Rupture" : p.qty + " en stock")
+      )
     ));
   });
 }
 $("tk-search").addEventListener("input", renderTicketCatalog);
-$("tk-close").addEventListener("click", function(){ $("ov-ticket").hidden = true; renderAll(); });
-$("tk-cancel").addEventListener("click", function(){
-  askConfirm("Annuler ce ticket ?", "Le ticket sera supprimé définitivement.", function(){
-    var t = findTicket(currentTicketId);
-    state.tickets = state.tickets.filter(function(x){ return x.id !== currentTicketId; });
-    addLog(t.ref + " annulé");
+function cancelTicket(){
+  var t = findTicket(currentTicketId); if (!t) return;
+  askConfirm("Annuler le ticket " + t.ref + " ?", "Le ticket de " + t.client + " sera supprimé. Cette action est enregistrée dans le journal.", "Annuler le ticket", function(){
+    state.tickets = state.tickets.filter(function(x){ return x.id !== t.id; });
+    addLog(t.ref + " annulé (" + t.client + ", " + money(ticketTotal(t)) + (t.advance ? ", avance " + money(t.advance) + " à rembourser" : "") + ")");
     persist();
-    $("ov-ticket").hidden = true;
-    renderAll();
+    closeOv("ov-ticket");
+    toast("Ticket annulé.");
   });
-});
+}
 
 /* ---------- Offrir ---------- */
 var offerLineIdx = null;
 function openOffer(idx){
   offerLineIdx = idx;
-  var t = findTicket(currentTicketId);
-  $("of-title").textContent = "Offrir " + t.lines[idx].name;
+  var t = findTicket(currentTicketId), l = t.lines[idx];
+  $("of-title").textContent = "Offrir " + l.name;
   var box = $("of-tables"); box.textContent = "";
-  state.tables.forEach(function(tid){
-    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(t.lines[idx].offeredToTableId===tid), onclick:function(){
-      t.lines[idx].offeredToTableId = tid; persist(); renderTicket(); $("ov-offer").hidden = true;
+  state.tables.filter(function(tid){ return tid !== t.tableId; }).forEach(function(tid){
+    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(l.offeredToTableId === tid), onclick:function(){
+      l.offeredToTableId = tid; persist(); renderTicket(); $("ov-offer").hidden = true;
     }}, tid));
   });
-  $("ov-offer").hidden = false;
+  $("of-clear").hidden = !l.offeredToTableId;
+  openOv("ov-offer");
 }
 $("of-clear").addEventListener("click", function(){
   var t = findTicket(currentTicketId);
-  if (t && offerLineIdx != null) t.lines[offerLineIdx].offeredToTableId = null;
+  if (t && t.lines[offerLineIdx]) t.lines[offerLineIdx].offeredToTableId = null;
   persist(); renderTicket(); $("ov-offer").hidden = true;
 });
-$("of-close").addEventListener("click", function(){ $("ov-offer").hidden = true; });
 
-/* ---------- Lier une table ---------- */
-$("tk-assign").addEventListener("click", function(){
+/* ---------- Changer de table ---------- */
+function openAssign(){
   var t = findTicket(currentTicketId);
-  $("as-hint").textContent = "Actuellement : " + (t.tableId ? "Table " + t.tableId : "sans table") + ".";
-  var box = $("as-tables"); box.textContent = "";
-  box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(t.tableId===null), onclick:function(){
-    t.tableId = null; persist(); renderTicket(); renderSalle(); $("ov-assign").hidden = true;
-  }}, "Sans table"));
-  state.tables.forEach(function(tid){
-    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(t.tableId===tid), onclick:function(){
-      t.tableId = tid; persist(); renderTicket(); renderSalle(); $("ov-assign").hidden = true;
-    }}, tid));
+  $("as-hint").textContent = "Actuellement : " + (t.tableId ? "table " + t.tableId : "sans table") + ".";
+  tablePicker($("as-tables"), t.tableId, "Aucune", function(v){
+    t.tableId = v;
+    addLog(t.ref + " déplacé vers " + (v ? "la table " + v : "« sans table »"));
+    persist(); renderTicket(); $("ov-assign").hidden = true;
   });
-  $("ov-assign").hidden = false;
-});
-$("as-close").addEventListener("click", function(){ $("ov-assign").hidden = true; });
+  openOv("ov-assign");
+}
 
 /* ---------- Avance ---------- */
-$("tk-advance").addEventListener("click", function(){
+function openAdvance(){
   var t = findTicket(currentTicketId);
-  $("av-hint").textContent = "Reste à payer : " + money(ticketDue(t)) + (t.advance ? " · déjà avancé " + money(t.advance) : "");
+  var due = ticketDue(t);
+  if (due <= 0){ toast("Rien à avancer : le ticket est vide ou déjà couvert."); return; }
+  $("av-hint").textContent = "Reste à payer : " + money(due) + (t.advance ? " · déjà versé : " + money(t.advance) : "");
   $("av-input").value = "";
   var box = $("av-quick"); box.textContent = "";
   [1000,2000,5000,10000].forEach(function(v){
-    box.append(h("button",{class:"picktile", type:"button", onclick:function(){ $("av-input").value = (Number($("av-input").value)||0) + v; }}, "+" + v));
+    box.append(h("button",{class:"picktile", type:"button", onclick:function(){ $("av-input").value = (Number($("av-input").value)||0) + v; }}, "+ " + fmtNum(v)));
   });
-  $("ov-advance").hidden = false;
-});
-$("av-cancel").addEventListener("click", function(){ $("ov-advance").hidden = true; });
+  openOv("ov-advance");
+  $("av-input").focus();
+}
 $("av-submit").addEventListener("click", function(){
   var t = findTicket(currentTicketId);
   var v = Math.trunc(Number($("av-input").value));
   if (!isFinite(v) || v <= 0){ toast("Montant invalide."); return; }
-  var due = ticketDue(t);
-  if (v > due) v = due;
+  v = Math.min(v, ticketDue(t));
   t.advance = (t.advance||0) + v;
-  addLog(t.ref + " : avance de " + money(v) + " enregistrée");
+  addLog(t.ref + " : avance de " + money(v));
   persist(); renderTicket(); $("ov-advance").hidden = true;
+  toast("Avance de " + money(v) + " enregistrée.");
+});
+
+/* ---------- Remise ---------- */
+var discType = "pct";
+function renderDiscountForm(){
+  var box = $("ds-type"); box.textContent = "";
+  [["pct","En pourcentage"],["amt","En montant"]].forEach(function(o){
+    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(o[0] === discType), onclick:function(){ discType = o[0]; $("ds-input").value = ""; renderDiscountForm(); }}, o[1]));
+  });
+  $("ds-label").textContent = discType === "pct" ? "Pourcentage de remise (%)" : "Montant de la remise (" + currency() + ")";
+  var q = $("ds-quick"); q.textContent = "";
+  (discType === "pct" ? [5,10,15,20] : [500,1000,2000,5000]).forEach(function(v){
+    q.append(h("button",{class:"picktile", type:"button", onclick:function(){ $("ds-input").value = v; }}, discType === "pct" ? v + " %" : fmtNum(v)));
+  });
+}
+function openDiscount(){
+  var t = findTicket(currentTicketId);
+  if (!t.lines.length){ toast("Ajoutez d'abord un article."); return; }
+  discType = t.discount ? t.discount.type : "pct";
+  $("ds-hint").textContent = "Sous-total du ticket : " + money(ticketSubtotal(t));
+  renderDiscountForm();
+  $("ds-input").value = t.discount ? t.discount.value : "";
+  $("ds-clear").hidden = !t.discount;
+  openOv("ov-discount");
+  $("ds-input").focus();
+}
+$("ds-submit").addEventListener("click", function(){
+  var t = findTicket(currentTicketId);
+  var v = Number(String($("ds-input").value).replace(",", "."));
+  if (!isFinite(v) || v <= 0){ toast("Valeur invalide."); return; }
+  if (discType === "pct" && v > 100){ toast("La remise ne peut pas dépasser 100 %."); return; }
+  if (discType === "amt" && v > ticketSubtotal(t)){ toast("La remise dépasse le sous-total."); return; }
+  t.discount = { type: discType, value: discType === "pct" ? Math.round(v*10)/10 : Math.round(v) };
+  addLog(t.ref + " : remise de " + (discType === "pct" ? t.discount.value + " %" : money(t.discount.value)));
+  persist(); renderTicket(); $("ov-discount").hidden = true;
+});
+$("ds-clear").addEventListener("click", function(){
+  var t = findTicket(currentTicketId);
+  t.discount = null;
+  addLog(t.ref + " : remise retirée");
+  persist(); renderTicket(); $("ov-discount").hidden = true;
+});
+
+/* ---------- Note ---------- */
+function openNote(){
+  var t = findTicket(currentTicketId);
+  $("no-input").value = t.note || "";
+  openOv("ov-note");
+  $("no-input").focus();
+}
+$("no-submit").addEventListener("click", function(){
+  var t = findTicket(currentTicketId);
+  t.note = $("no-input").value.trim();
+  persist(); renderTicket(); $("ov-note").hidden = true;
 });
 
 /* ---------- Paiement ---------- */
+var PAY_METHODS = [["Espèces","cash"],["Carte","card"],["Mobile Money","phone"]];
 var payMethod = "Espèces";
+function payDue(){ var t = findTicket(currentTicketId); return t ? ticketDue(t) : 0; }
+function renderPayMethods(){
+  var box = $("py-methods"); box.textContent = "";
+  PAY_METHODS.forEach(function(m){
+    box.append(h("button",{class:"picktile col2", type:"button", "aria-pressed": String(m[0] === payMethod), onclick:function(){ payMethod = m[0]; renderPayMethods(); }}, icon(m[1], 20), m[0]));
+  });
+  $("py-cashbox").hidden = payMethod !== "Espèces";
+  $("py-refbox").hidden = payMethod === "Espèces";
+  $("py-reflabel").textContent = payMethod === "Carte" ? "Référence du reçu TPE (facultatif)" : "Référence de la transaction (facultatif)";
+}
+function renderPayChange(){
+  var due = payDue(), raw = $("py-cash").value.trim();
+  var given = Number(raw) || 0, change = given - due;
+  var short = raw !== "" && change < 0;
+  $("py-changelabel").textContent = short ? "Il manque" : "Monnaie à rendre";
+  $("py-change").textContent = money(short ? -change : Math.max(0, change));
+  $("py-change").style.color = short ? "var(--danger)" : (raw !== "" ? "var(--ok)" : "");
+}
 $("tk-pay").addEventListener("click", function(){
   var t = findTicket(currentTicketId);
+  if (!t.lines.length){ toast("Le ticket est vide."); return; }
   var due = ticketDue(t);
   $("py-due").textContent = money(due);
-  $("py-sub").textContent = t.ref + " · " + t.client;
+  $("py-sub").textContent = t.ref + " · " + t.client + " · à encaisser";
   payMethod = "Espèces";
-  var methods = [["Espèces","billets/pièces"],["Carte","TPE"],["Mobile Money","Airtel/Moov"]];
-  var box = $("py-methods"); box.textContent = "";
-  methods.forEach(function(m){
-    box.append(h("button",{class:"picktile", type:"button", "aria-pressed": String(m[0]===payMethod), onclick:function(){
-      payMethod = m[0];
-      Array.prototype.forEach.call(box.children, function(b,i){ b.setAttribute("aria-pressed", String(methods[i][0]===payMethod)); });
-      $("py-cashbox").hidden = payMethod !== "Espèces";
-    }}, m[0]));
-  });
-  $("py-cashbox").hidden = false;
-  $("py-cash").value = "";
-  renderPayChange(due);
+  renderPayMethods();
+  $("py-cash").value = ""; $("py-ref").value = "";
   var qbox = $("py-quick"); qbox.textContent = "";
-  [500,1000,2000,5000].forEach(function(v){
-    qbox.append(h("button",{class:"picktile", type:"button", onclick:function(){ $("py-cash").value = (Number($("py-cash").value)||0) + v; renderPayChange(due); }}, "+" + v));
+  var sugg = [due];
+  [500,1000,2000,5000,10000].forEach(function(step){
+    var v = Math.ceil(due / step) * step;
+    if (v > due && sugg.indexOf(v) < 0 && sugg.length < 4) sugg.push(v);
   });
+  sugg.forEach(function(v, i){
+    qbox.append(h("button",{class:"picktile", type:"button", onclick:function(){ $("py-cash").value = v; renderPayChange(); }}, i === 0 ? "Compte juste" : fmtNum(v)));
+  });
+  renderPayChange();
   var pv = $("py-stockpreview"); pv.textContent = "";
-  t.lines.forEach(function(l){
-    pv.append(h("div",{style:"display:flex;justify-content:space-between;font-size:13px"}, h("span",null,l.name), h("span",{style:"font-family:var(--font-m);color:var(--danger)"}, "-" + l.qty)));
-  });
-  $("ov-pay").hidden = false;
+  var byPid = {};
+  t.lines.forEach(function(l){ var p = findProduct(l.pid); if (p && p.track) byPid[l.pid] = (byPid[l.pid] || 0) + l.qty; });
+  Object.keys(byPid).forEach(function(pid){ pv.append(h("span",{class:"tag plain neutral"}, findProduct(pid).name + " −" + byPid[pid])); });
+  $("py-stockwrap").hidden = !Object.keys(byPid).length;
+  openOv("ov-pay");
 });
-function renderPayChange(due){
-  var given = Number($("py-cash").value) || 0;
-  var change = given - due;
-  $("py-change").textContent = money(Math.max(0,change));
-  $("py-change").style.color = change < 0 ? "var(--danger)" : "var(--ok)";
-}
-$("py-cash").addEventListener("input", function(){ var t = findTicket(currentTicketId); renderPayChange(ticketDue(t)); });
-$("py-clear").addEventListener("click", function(){ $("py-cash").value = ""; var t = findTicket(currentTicketId); renderPayChange(ticketDue(t)); });
-$("py-close").addEventListener("click", function(){ $("ov-pay").hidden = true; });
+$("py-cash").addEventListener("input", renderPayChange);
 $("py-confirm").addEventListener("click", function(){
   var t = findTicket(currentTicketId);
   var due = ticketDue(t);
-  var given = Number($("py-cash").value) || 0;
+  var raw = $("py-cash").value.trim();
+  var given = raw === "" ? due : (Number(raw) || 0);
   if (payMethod === "Espèces" && given < due){ toast("Le montant donné est insuffisant."); return; }
   t.lines.forEach(function(l){
     var p = findProduct(l.pid);
-    if (p) p.qty = Math.max(0, p.qty - l.qty);
+    if (p && p.track) p.qty = Math.max(0, p.qty - l.qty);
   });
   t.status = "payé";
   t.paymentMethod = payMethod;
+  t.payRef = payMethod === "Espèces" ? "" : $("py-ref").value.trim();
   t.paidAmount = payMethod === "Espèces" ? given : due;
   t.change = payMethod === "Espèces" ? Math.max(0, given - due) : 0;
   t.paidAt = Date.now();
-  addLog(t.ref + " encaissé (" + payMethod + ") : " + money(due));
+  t.cashedBy = currentStaff().name;
+  addLog(t.ref + " encaissé (" + payMethod + ") : " + money(ticketTotal(t)));
   persist();
   $("ov-pay").hidden = true;
   renderTicket(); renderAll();
-  toast("Paiement enregistré.");
+  toast(t.change ? "Paiement enregistré. Monnaie à rendre : " + money(t.change) : "Paiement enregistré.");
 });
 
-/* ---------- Impression ---------- */
+/* ---------- Impression / partage ---------- */
+function doPrint(cls){
+  document.body.classList.add(cls);
+  var done = function(){ document.body.classList.remove(cls); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  window.print();
+  setTimeout(done, 1500);
+}
 function printTicket(){
-  var t = findTicket(currentTicketId);
-  if (!t) return;
+  var t = findTicket(currentTicketId); if (!t) return;
+  var b = state.settings.biz;
+  $("rc-name").textContent = b.name;
+  $("rc-sub").textContent = b.tagline;
+  $("rc-contact").textContent = [b.address, b.phone].filter(Boolean).join(" · ");
+  $("rc-contact").hidden = !b.address && !b.phone;
   $("rc-ref").textContent = t.ref;
   $("rc-client").textContent = t.client;
   $("rc-table").textContent = t.tableId || "—";
   $("rc-staff").textContent = t.servedBy || "—";
-  $("rc-date").textContent = fmtDate(t.paidAt || t.createdAt);
+  $("rc-date").textContent = fmtDate(t.paidAt || Date.now());
   var lb = $("rc-lines"); lb.textContent = "";
   t.lines.forEach(function(l){
     lb.append(h("tr", null,
       h("td", null, l.qty + " × " + l.name + (l.offeredToTableId ? " (offert à " + l.offeredToTableId + ")" : "")),
-      h("td", {style:"text-align:right"}, money(l.price*l.qty))
+      h("td", {style:"text-align:right;white-space:nowrap"}, fmtNum(l.price*l.qty))
     ));
   });
-  if (t.tableId){
-    offersToTable(t.tableId, t.id).forEach(function(o){
-      lb.append(h("tr", null,
-        h("td", {style:"font-style:italic"}, o.line.qty + " × " + o.line.name + " — offert (" + o.ticket.ref + ")"),
-        h("td", {style:"text-align:right;font-style:italic"}, "—")
-      ));
-    });
-  }
+  var paid = t.status === "payé", isCash = paid && t.paymentMethod === "Espèces", disc = ticketDiscount(t);
+  $("rc-subrow").hidden = !disc;
+  $("rc-subtotal").textContent = money(ticketSubtotal(t));
+  $("rc-discrow").hidden = !disc;
+  $("rc-disclabel").textContent = discountLabel(t);
+  $("rc-disc").textContent = "− " + money(disc);
   $("rc-total").textContent = money(ticketTotal(t));
-  var paid = t.status === "payé";
-  var isCash = paid && t.paymentMethod === "Espèces";
   $("rc-advrow").hidden = !t.advance;
   $("rc-adv").textContent = money(t.advance||0);
   $("rc-duerow").hidden = paid;
@@ -1193,426 +1801,601 @@ function printTicket(){
   $("rc-given").textContent = money(t.paidAmount||0);
   $("rc-changerow").hidden = !isCash;
   $("rc-change").textContent = money(t.change||0);
-  document.body.classList.add("printing-ticket");
-  window.print();
-  document.body.classList.remove("printing-ticket");
+  $("rc-note").hidden = !t.note;
+  $("rc-note").textContent = t.note ? "Note : " + t.note : "";
+  $("rc-footer").textContent = b.footer;
+  doPrint("printing-ticket");
 }
-$("tk-print").addEventListener("click", printTicket);
+function ticketText(t){
+  var b = state.settings.biz, paid = t.status === "payé", disc = ticketDiscount(t);
+  var out = ["*" + b.name + "*" + (b.tagline ? " — " + b.tagline : "")];
+  if (b.address || b.phone) out.push([b.address, b.phone].filter(Boolean).join(" · "));
+  out.push("", "Ticket " + t.ref + " · " + fmtDate(t.paidAt || Date.now()), "Client : " + t.client + (t.tableId ? " · Table " + t.tableId : ""), "");
+  t.lines.forEach(function(l){ out.push(l.qty + " × " + l.name + " : " + money(l.price*l.qty)); });
+  out.push("");
+  if (disc) out.push("Sous-total : " + money(ticketSubtotal(t)), discountLabel(t) + " : − " + money(disc));
+  out.push("*Total : " + money(ticketTotal(t)) + "*");
+  if (t.advance) out.push("Avance : " + money(t.advance));
+  out.push(paid ? "Réglé par " + String(t.paymentMethod).toLowerCase() : "Reste à payer : " + money(ticketDue(t)));
+  if (b.footer) out.push("", b.footer);
+  return out.join("\n");
+}
+function shareTicket(){
+  var t = findTicket(currentTicketId); if (!t) return;
+  if (!t.lines.length){ toast("Le ticket est vide."); return; }
+  window.open("https://wa.me/?text=" + encodeURIComponent(ticketText(t)), "_blank", "noopener");
+}
 
 /* ---------- Stock ---------- */
-function renderStockChart(){
-  var box = $("stockbars");
-  Array.prototype.forEach.call(box.querySelectorAll(".bar"), function(b){ b.remove(); });
-  var list = state.products.slice(0, 12);
-  var alertCount = state.products.filter(function(p){ return isLow(p) || p.qty<=0; }).length;
-  $("stockalertcount").textContent = String(alertCount);
-  list.forEach(function(p){
-    var target = p.min > 0 ? p.min * 2 : Math.max(p.qty,1);
-    var pct = Math.max(4, Math.min(100, Math.round((p.qty/target)*100)));
-    var color = p.qty<=0 ? "var(--danger)" : isLow(p) ? "#e0a736" : "var(--accent)";
-    box.append(h("div",{class:"bar"}, h("div",{class:"fill"}, h("i",{style:"height:"+pct+"%;background:"+color})), h("span",null,p.name.split(" ")[0])));
-  });
-}
+var stockFilter = "all";
 function renderStock(){
+  var admin = isAdmin();
+  var tracked = state.products.filter(function(p){ return p.track; });
+  var low = tracked.filter(function(p){ return stockStatus(p) === "low"; }).length;
+  var out = tracked.filter(function(p){ return stockStatus(p) === "out"; }).length;
+  var k = $("stockkpis"); k.textContent = "";
+  k.append(
+    kpi("Produits", String(state.products.length), tracked.length + " avec suivi de stock"),
+    kpi("Stock bas", String(low)),
+    kpi("En rupture", String(out), null, out ? "alert" : "")
+  );
+  if (admin) k.append(kpi("Valeur du stock", money(tracked.reduce(function(s,p){ return s + p.qty * p.costPrice; }, 0)), "au prix d'achat"));
+
+  var cats = Array.from(new Set(state.products.map(function(p){ return p.cat; }))).sort(function(a,b){ return norm(a).localeCompare(norm(b)); });
+  var filters = [["all","Tous"],["low","Stock bas"],["out","Rupture"]].concat(cats.map(function(c){ return ["cat:" + c, c]; }));
+  if (!filters.some(function(f){ return f[0] === stockFilter; })) stockFilter = "all";
+  var fb = $("stockfilters"); fb.textContent = "";
+  filters.forEach(function(f){
+    fb.append(h("button",{class:"chip", type:"button", "aria-pressed": String(f[0] === stockFilter), onclick:function(){ stockFilter = f[0]; renderStock(); }}, f[1]));
+  });
+
   var q = norm($("stocksearch").value);
   var list = state.products.slice().sort(function(a,b){ return norm(a.cat).localeCompare(norm(b.cat)) || norm(a.name).localeCompare(norm(b.name)); })
-    .filter(function(p){ return !q || norm(p.name+" "+p.cat).indexOf(q) >= 0; });
-  var low = state.products.filter(function(p){ return p.qty>0 && isLow(p); }).length;
-  var out = state.products.filter(function(p){ return p.qty<=0; }).length;
-  $("stocksum").textContent = state.products.length ? state.products.length + " produits, " + low + " en stock bas, " + out + " en rupture" : "";
+    .filter(function(p){
+      if (q && norm(p.name+" "+p.cat).indexOf(q) < 0) return false;
+      if (stockFilter === "low" || stockFilter === "out") return stockStatus(p) === stockFilter;
+      if (stockFilter.indexOf("cat:") === 0) return p.cat === stockFilter.slice(4);
+      return true;
+    });
   var box = $("stocklist"); box.textContent = "";
-  if (!list.length) box.append(h("div",{class:"empty"},"Aucun produit."));
+  if (!list.length) box.append(h("div",{class:"empty"}, state.products.length ? "Aucun produit ne correspond." : "Aucun produit. Ajoutez votre premier produit pour commencer."));
   list.forEach(function(p){
-    var tag = p.qty<=0 ? h("span",{class:"tag out"},"Rupture") : (isLow(p) ? h("span",{class:"tag low"},"Stock bas") : null);
-    var priceLabel = p.priceDay === p.priceNight
-      ? money(p.priceDay)
-      : "jour " + money(p.priceDay) + " · nuit " + money(p.priceNight);
-    var subParts = [p.cat, priceLabel];
-    if (p.costPrice > 0){
-      var margin = p.priceDay - p.costPrice;
-      subParts.push("marge " + (margin >= 0 ? "+" : "") + money(margin));
-    }
-    if (p.saleMode === "bloc") subParts.push("casier de " + p.unitsPerBlock);
-    box.append(h("div",{class:"row"},
-      h("span",{class:"prodicon", style:"background:"+catColor(p.cat)}, catIcon(p.cat)),
-      h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, subParts.join(" · "))),
-      h("div",{class:"qty"},
-        h("button",{type:"button", onclick:function(){ quickAdjust(p.id,-1); }},"−"),
+    var st = stockStatus(p);
+    var tag = st === "out" ? h("span",{class:"tag out"},"Rupture") : st === "low" ? h("span",{class:"tag low"},"Stock bas") : st === "none" ? h("span",{class:"tag neutral"},"À la demande") : null;
+    var sub = [p.cat, p.priceDay === p.priceNight ? money(p.priceDay) : "jour " + fmtNum(p.priceDay) + " · nuit " + money(p.priceNight)];
+    if (admin && p.costPrice > 0 && p.priceDay > 0) sub.push("marge " + Math.round((p.priceDay - p.costPrice) / p.priceDay * 100) + " %");
+    var target = p.optimal || p.min * 2 || p.qty || 1;
+    var info = h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, sub.join(" · ")));
+    if (p.track) info.append(h("div",{class:"meter " + st, title: p.qty + " en stock" + (p.optimal ? " sur " + p.optimal + " (optimal)" : "")}, h("i",{style:"width:" + Math.max(0, Math.min(100, Math.round(p.qty/target*100))) + "%"})));
+    var side = h("div",{class:"side2"});
+    if (p.track){
+      if (admin) side.append(h("div",{class:"qty"},
+        h("button",{type:"button", "aria-label":"Retirer 1 du stock de " + p.name, disabled: p.qty <= 0, onclick:function(){ quickAdjust(p.id,-1); }},"−"),
         h("output",null,String(p.qty)),
-        h("button",{type:"button", onclick:function(){ quickAdjust(p.id,1); }},"+")
-      ),
-      h("button",{class:"edit", type:"button", onclick:function(){ openProduct(p.id); }},"✎")
-    ));
+        h("button",{type:"button", "aria-label":"Ajouter 1 au stock de " + p.name, onclick:function(){ quickAdjust(p.id,1); }},"+")
+      ));
+      else side.append(h("span",{class:"amt"}, String(p.qty)));
+    }
+    if (admin) side.append(h("button",{class:"iconbtn bordered", type:"button", "aria-label":"Modifier " + p.name, title:"Modifier", onclick:function(){ openProduct(p.id); }}, icon("pencil", 16)));
+    box.append(h("div",{class:"row stockrow"}, prodIcon(p.cat), info, side));
   });
-  var badge = $("stockbadge"), n = low+out;
-  badge.hidden = !n; badge.textContent = String(n);
   var dl = $("pd-cats"); dl.textContent = "";
-  var seen = {};
-  state.products.forEach(function(p){ if (p.cat && !seen[p.cat]){ seen[p.cat]=1; dl.append(h("option",{value:p.cat})); } });
-  renderStockChart();
+  cats.forEach(function(c){ dl.append(h("option",{value:c})); });
   renderRestockList();
 }
 function restockNeeds(){
-  return state.products.filter(function(p){ return p.optimal > 0 && p.qty < p.optimal; })
-    .map(function(p){ return { p: p, need: p.optimal - p.qty }; })
-    .sort(function(a,b){ return b.need - a.need; });
+  return state.products.filter(function(p){ return p.track && p.optimal > 0 && p.qty < p.optimal; })
+    .map(function(p){
+      var need = p.optimal - p.qty;
+      var blocks = p.saleMode === "bloc" && p.unitsPerBlock > 1 ? Math.ceil(need / p.unitsPerBlock) : 0;
+      return { p: p, need: need, blocks: blocks, units: blocks ? blocks * p.unitsPerBlock : need };
+    })
+    .sort(function(a,b){ return norm(a.p.cat).localeCompare(norm(b.p.cat)) || b.need - a.need; });
 }
 function restockQtyLabel(e){
-  var p = e.p;
-  if (p.saleMode === "bloc" && p.unitsPerBlock > 1){
-    var blocks = Math.ceil(e.need / p.unitsPerBlock);
-    return blocks + " casier" + (blocks > 1 ? "s" : "") + " de " + p.unitsPerBlock + " (" + e.need + " unité" + (e.need > 1 ? "s" : "") + ")";
-  }
-  return e.need + " unité" + (e.need > 1 ? "s" : "");
+  if (e.blocks) return plural(e.blocks,"casier","casiers") + " de " + e.p.unitsPerBlock;
+  return plural(e.need,"unité","unités");
 }
 function buildOrderText(){
-  var need = restockNeeds();
-  var lines = need.map(function(e){ return "- " + e.p.name + " : " + restockQtyLabel(e); });
-  return "Le Baobab — Commande fournisseur — " + new Date().toLocaleDateString("fr-FR") + "\n\n" + lines.join("\n");
+  var b = state.settings.biz;
+  var lines = restockNeeds().map(function(e){ return "- " + e.p.name + " : " + restockQtyLabel(e); });
+  return "*" + b.name + "* — Commande fournisseur du " + new Date().toLocaleDateString("fr-FR") + "\n\n" + lines.join("\n") + (b.phone ? "\n\nContact : " + b.phone : "");
 }
 function renderRestockList(){
   var box = $("restocklist"); box.textContent = "";
   var need = restockNeeds();
   if (!need.length){
-    box.append(h("div",{class:"empty"},"Tous les produits suivis ont atteint leur stock optimal."));
+    $("restocksum").textContent = "";
+    box.append(h("div",{class:"empty"},"Rien à commander : tous les produits suivis sont à leur stock optimal."));
     return;
   }
+  var cost = need.reduce(function(s,e){ return s + e.units * e.p.costPrice; }, 0);
+  $("restocksum").textContent = plural(need.length,"produit","produits") + (isAdmin() && cost ? " · environ " + money(cost) : "");
   need.forEach(function(e){
     box.append(h("div",{class:"row"},
-      h("div",{class:"info"}, h("div",{class:"name"}, e.p.name), h("div",{class:"sub"}, e.p.cat + " · en stock " + e.p.qty + " / optimal " + e.p.optimal)),
-      h("b",{style:"font-family:var(--font-m);color:var(--accent-ink);text-align:right;white-space:nowrap"}, restockQtyLabel(e))
+      h("div",{class:"info"}, h("div",{class:"name"}, e.p.name), h("div",{class:"sub"}, e.p.cat + " · " + e.p.qty + " en stock, optimal " + e.p.optimal)),
+      h("span",{class:"amt"}, restockQtyLabel(e))
     ));
   });
 }
 $("copyrestock").addEventListener("click", function(){
   if (!restockNeeds().length){ toast("Rien à commander pour le moment."); return; }
-  var text = buildOrderText();
   if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){ toast("Liste copiée dans le presse-papiers."); }, function(){ toast(text); });
-  } else {
-    toast("Copie indisponible sur cet appareil.");
-  }
+    navigator.clipboard.writeText(buildOrderText().replace(/\*/g,"")).then(function(){ toast("Commande copiée."); }, function(){ toast("Copie impossible sur cet appareil."); });
+  } else toast("Copie impossible sur cet appareil.");
 });
 $("printrestock").addEventListener("click", function(){
   var need = restockNeeds();
   if (!need.length){ toast("Rien à commander pour le moment."); return; }
+  $("os-title").textContent = state.settings.biz.name + " — Commande fournisseur";
   $("os-date").textContent = new Date().toLocaleString("fr-FR", { dateStyle:"long", timeStyle:"short" });
   var lb = $("os-lines"); lb.textContent = "";
   need.forEach(function(e){
-    lb.append(h("tr", null,
-      h("td", null, e.p.name),
-      h("td", {style:"text-align:right"}, restockQtyLabel(e))
-    ));
+    lb.append(h("tr", null, h("td", null, e.p.name), h("td", {style:"text-align:right"}, restockQtyLabel(e))));
   });
-  document.body.classList.add("printing-order");
-  window.print();
-  document.body.classList.remove("printing-order");
+  doPrint("printing-order");
 });
 $("whatsapprestock").addEventListener("click", function(){
   if (!restockNeeds().length){ toast("Rien à commander pour le moment."); return; }
-  var url = "https://wa.me/?text=" + encodeURIComponent(buildOrderText());
-  window.open(url, "_blank");
+  window.open("https://wa.me/?text=" + encodeURIComponent(buildOrderText()), "_blank", "noopener");
 });
 function quickAdjust(id,d){
-  var p = findProduct(id); if (!p) return;
-  if (p.qty+d < 0) return;
+  var p = findProduct(id); if (!p || p.qty+d < 0) return;
   p.qty += d;
-  addLog(p.name + " : " + (d>0?"+":"") + d + " (ajustement manuel), reste " + p.qty);
-  persist(); renderStock();
+  addLog(p.name + " : " + (d>0?"+":"") + d + " (correction de stock), reste " + p.qty);
+  persist(); renderStock(); renderNav();
 }
 $("stocksearch").addEventListener("input", renderStock);
 
-var editingProductId = null, delArmed = false;
+var editingProductId = null;
+function syncProductForm(){
+  $("pd-stockfields").hidden = !$("pd-track").checked;
+  $("pd-blockwrap").hidden = $("pd-salemode").value !== "bloc";
+}
 function openProduct(id){
-  editingProductId = id; delArmed = false;
-  var p = id ? findProduct(id) : null;
+  editingProductId = id;
+  var p = id ? findProduct(id) : null, cur = " (" + currency() + ")";
   $("pd-title").textContent = p ? "Modifier le produit" : "Nouveau produit";
+  $("pd-pricedaylabel").textContent = "Prix jour" + cur;
+  $("pd-pricenightlabel").textContent = "Prix nuit" + cur;
+  $("pd-costlabel").textContent = "Prix d'achat à l'unité" + cur;
   $("pd-name").value = p ? p.name : "";
   $("pd-cat").value = p ? p.cat : "";
-  $("pd-qty").value = p ? p.qty : 0;
-  $("pd-min").value = p ? p.min : 0;
-  $("pd-optimal").value = p ? p.optimal : 0;
+  $("pd-track").checked = p ? p.track : true;
+  $("pd-qty").value = p ? p.qty : "";
+  $("pd-min").value = p ? p.min : "";
+  $("pd-optimal").value = p ? p.optimal : "";
   $("pd-priceday").value = p ? p.priceDay : "";
   $("pd-pricenight").value = p ? p.priceNight : "";
-  $("pd-cost").value = p ? p.costPrice : "";
+  $("pd-cost").value = p && p.costPrice ? p.costPrice : "";
   $("pd-salemode").value = p ? p.saleMode : "unite";
-  $("pd-unitsperblock").value = p ? p.unitsPerBlock : 12;
-  $("pd-blockwrap").hidden = $("pd-salemode").value !== "bloc";
-  $("pd-del").hidden = !p; $("pd-del").textContent = "Supprimer";
-  $("ov-product").hidden = false;
-  $("pd-name").focus();
+  $("pd-unitsperblock").value = p && p.saleMode === "bloc" ? p.unitsPerBlock : 12;
+  $("pd-del").hidden = !p;
+  syncProductForm();
+  openOv("ov-product");
+  if (!p) $("pd-name").focus();
 }
 $("addproduct").addEventListener("click", function(){ openProduct(null); });
-$("pd-cancel").addEventListener("click", function(){ $("ov-product").hidden = true; });
-$("pd-salemode").addEventListener("change", function(){ $("pd-blockwrap").hidden = $("pd-salemode").value !== "bloc"; });
+$("pd-salemode").addEventListener("change", syncProductForm);
+$("pd-track").addEventListener("change", syncProductForm);
 $("pd-save").addEventListener("click", function(){
   var name = $("pd-name").value.trim();
   if (!name){ toast("Le nom du produit est obligatoire."); return; }
-  var priceDay = Math.max(0, Math.trunc(Number($("pd-priceday").value)||0));
-  var priceNightRaw = $("pd-pricenight").value;
-  var saleMode = $("pd-salemode").value === "bloc" ? "bloc" : "unite";
-  var vals = {
-    name: name, cat: $("pd-cat").value.trim() || "Divers",
-    qty: Math.max(0, Math.trunc(Number($("pd-qty").value)||0)),
-    min: Math.max(0, Math.trunc(Number($("pd-min").value)||0)),
-    optimal: Math.max(0, Math.trunc(Number($("pd-optimal").value)||0)),
-    priceDay: priceDay,
-    priceNight: priceNightRaw === "" ? priceDay : Math.max(0, Math.trunc(Number(priceNightRaw)||0)),
-    costPrice: Math.max(0, Math.trunc(Number($("pd-cost").value)||0)),
-    saleMode: saleMode,
-    unitsPerBlock: saleMode === "bloc" ? Math.max(1, Math.trunc(Number($("pd-unitsperblock").value)||1)) : 1
-  };
+  var priceDay = int0($("pd-priceday").value);
+  var night = $("pd-pricenight").value;
+  var vals = normalizeProduct({
+    id: editingProductId || uid(), name: name, cat: $("pd-cat").value.trim() || "Divers",
+    track: $("pd-track").checked,
+    qty: $("pd-qty").value, min: $("pd-min").value, optimal: int0($("pd-optimal").value),
+    priceDay: priceDay, priceNight: night === "" ? priceDay : int0(night),
+    costPrice: $("pd-cost").value, saleMode: $("pd-salemode").value, unitsPerBlock: $("pd-unitsperblock").value
+  });
   if (editingProductId){
-    var p = findProduct(editingProductId);
+    var p = findProduct(editingProductId), before = p.qty;
     Object.assign(p, vals);
-    addLog(p.name + " modifié");
+    addLog(p.name + " modifié" + (p.track && before !== p.qty ? " (stock " + before + " → " + p.qty + ")" : ""));
   } else {
-    var np = Object.assign({ id: uid() }, vals);
-    state.products.push(np);
-    addLog("Produit ajouté : " + np.name);
+    state.products.push(vals);
+    addLog("Produit ajouté : " + vals.name);
   }
-  persist(); renderStock(); $("ov-product").hidden = true;
+  persist(); $("ov-product").hidden = true; renderAll();
+  toast("Produit enregistré.");
 });
 $("pd-del").addEventListener("click", function(){
-  if (!delArmed){ delArmed = true; $("pd-del").textContent = "Confirmer la suppression"; return; }
-  var p = findProduct(editingProductId);
-  if (p){ state.products = state.products.filter(function(x){ return x.id !== p.id; }); addLog("Produit supprimé : " + p.name); persist(); renderStock(); }
-  $("ov-product").hidden = true;
+  var p = findProduct(editingProductId); if (!p) return;
+  askConfirm("Supprimer « " + p.name + " » ?", "Le produit disparaît de la carte et du stock. Les tickets déjà enregistrés ne sont pas modifiés.", "Supprimer", function(){
+    state.products = state.products.filter(function(x){ return x.id !== p.id; });
+    addLog("Produit supprimé : " + p.name);
+    persist(); $("ov-product").hidden = true; renderAll();
+  });
 });
 
-/* ---------- Import CSV / export-import données ---------- */
+/* ---------- Import CSV ---------- */
 $("importfile").addEventListener("change", function(e){
   var file = e.target.files[0]; if (!file) return;
   var reader = new FileReader();
   reader.onload = function(){
-    var text = String(reader.result || "");
-    var lines = text.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+    var lines = String(reader.result || "").split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
     var added = 0;
     lines.forEach(function(line){
-      var parts = line.split(/[,;\t]/).map(function(s){ return s.trim(); });
+      var parts = line.split(/[,;\t]/).map(function(s){ return s.trim().replace(/^"|"$/g,""); });
       if (parts.length < 2) return;
       var name = parts[0];
-      if (!name || /^nom$/i.test(name)) return;
-      var cat = parts[1] || "Divers";
-      var qty = Math.max(0, Math.trunc(Number(parts[2]))||0);
-      var min = Math.max(0, Math.trunc(Number(parts[3]))||0);
-      var priceDay = Math.max(0, Math.trunc(Number(parts[4]))||0);
-      var priceNight = parts[5] !== undefined && parts[5] !== "" ? Math.max(0, Math.trunc(Number(parts[5]))||0) : priceDay;
-      var optimal = parts[6] !== undefined && parts[6] !== "" ? Math.max(0, Math.trunc(Number(parts[6]))||0) : Math.max(qty, min*2);
-      state.products.push({ id: uid(), name: name, cat: cat, qty: qty, min: min, optimal: optimal, priceDay: priceDay, priceNight: priceNight });
+      if (!name || /^(nom|name|produit)$/i.test(name)) return;
+      var num = function(i){ return parts[i] !== undefined && parts[i] !== "" ? int0(parts[i]) : null; };
+      var qty = num(2) || 0, min = num(3) || 0, priceDay = num(4) || 0;
+      state.products.push(normalizeProduct({
+        id: uid(), name: name, cat: parts[1] || "Divers", qty: qty, min: min, track: true,
+        priceDay: priceDay, priceNight: num(5) != null ? num(5) : priceDay,
+        optimal: num(6) != null ? num(6) : Math.max(qty, min*2)
+      }));
       added++;
     });
-    if (added){ addLog(added + " produit(s) importé(s)"); persist(); renderStock(); toast(added + " produit(s) importé(s)."); }
-    else toast("Aucune ligne valide trouvée (format attendu : nom,catégorie,stock,seuil,prix_jour,prix_nuit,stock_optimal).");
-    e.target.value = "";
-  };
-  reader.readAsText(file);
-});
-$("exportdata").addEventListener("click", function(){
-  var blob = new Blob([JSON.stringify(state, null, 2)], { type:"application/json" });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url; a.download = "baobab-caisse-" + new Date().toISOString().slice(0,10) + ".json";
-  document.body.append(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-});
-$("importdata").addEventListener("change", function(e){
-  var file = e.target.files[0]; if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(){
-    try{
-      var incoming = normalize(JSON.parse(String(reader.result)));
-      state = incoming; persist(); renderAll();
-      toast("Données importées.");
-    }catch(err){ toast("Fichier invalide."); }
+    if (added){ addLog(plural(added,"produit importé","produits importés")); persist(); renderAll(); toast(plural(added,"produit importé","produits importés") + "."); }
+    else toast("Aucune ligne valide. Format attendu : nom, catégorie, stock, seuil, prix jour, prix nuit, stock optimal.");
     e.target.value = "";
   };
   reader.readAsText(file);
 });
 
 /* ---------- Journal ---------- */
+var journalPeriod = "today";
+function journalList(){
+  var q = norm($("journalsearch").value);
+  return paidTickets(journalPeriod)
+    .filter(function(t){ return !q || norm([t.ref, t.client, t.servedBy, t.tableId, t.paymentMethod].join(" ")).indexOf(q) >= 0; })
+    .sort(function(a,b){ return b.paidAt - a.paidAt; });
+}
 function renderJournal(){
-  var paid = state.tickets.filter(function(t){ return t.status === "payé"; }).sort(function(a,b){ return b.paidAt - a.paidAt; });
-  $("journalsum").textContent = paid.length ? paid.length + " ticket(s) réglé(s)" : "Aucun ticket réglé";
+  renderPeriodChips($("journalperiod"), journalPeriod, function(k){ journalPeriod = k; renderJournal(); });
+  var paid = journalList();
+  $("journalsum").textContent = paid.length ? plural(paid.length,"ticket","tickets") + " · " + money(paid.reduce(function(s,t){ return s + ticketTotal(t); }, 0)) : "";
   var box = $("historylist"); box.textContent = "";
-  if (!paid.length) box.append(h("div",{class:"empty"},"Aucun ticket réglé pour le moment."));
-  paid.slice(0,40).forEach(function(t){
-    box.append(h("div",{class:"row", onclick:function(){ openTicket(t.id); }},
-      h("div",{class:"info"}, h("div",{class:"name"}, t.ref + " · " + t.client), h("div",{class:"sub"}, fmtDate(t.paidAt) + " · " + t.paymentMethod)),
-      h("div",{style:"font:600 13.5px/1 var(--font-m)"}, money(ticketTotal(t)))
+  if (!paid.length) box.append(h("div",{class:"empty"},"Aucun ticket réglé sur cette période."));
+  paid.slice(0,100).forEach(function(t){
+    box.append(h("button",{class:"row", type:"button", onclick:function(){ openTicket(t.id); }},
+      h("div",{class:"info"},
+        h("div",{class:"name"}, t.client, h("span",{class:"tag neutral"}, t.paymentMethod)),
+        h("div",{class:"sub"}, [t.ref, fmtDate(t.paidAt), t.tableId ? "Table " + t.tableId : null, t.servedBy].filter(Boolean).join(" · "))),
+      h("span",{class:"amt"}, money(ticketTotal(t)))
     ));
   });
+  if (paid.length > 100) box.append(h("div",{class:"empty"}, "100 tickets affichés sur " + paid.length + ". Affinez la recherche ou exportez la période."));
   var lg = $("loglist"); lg.textContent = "";
-  if (!state.log.length) lg.append(h("div",null,"Aucun mouvement pour le moment."));
-  state.log.slice(0,40).forEach(function(l){ lg.append(h("div",null, h("time",null,fmtDate(l.t)), l.text)); });
+  if (!state.log.length) lg.append(h("div",{class:"empty"},"Aucune activité pour le moment."));
+  state.log.slice(0,50).forEach(function(l){
+    lg.append(h("div",{class:"row"}, h("time",null,fmtDate(l.t)), h("div",{class:"info"}, l.text), l.by ? h("span",{class:"by"}, l.by) : null));
+  });
 }
+$("journalsearch").addEventListener("input", renderJournal);
+$("exportcsv").addEventListener("click", function(){
+  var list = journalList();
+  if (!list.length){ toast("Aucun ticket à exporter sur cette période."); return; }
+  var cell = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g,'""') + '"'; };
+  var rows = [["Ticket","Date","Client","Table","Servi par","Paiement","Référence","Sous-total","Remise","Total","Coût d'achat","Marge","Articles"]];
+  list.slice().reverse().forEach(function(t){
+    var total = ticketTotal(t), cost = ticketCost(t);
+    rows.push([t.ref, fmtDate(t.paidAt), t.client, t.tableId || "", t.servedBy || "", t.paymentMethod, t.payRef || "",
+      ticketSubtotal(t), ticketDiscount(t), total, cost, total - cost,
+      t.lines.map(function(l){ return l.qty + " x " + l.name; }).join(", ")]);
+  });
+  download("ventes-" + slug(state.settings.biz.name) + "-" + new Date().toISOString().slice(0,10) + ".csv",
+    "﻿" + rows.map(function(r){ return r.map(cell).join(";"); }).join("\r\n"), "text/csv;charset=utf-8");
+  toast(plural(list.length,"ticket exporté","tickets exportés") + ".");
+});
 
 /* ---------- Bilan ---------- */
-var PIE_COLORS = ["#b5541f","#2f7d4f","#3b6ea5","#c0392b","#8a5fbf","#d8a13a","#4f9a94","#a5497a"];
-function renderPie(container, data){
-  container.textContent = "";
+var bilanPeriod = "today";
+function renderHBars(box, data, emptyMsg){
+  box.textContent = "";
+  var max = data.reduce(function(m,d){ return Math.max(m, d.value); }, 0);
   var total = data.reduce(function(s,d){ return s + d.value; }, 0);
-  if (!total){ container.append(h("div",{class:"empty"},"Pas encore de données aujourd'hui.")); return; }
-  var r = 60, cx = 80, cy = 80, circumference = 2 * Math.PI * r;
-  var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("viewBox","0 0 160 160"); svg.setAttribute("width","160"); svg.setAttribute("height","160");
-  var bg = document.createElementNS(svg.namespaceURI,"circle");
-  bg.setAttribute("cx",cx); bg.setAttribute("cy",cy); bg.setAttribute("r",r);
-  bg.setAttribute("fill","none"); bg.setAttribute("stroke","var(--surface2)"); bg.setAttribute("stroke-width","28");
-  svg.append(bg);
-  var offset = 0;
+  if (!max){ box.append(h("div",{class:"empty"}, emptyMsg || "Pas encore de ventes sur cette période.")); return; }
+  var wrap = h("div",{class:"hbars"});
   data.forEach(function(d){
-    var frac = d.value / total;
-    var circle = document.createElementNS(svg.namespaceURI,"circle");
-    circle.setAttribute("cx",cx); circle.setAttribute("cy",cy); circle.setAttribute("r",r);
-    circle.setAttribute("fill","none"); circle.setAttribute("stroke", d.color); circle.setAttribute("stroke-width","28");
-    circle.setAttribute("stroke-dasharray", (frac*circumference) + " " + circumference);
-    circle.setAttribute("stroke-dashoffset", String(-offset*circumference));
-    circle.setAttribute("transform","rotate(-90 " + cx + " " + cy + ")");
-    svg.append(circle);
-    offset += frac;
-  });
-  var wrap = h("div",{style:"display:flex;align-items:center;gap:20px;flex-wrap:wrap"});
-  wrap.append(svg);
-  var legend = h("div",{style:"display:flex;flex-direction:column;gap:7px;flex:1;min-width:160px"});
-  data.forEach(function(d){
-    legend.append(h("div",{style:"display:flex;align-items:center;gap:8px;font-size:13px"},
-      h("span",{style:"width:10px;height:10px;border-radius:3px;background:" + d.color + ";flex:none"}),
-      h("span",{style:"flex:1;overflow-wrap:anywhere"}, d.label),
-      h("b",{style:"font-family:var(--font-m);white-space:nowrap"}, money(d.value))
+    wrap.append(h("div",{class:"hbar", title: d.label + " : " + money(d.value)},
+      h("div",{class:"l"}, h("span",null,d.label), h("b",null, money(d.value), h("small",null, d.note || Math.round(d.value/total*100) + " %"))),
+      h("div",{class:"t"}, h("i",{style:"width:" + (d.value/max*100).toFixed(1) + "%"}))
     ));
   });
-  wrap.append(legend);
-  container.append(wrap);
+  box.append(wrap);
+}
+function renderWeek(){
+  var days = [];
+  for (var i = 6; i >= 0; i--) days.push({ start: dayStart(i), value: 0, today: i === 0 });
+  state.tickets.forEach(function(t){
+    if (t.status !== "payé") return;
+    for (var j = days.length - 1; j >= 0; j--){
+      if (t.paidAt >= days[j].start){ if (j === days.length - 1 || t.paidAt < days[j+1].start) days[j].value += ticketTotal(t); break; }
+    }
+  });
+  var max = days.reduce(function(m,d){ return Math.max(m, d.value); }, 0);
+  var total = days.reduce(function(s,d){ return s + d.value; }, 0);
+  $("weekcap").textContent = total ? "Total : " + money(total) + " · moyenne " + money(total/7) + " par jour" : "";
+  var box = $("weekchart"); box.textContent = "";
+  if (!max){ box.append(h("div",{class:"empty"},"Pas encore de ventes cette semaine.")); return; }
+  var cols = h("div",{class:"cols"}), xs = h("div",{class:"colx"});
+  days.forEach(function(d){
+    var pct = d.value / max * 100;
+    var name = new Date(d.start).toLocaleDateString("fr-FR",{weekday:"short"}).replace(".","");
+    var full = new Date(d.start).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+    cols.append(h("div",{class:"col" + (d.today ? " today" : "") + ((d.today || d.value === max) && d.value ? " lab" : ""), tabindex:"0", title: full + " : " + money(d.value), "aria-label": full + " : " + money(d.value)},
+      h("span",{class:"v", style:"bottom:calc(" + pct.toFixed(1) + "% + 5px)"}, fmtCompact(d.value)),
+      h("i",{style:"height:" + pct.toFixed(1) + "%"})));
+    xs.append(h("span",{class: d.today ? "today" : ""}, d.today ? "auj." : name));
+  });
+  box.append(cols, xs);
 }
 function renderBilan(){
-  var openTix = state.tickets.filter(function(t){ return t.status === "ouvert"; });
-  var totalDue = openTix.reduce(function(s,t){ return s + ticketDue(t); }, 0);
-  $("bilansum").textContent = openTix.length
-    ? openTix.length + " ticket(s) en cours · " + money(totalDue) + " restant à encaisser"
-    : "Aucun ticket en cours";
+  renderPeriodChips($("bilanperiod"), bilanPeriod, function(k){ bilanPeriod = k; renderBilan(); });
+  var paid = paidTickets(bilanPeriod);
+  var revenue = paid.reduce(function(s,t){ return s + ticketTotal(t); }, 0);
+  var cost = paid.reduce(function(s,t){ return s + ticketCost(t); }, 0);
+  var discounts = paid.reduce(function(s,t){ return s + ticketDiscount(t); }, 0);
+  var margin = revenue - cost;
+  var k = $("bilankpis"); k.textContent = "";
+  k.append(
+    kpi("Chiffre d'affaires", money(revenue)),
+    kpi("Tickets réglés", String(paid.length)),
+    kpi("Panier moyen", money(paid.length ? revenue / paid.length : 0)),
+    kpi("Marge estimée", money(margin), revenue ? Math.round(margin / revenue * 100) + " % du chiffre d'affaires" : "selon les prix d'achat saisis"),
+    kpi("Remises accordées", money(discounts))
+  );
+  Array.prototype.forEach.call(document.querySelectorAll("[data-periodcap]"), function(e){ e.textContent = "Tickets réglés " + periodLabel(bilanPeriod); });
 
-  var byServerOpen = {};
-  openTix.forEach(function(t){
-    var k = t.servedBy || "—";
-    byServerOpen[k] = byServerOpen[k] || { count: 0, due: 0 };
-    byServerOpen[k].count += 1;
-    byServerOpen[k].due += ticketDue(t);
+  renderWeek();
+
+  var byPay = {}, byStaff = {}, byProd = {};
+  paid.forEach(function(t){
+    var tot = ticketTotal(t), sub = ticketSubtotal(t), ratio = sub ? tot / sub : 0;
+    byPay[t.paymentMethod] = (byPay[t.paymentMethod] || 0) + tot;
+    var s = t.servedBy || "—";
+    byStaff[s] = byStaff[s] || { value: 0, n: 0 };
+    byStaff[s].value += tot; byStaff[s].n += 1;
+    t.lines.forEach(function(l){
+      byProd[l.name] = byProd[l.name] || { value: 0, n: 0 };
+      byProd[l.name].value += l.price * l.qty * ratio; byProd[l.name].n += l.qty;
+    });
   });
+  renderHBars($("paychart"), PAY_METHODS.map(function(m){ return { label: m[0], value: byPay[m[0]] || 0 }; }).filter(function(d){ return d.value; }));
+  renderHBars($("staffchart"), Object.keys(byStaff).map(function(n){ return { label: n, value: byStaff[n].value, note: plural(byStaff[n].n,"ticket","tickets") }; }).sort(function(a,b){ return b.value - a.value; }));
+  renderHBars($("prodchart"), Object.keys(byProd).map(function(n){ return { label: n, value: Math.round(byProd[n].value), note: plural(byProd[n].n,"vendu","vendus") }; }).sort(function(a,b){ return b.value - a.value; }).slice(0,6));
+
+  var open = openTickets(), byOpen = {};
+  open.forEach(function(t){
+    var s = t.servedBy || "—";
+    byOpen[s] = byOpen[s] || { count: 0, due: 0 };
+    byOpen[s].count += 1; byOpen[s].due += ticketDue(t);
+  });
+  $("bilanopen").textContent = open.length ? money(open.reduce(function(s,t){ return s + ticketDue(t); }, 0)) + " à encaisser" : "";
   var box = $("bilanserveurs"); box.textContent = "";
-  var names = Object.keys(byServerOpen).sort();
+  var names = Object.keys(byOpen).sort();
   if (!names.length) box.append(h("div",{class:"empty"},"Aucun ticket en cours."));
   names.forEach(function(name){
-    var s = byServerOpen[name];
     box.append(h("div",{class:"row"},
-      h("div",{class:"info"}, h("div",{class:"name"}, name), h("div",{class:"sub"}, s.count + " ticket(s) en cours")),
-      h("b",{style:"font-family:var(--font-m)"}, money(s.due))
+      h("span",{class:"av"}, initials(name)),
+      h("div",{class:"info"}, h("div",{class:"name"}, name), h("div",{class:"sub"}, plural(byOpen[name].count,"ticket en cours","tickets en cours"))),
+      h("span",{class:"amt"}, money(byOpen[name].due))
     ));
   });
-
-  var start = todayStart();
-  var paidToday = state.tickets.filter(function(t){ return t.status === "payé" && t.paidAt >= start; });
-
-  var byServerRevenue = {};
-  paidToday.forEach(function(t){
-    var k = t.servedBy || "—";
-    byServerRevenue[k] = (byServerRevenue[k] || 0) + ticketTotal(t);
-  });
-  var staffData = Object.keys(byServerRevenue).sort().map(function(k, i){
-    return { label: k, value: byServerRevenue[k], color: PIE_COLORS[i % PIE_COLORS.length] };
-  });
-  renderPie($("piestaff"), staffData);
-
-  var byProduct = {};
-  paidToday.forEach(function(t){
-    t.lines.forEach(function(l){ byProduct[l.name] = (byProduct[l.name] || 0) + l.price * l.qty; });
-  });
-  var prodEntries = Object.keys(byProduct).map(function(k){ return { label: k, value: byProduct[k] }; })
-    .sort(function(a,b){ return b.value - a.value; });
-  var top = prodEntries.slice(0, 6);
-  var restSum = prodEntries.slice(6).reduce(function(s,e){ return s + e.value; }, 0);
-  if (restSum > 0) top.push({ label: "Autres", value: restSum });
-  var prodData = top.map(function(e, i){ return { label: e.label, value: e.value, color: PIE_COLORS[i % PIE_COLORS.length] }; });
-  renderPie($("pieproducts"), prodData);
 }
 
 /* ---------- Réglages ---------- */
-$("opensettings").addEventListener("click", function(){
-  $("st-night").value = state.settings.nightStartHour;
-  $("st-aikey").value = state.settings.aiApiKey || "";
-  $("ov-settings").hidden = false;
-});
-$("st-cancel").addEventListener("click", function(){ $("ov-settings").hidden = true; });
-$("st-save").addEventListener("click", function(){
-  var hVal = Math.trunc(Number($("st-night").value));
-  if (!isFinite(hVal) || hVal < 0 || hVal > 23){ toast("Heure invalide (0 à 23)."); return; }
-  state.settings.nightStartHour = hVal;
-  state.settings.aiApiKey = $("st-aikey").value.trim();
-  persist(); renderAll();
-  $("ov-settings").hidden = true;
+var ST_PANES = [["biz","Établissement"],["tarifs","Tarifs"],["team","Équipe"],["tables","Tables"],["data","Données"]];
+var stPane = "biz", stAccent = null;
+function renderSettings(){
+  var tabs = $("st-tabs"); tabs.textContent = "";
+  ST_PANES.forEach(function(p){
+    tabs.append(h("button",{type:"button", role:"tab", "aria-selected": String(p[0] === stPane), onclick:function(){ stPane = p[0]; renderSettings(); }}, p[1]));
+    $("st-pane-" + p[0]).hidden = p[0] !== stPane;
+  });
+  var sw = $("st-accents"); sw.textContent = "";
+  Object.keys(ACCENTS).forEach(function(key){
+    sw.append(h("button",{class:"swatch", type:"button", style:"background:" + ACCENTS[key], "aria-pressed": String(key === stAccent), "aria-label":"Couleur " + key, title: key.charAt(0).toUpperCase() + key.slice(1),
+      onclick:function(){ stAccent = key; renderSettings(); }}));
+  });
+  var sl = $("st-stafflist"); sl.textContent = "";
+  state.staff.forEach(function(u){
+    sl.append(h("button",{class:"row", type:"button", onclick:function(){ openStaff(u.id); }},
+      h("span",{class:"av"}, initials(u.name)),
+      h("div",{class:"info"}, h("div",{class:"name"}, u.name, u.id === session.staffId ? h("span",{class:"tag neutral"},"Vous") : null), h("div",{class:"sub"}, roleLabel(u.role))),
+      icon("pencil", 16)
+    ));
+  });
+  var tl = $("st-tablelist"); tl.textContent = "";
+  state.tables.forEach(function(tid){
+    var busy = openTicketsForTable(tid).length > 0;
+    tl.append(h("span",{class:"tablechip"}, tid,
+      h("button",{type:"button", disabled: busy, "aria-label":"Supprimer la table " + tid, title: busy ? "Table occupée" : "Supprimer", onclick:function(){ removeTable(tid); }}, icon("x", 15))));
+  });
+}
+function openSettings(){
+  if (!isAdmin()) return;
+  var s = state.settings, b = s.biz;
+  $("st-name").value = b.name; $("st-tagline").value = b.tagline; $("st-address").value = b.address; $("st-phone").value = b.phone;
+  $("st-currency").value = b.currency; $("st-footer").value = b.footer; $("st-invite").value = s.inviteCode;
+  $("st-night").value = s.nightStartHour; $("st-nightend").value = s.nightEndHour;
+  $("st-newtable").value = "";
+  stAccent = s.accent;
+  renderSettings();
+  openOv("ov-settings");
+}
+$("st-savebiz").addEventListener("click", function(){
+  var name = $("st-name").value.trim();
+  if (!name){ toast("Le nom de l'établissement est obligatoire."); return; }
+  var invite = $("st-invite").value.trim().toUpperCase();
+  if (invite.length < 4){ toast("Le code d'invitation doit contenir au moins 4 caractères."); return; }
+  state.settings.biz = {
+    name: name, tagline: $("st-tagline").value.trim(), address: $("st-address").value.trim(), phone: $("st-phone").value.trim(),
+    currency: $("st-currency").value.trim() || "FCFA", footer: $("st-footer").value.trim()
+  };
+  state.settings.inviteCode = invite;
+  state.settings.accent = stAccent;
+  addLog("Réglages de l'établissement modifiés");
+  persist(); applyBiz(); applyTheme(); renderAll();
   toast("Réglages enregistrés.");
 });
-
-/* ---------- Confirmation générique ---------- */
-var confirmCb = null;
-function askConfirm(title, body, cb){
-  $("cf-title").textContent = title;
-  $("cf-body").textContent = body;
-  confirmCb = cb;
-  $("ov-confirm").hidden = false;
+$("st-savetarifs").addEventListener("click", function(){
+  var a = Math.trunc(Number($("st-night").value)), b = Math.trunc(Number($("st-nightend").value));
+  var ok = function(v){ return isFinite(v) && v >= 0 && v <= 23; };
+  if ($("st-night").value === "" || $("st-nightend").value === "" || !ok(a) || !ok(b)){ toast("Les heures doivent être comprises entre 0 et 23."); return; }
+  state.settings.nightStartHour = a; state.settings.nightEndHour = b;
+  addLog("Tarif nuit réglé de " + a + " h à " + b + " h");
+  persist(); renderAll();
+  toast("Horaires du tarif nuit enregistrés.");
+});
+function addTable(){
+  var name = $("st-newtable").value.trim();
+  if (!name){ toast("Indiquez le nom de la table."); return; }
+  if (state.tables.some(function(t){ return norm(t) === norm(name); })){ toast("Cette table existe déjà."); return; }
+  state.tables.push(name);
+  $("st-newtable").value = "";
+  addLog("Table ajoutée : " + name);
+  persist(); renderSettings();
 }
-$("cf-no").addEventListener("click", function(){ $("ov-confirm").hidden = true; confirmCb = null; });
-$("cf-yes").addEventListener("click", function(){ $("ov-confirm").hidden = true; if (confirmCb) confirmCb(); confirmCb = null; });
-
-/* ---------- Rendu global ---------- */
-function renderAll(){
-  renderSalle();
-  renderStock();
-  renderJournal();
-  renderBilan();
+$("st-addtable").addEventListener("click", addTable);
+$("st-newtable").addEventListener("keydown", function(e){ if (e.key === "Enter") addTable(); });
+function removeTable(tid){
+  if (openTicketsForTable(tid).length){ toast("Cette table a un ticket en cours."); return; }
+  if (state.tables.length <= 1){ toast("Gardez au moins une table."); return; }
+  askConfirm("Supprimer la table " + tid + " ?", "Les tickets déjà réglés sur cette table restent dans le journal.", "Supprimer", function(){
+    state.tables = state.tables.filter(function(t){ return t !== tid; });
+    openTickets().forEach(function(t){ t.lines.forEach(function(l){ if (l.offeredToTableId === tid) l.offeredToTableId = null; }); });
+    addLog("Table supprimée : " + tid);
+    persist(); renderSettings();
+  });
 }
 
-/* ---------- Mode d'affichage (auto / PC / téléphone) ---------- */
-function layoutLabel(){
-  var o = state && state.settings ? state.settings.layoutOverride : null;
-  return o === "pc" ? "🖥 PC" : o === "phone" ? "📱 Téléphone" : "↔ Auto";
+/* Équipe */
+var ROLES = [["Admin","Gérant"],["Serveur","Serveur"],["Serveuse","Serveuse"],["Barman","Barman"],["Caissier","Caissier"],["Employé","Employé"]];
+var editingStaffId = null;
+function adminCount(){ return state.staff.filter(function(u){ return u.role === "Admin"; }).length; }
+function openStaff(id){
+  editingStaffId = id;
+  var u = id ? state.staff.find(function(x){ return x.id === id; }) : null;
+  $("sf-title").textContent = u ? "Modifier " + u.name : "Nouvel employé";
+  $("sf-name").value = u ? u.name : "";
+  $("sf-pin").value = u ? u.pin : "";
+  var sel = $("sf-role"); sel.textContent = "";
+  var roles = ROLES.slice();
+  if (u && !roles.some(function(r){ return r[0] === u.role; })) roles.push([u.role, u.role]);
+  roles.forEach(function(r){ sel.append(h("option",{value:r[0]}, r[1])); });
+  sel.value = u ? u.role : "Serveur";
+  $("sf-error").textContent = "";
+  $("sf-del").hidden = !u || u.id === session.staffId;
+  openOv("ov-staff");
+  if (!u) $("sf-name").focus();
 }
-function updateLayoutBtn(){ var b = $("layoutmode"); if (b) b.textContent = layoutLabel(); }
-$("layoutmode").addEventListener("click", function(){
-  var order = [null, "pc", "phone"];
-  var idx = order.indexOf(state.settings.layoutOverride);
-  state.settings.layoutOverride = order[(idx + 1) % order.length];
-  persist(); applyLayout();
+$("st-addstaff").addEventListener("click", function(){ openStaff(null); });
+$("sf-save").addEventListener("click", function(){
+  var name = $("sf-name").value.trim(), role = $("sf-role").value, pinv = $("sf-pin").value.trim(), err = $("sf-error");
+  var u = editingStaffId ? state.staff.find(function(x){ return x.id === editingStaffId; }) : null;
+  if (!name){ err.textContent = "Le nom est obligatoire."; return; }
+  if (!/^\d{4}$/.test(pinv)){ err.textContent = "Le code PIN doit contenir 4 chiffres."; return; }
+  if (u && u.role === "Admin" && role !== "Admin" && adminCount() <= 1){ err.textContent = "Il doit rester au moins un gérant."; return; }
+  if (u){
+    u.name = name; u.role = role; u.pin = pinv;
+    addLog("Employé modifié : " + name);
+  } else {
+    state.staff.push({ id: uid(), name: name, role: role, pin: pinv });
+    addLog("Employé ajouté : " + name + " (" + roleLabel(role) + ")");
+  }
+  persist(); $("ov-staff").hidden = true; renderSettings(); renderWho(); renderStaffGrid();
+  if (!isAdmin()){ closeOv("ov-settings"); applyPermissions(); goPage("salle"); }
+});
+$("sf-del").addEventListener("click", function(){
+  var u = state.staff.find(function(x){ return x.id === editingStaffId; });
+  if (!u || u.id === session.staffId) return;
+  if (u.role === "Admin" && adminCount() <= 1){ $("sf-error").textContent = "Il doit rester au moins un gérant."; return; }
+  askConfirm("Supprimer " + u.name + " ?", "Cet employé ne pourra plus se connecter. Ses tickets restent dans le journal.", "Supprimer", function(){
+    state.staff = state.staff.filter(function(x){ return x.id !== u.id; });
+    addLog("Employé supprimé : " + u.name);
+    persist(); $("ov-staff").hidden = true; renderSettings(); renderStaffGrid();
+  });
 });
 
-/* ---------- Démarrage ---------- */
-function applyLayout(){
-  if (!state) return;
-  var override = state.settings.layoutOverride;
-  var wide = override === "pc" ? true : override === "phone" ? false : window.matchMedia("(min-width:900px)").matches;
-  document.body.classList.toggle("app-shell", wide && !$("app").hidden);
-  updateLayoutBtn();
+/* Données */
+$("exportdata").addEventListener("click", function(){
+  download("sauvegarde-" + slug(state.settings.biz.name) + "-" + new Date().toISOString().slice(0,10) + ".json", JSON.stringify(state, null, 2), "application/json");
+  toast("Sauvegarde téléchargée.");
+});
+$("importdata").addEventListener("change", function(e){
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    var incoming = null;
+    try{
+      var raw = JSON.parse(String(reader.result));
+      if (raw && typeof raw === "object" && Array.isArray(raw.products)) incoming = normalize(raw);
+    }catch(err){}
+    e.target.value = "";
+    if (!incoming){ toast("Ce fichier n'est pas une sauvegarde valide."); return; }
+    askConfirm("Restaurer cette sauvegarde ?", "Toutes les données actuelles de cet appareil (produits, tickets, équipe, réglages) seront remplacées par celles du fichier.", "Restaurer", function(){
+      state = incoming;
+      persist();
+      $("ov-settings").hidden = true;
+      if (!state.staff.some(function(u){ return u.id === session.staffId; })){ logout(); toast("Sauvegarde restaurée. Reconnectez-vous."); return; }
+      applyBiz(); applyTheme(); applyLayout(); applyPermissions(); renderWho(); renderStaffGrid(); goPage("salle");
+      toast("Sauvegarde restaurée.");
+    });
+  };
+  reader.readAsText(file);
+});
+
+/* ---------- Rendu global ---------- */
+function renderWho(){
+  var u = currentStaff();
+  $("who-name").textContent = u.name;
+  $("who-role").textContent = roleLabel(u.role);
+  $("who-av").textContent = initials(u.name);
+  $("who-mobile").textContent = u.name + " · " + roleLabel(u.role);
 }
+function renderAll(){
+  if ($("app").hidden) return;
+  renderNav();
+  renderTools();
+  renderSalle();
+  if (currentPage === "stock") renderStock();
+  if (currentPage === "journal") renderJournal();
+  if (currentPage === "bilan") renderBilan();
+}
+
+/* ---------- Démarrage ---------- */
 function enterApp(){
   $("login").hidden = true;
   $("app").hidden = false;
-  var u = currentStaff();
-  $("who-name").textContent = u.name;
-  $("who-role").textContent = u.role;
+  renderWho();
   applyLayout();
-  renderAll();
+  applyPermissions();
+  goPage("salle");
 }
-$("logout").addEventListener("click", function(){
+function logout(){
   session = null; sessionClear("baobab-session");
+  Array.prototype.forEach.call(document.querySelectorAll(".overlay"), function(o){ o.hidden = true; });
   $("app").hidden = true; $("login").hidden = false;
   selectedStaffId = null; pin = "";
   renderStaffGrid(); renderPinDots();
   document.body.classList.remove("app-shell");
-});
+}
 window.addEventListener("resize", applyLayout);
+if (window.matchMedia){
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  var onScheme = function(){ if (state && !state.settings.theme){ applyTheme(); renderAll(); } };
+  if (mq.addEventListener) mq.addEventListener("change", onScheme); else if (mq.addListener) mq.addListener(onScheme);
+}
+setInterval(function(){
+  tickClock();
+  if (!$("app").hidden && !document.querySelector(".overlay:not([hidden])")) renderAll();
+}, 30000);
 
 function init(){
+  Array.prototype.forEach.call(document.querySelectorAll("i[data-ic]"), function(e){
+    e.replaceWith(icon(e.getAttribute("data-ic"), Number(e.getAttribute("data-size")) || 18));
+  });
   state = load();
+  applyTheme();
+  applyBiz();
+  tickClock();
   renderStaffGrid();
   renderPinDots();
   renderKeypad();

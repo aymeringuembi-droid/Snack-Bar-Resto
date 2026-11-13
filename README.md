@@ -1,29 +1,26 @@
-# Le Baobab — Caisse
+# Caisse bar & snack
 
-Application de caisse pour bar et snack (fichier unique HTML, sans dépendance externe).
+Application de caisse pour bar, snack et restaurant. Un seul fichier HTML, sans dépendance externe : elle fonctionne aussi sans connexion une fois chargée.
 
 ## Utilisation
 
 Ouvrir `GestionBar-app.html` dans un navigateur, ou déployer tel quel (c'est ce que fait `vercel.json`).
 
-Connexion de démonstration : Awa / Serge / Gérant, code PIN `1234`. Code d'invitation pour rejoindre le compte : `BAOBAB`.
+Connexion de démonstration : Awa / Serge / Gérant, code PIN `1234`. Code d'invitation par défaut : `BAOBAB`. Les deux se changent dans Réglages.
 
 ## Fonctionnalités
 
-- Salle avec plan de tables, tickets par client (avec ou sans table). Plusieurs tickets peuvent être ouverts sur une même table ; un bilan (total, avancé, reste à payer) s'affiche pour toute la table dès qu'elle a plus d'un ticket en cours.
-- Catalogue par catégories, ajout au ticket, "offrir" un article à une autre table (l'article reste facturé au ticket d'origine, seul le service change de table).
-- "Changer de table" pour relier ou déplacer un ticket.
-- Avance client, encaissement (espèces avec calcul de la monnaie, carte, mobile money)
-- Déduction du stock à l'encaissement, alertes de stock bas / rupture
-- **Prix jour / nuit** par produit : chaque article a un tarif jour et un tarif nuit ; l'heure de bascule vers le tarif nuit se règle dans Salle → ⚙ Réglages (le tarif nuit s'applique jusqu'à 6h du matin).
-- **Impression du ticket** (aperçu avant caisse ou reçu final) au format ticket de caisse
-- Gestion du stock (ajout/édition/suppression de produits, import CSV, stock optimal par produit)
-- **Commande à faire** : dans l'onglet Stock, liste automatique des produits sous leur stock optimal avec la quantité à recommander, copiable en un clic.
-- **Bilan** : nouvel onglet avec le total des tickets en cours par employé, et deux camemberts (chiffre d'affaires du jour par employé, boissons les plus rentables du jour).
-- Journal des tickets réglés et des mouvements de stock
-- **Deux modes d'affichage** : mobile (écrans empilés, plein écran) et bureau/PC (barre latérale + panneaux), avec bascule automatique selon la largeur d'écran ou forçage manuel via le bouton "Auto / PC / Téléphone" dans l'en-tête.
-- Réglages (⚙ dans Salle) : heure de bascule jour/nuit, et un champ pour une future clé API d'assistant IA (aucun appel n'est encore envoyé — le champ prépare juste l'intégration).
+- **Salle** : plan de tables (libre / occupée, montant dû, durée), indicateurs du service, liste de tous les tickets en cours, y compris ceux sans table.
+- **Tickets** : carte par catégories, quantités, « offrir à une table », changement de table, avance, **remise** (en % ou en montant), **note**, impression et **envoi du ticket par WhatsApp**.
+- **Encaissement** : espèces (compte juste, montants suggérés, monnaie à rendre), carte ou mobile money avec référence de transaction.
+- **Prix jour / nuit** par produit, avec heures de début et de fin réglables.
+- **Stock** : niveaux, alertes de stock bas et de rupture, valeur du stock, produits « à la demande » sans suivi, import CSV, **commande fournisseur** (copier, imprimer, WhatsApp).
+- **Journal** : tickets réglés par période, recherche, export pour Excel (CSV), activité de la caisse avec le nom de l'employé.
+- **Bilan** (gérant) : chiffre d'affaires, panier moyen, marge estimée, remises, ventes sur 7 jours, par moyen de paiement, par employé et par produit.
+- **Réglages** (gérant) : nom, adresse, téléphone, devise, message du ticket et couleur de la marque ; équipe (rôles et codes PIN) ; tables ; sauvegarde et restauration.
+- **Rôles** : seul le rôle « Gérant » accède au bilan, aux réglages, aux prix et aux corrections de stock.
+- Thème clair ou sombre, affichage téléphone ou ordinateur (automatique ou forcé).
 
 ## Limites à connaître
 
-Les données (produits, tickets, stock) sont stockées uniquement dans le navigateur de l'appareil utilisé (`localStorage`), il n'y a pas de synchronisation automatique entre un téléphone et un PC. Utilisez "Exporter les données" / "Importer" dans l'onglet Journal pour transférer l'état d'un appareil à l'autre. Pour une synchronisation en temps réel entre plusieurs appareils, il faudrait ajouter une base de données partagée (ex. Supabase).
+Les données sont enregistrées uniquement dans le navigateur de l'appareil utilisé (`localStorage`). Il n'y a pas de synchronisation entre un téléphone et un ordinateur : utiliser Réglages → Données pour sauvegarder et restaurer. Les codes PIN protègent l'usage courant, pas contre une personne qui a accès au navigateur. Pour une synchronisation en temps réel et de vrais comptes, il faut une base de données partagée (ex. Supabase).
