@@ -97,6 +97,40 @@ svg.ic{flex:none;display:block}
 .syncdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
 .syncdot.off{background:var(--warn)}
 .syncdot.err{background:var(--danger)}
+.syncpill{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 var(--font);padding:6px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.syncpill[hidden]{display:none}
+.syncpill i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.syncpill.off i{background:var(--warn)}
+.syncpill.err i{background:var(--danger)}
+.syncpill.off{background:var(--warn-soft);color:var(--warn)}
+.syncpill.err{background:var(--danger-soft);color:var(--danger)}
+.syncpill.onside{background:var(--side-line);color:var(--side-muted);margin:0 8px 10px;display:flex;width:fit-content}
+.top .syncpill{flex:none}
+.top .brand{min-width:0}
+.toolrow{display:flex;gap:8px;flex-wrap:wrap}
+.offlinebar{padding:9px 16px;font:500 13px/1.4 var(--font);background:var(--warn-soft);color:var(--warn);border-bottom:1px solid var(--line)}
+.offlinebar.err{background:var(--danger-soft);color:var(--danger)}
+.offlinebar[hidden]{display:none}
+@media (max-width:600px){
+  /* Téléphone : la pastille n'est qu'un point coloré (le bandeau explique la situation) */
+  .top .syncpill span{display:none}
+  .top .syncpill{padding:7px;gap:0}
+  .toolrow{flex:1 0 100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .toolrow .btn{flex:none}
+  #stock-hint{flex-wrap:wrap}
+}
+.diag{margin-top:14px;padding:12px;border-radius:12px;background:var(--surface2);display:flex;flex-direction:column;gap:10px}
+.diagrow{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.4}
+.diagrow b{display:block;font-weight:650}
+.diagrow small{display:block;color:var(--muted);font-size:12.5px}
+.diagrow .dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none;background:var(--faint)}
+.diagrow .dot.ok{background:var(--ok)}
+.diagrow .dot.ko{background:var(--danger)}
+.prrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.prrow span{flex:1;min-width:0;font:600 14px/1.25 var(--font)}
+.prrow small{display:block;font:400 12px/1.2 var(--font);color:var(--muted)}
+.prrow input{width:110px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line2);background:var(--surface);font-size:16px;text-align:right}
+.prrow em{font-style:normal;color:var(--muted);font-size:12.5px;width:42px}
 .tag.confirm{background:var(--warn-soft);color:var(--warn)}
 .prodcard.toconfirm .pr{color:var(--warn)}
 .pinhint{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:12.5px;text-align:center}
@@ -429,16 +463,19 @@ body.app-shell .toolbtn{min-height:54px}
         <h2>Connexion</h2>
         <p class="lead">Saisissez le nom de votre commerce, votre nom d'utilisateur et votre mot de passe.</p>
         <div class="joinform">
-          <label class="field"><span>Nom du commerce</span><input id="li-commerce" name="organization" autocomplete="organization" maxlength="60" required></label>
-          <label class="field"><span>Nom d'utilisateur</span><input id="li-user" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" required></label>
-          <label class="field"><span>Mot de passe</span><div class="pwwrap"><input id="li-pass" name="password" type="password" autocomplete="current-password" maxlength="72" required><button class="eye" type="button" data-eye="li-pass" aria-label="Afficher le mot de passe">Voir</button></div></label>
+          <label class="field"><span>Nom du commerce</span><input id="li-commerce" name="organization" autocomplete="organization" enterkeyhint="next" maxlength="60" required></label>
+          <label class="field"><span>Nom d'utilisateur</span><input id="li-user" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" enterkeyhint="next" maxlength="30" required></label>
+          <label class="field"><span>Mot de passe</span><div class="pwwrap"><input id="li-pass" name="password" type="password" autocomplete="current-password" enterkeyhint="go" maxlength="72" required><button class="eye" type="button" data-eye="li-pass" aria-label="Afficher le mot de passe">Voir</button></div></label>
           <div class="loginerror" id="li-error" role="alert"></div>
           <button class="btn primary block lg" id="li-submit" type="submit">Se connecter</button>
         </div>
+        <p class="hint" style="margin:10px 0 0;text-align:center">Mot de passe oublié ? Le gérant peut le changer dans Réglages › Équipe.</p>
         <div class="newbiz">
           <p>Vous ouvrez un nouveau bar, snack ou restaurant ?</p>
           <button class="btn lg" id="open-create" type="button"><i data-ic="plus"></i>Créer un nouveau commerce</button>
         </div>
+        <div class="joinlink"><button class="linkbtn muted" type="button" data-diag="diag-li">Un problème de connexion ? Tester la connexion</button></div>
+        <div class="diag" id="diag-li" hidden></div>
         <p class="verline" data-appver></p>
       </form>
 
@@ -456,6 +493,8 @@ body.app-shell .toolbtn{min-height:54px}
           <div class="loginerror" id="cr-error" role="alert"></div>
           <button class="btn primary block lg" id="cr-submit" type="submit">Créer le commerce</button>
           <button class="linkbtn muted" id="cr-back" type="button">J'ai déjà un compte : me connecter</button>
+          <button class="linkbtn muted" type="button" data-diag="diag-cr">Un problème de connexion ? Tester la connexion</button>
+          <div class="diag" id="diag-cr" hidden></div>
         </div>
       </form>
     </div>
@@ -470,6 +509,7 @@ body.app-shell .toolbtn{min-height:54px}
     </div>
     <nav id="sidenav" aria-label="Navigation"></nav>
     <div class="foot">
+      <span data-sync data-sync-side hidden></span>
       <div class="usercard"><span class="av" id="who-av"></span><div><b id="who-name"></b><small id="who-role"></small></div></div>
       <div class="tools" id="sidetools"></div>
       <p class="verline" data-appver></p>
@@ -484,8 +524,10 @@ body.app-shell .toolbtn{min-height:54px}
       </div>
       <div class="pagehead"><h2 id="pagetitle"></h2><p id="pagesub"></p></div>
       <span class="pill accent pricepill"></span>
+      <span data-sync hidden></span>
       <div class="tools" id="toptools"></div>
     </header>
+    <div class="offlinebar" id="offlinebar" role="status" hidden></div>
 
     <main>
       <section class="panel" id="panel-salle">
@@ -504,8 +546,15 @@ body.app-shell .toolbtn{min-height:54px}
         <div class="toolbar">
           <label class="searchbox"><i data-ic="search"></i><input type="search" id="stocksearch" placeholder="Rechercher un produit" aria-label="Rechercher un produit"></label>
           <button class="btn primary" id="addproduct" type="button" data-admin><i data-ic="plus"></i>Produit</button>
-          <button class="btn" id="addsobraga" type="button" data-admin title="Ajoute les boissons SOBRAGA qui ne sont pas encore dans vos produits"><i data-ic="plus"></i>Catalogue SOBRAGA</button>
-          <label class="btn" data-admin title="Format : nom, catégorie, stock, seuil, prix jour, prix nuit, stock optimal"><input type="file" id="importfile" accept=".csv,.txt" hidden><i data-ic="upload"></i>Importer CSV</label>
+          <div class="toolrow">
+            <button class="btn" id="openprices" type="button" data-admin hidden></button>
+            <button class="btn" id="addsobraga" type="button" data-admin title="Ajoute les boissons SOBRAGA qui ne sont pas encore dans vos produits"><i data-ic="plus"></i>Catalogue SOBRAGA</button>
+            <label class="btn" data-admin title="Format : nom, catégorie, stock, seuil, prix jour, prix nuit, stock optimal"><input type="file" id="importfile" accept=".csv,.txt" hidden><i data-ic="upload"></i>Importer CSV</label>
+          </div>
+        </div>
+        <div class="infobox" id="stock-hint" hidden>
+          <span>Les boissons SOBRAGA se vendent tout de suite, sans suivi de stock (pas de fausse alerte de rupture). Pour suivre les quantités d'une boisson : ouvrez-la (crayon) et activez « Suivre le stock ».</span>
+          <button class="linkbtn" id="stock-hint-ok" type="button">Compris</button>
         </div>
         <div class="chiprow" id="stockfilters" style="margin-bottom:12px"></div>
         <div class="card" id="stocklist"></div>
@@ -739,6 +788,18 @@ body.app-shell .toolbtn{min-height:54px}
       <button class="btn danger" id="pd-del" type="button" hidden>Supprimer</button>
       <button class="btn ghost" data-close type="button">Annuler</button>
       <button class="btn primary" id="pd-save" type="button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prix à confirmer -->
+<div class="overlay" id="ov-prices" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head"><div class="t"><h2>Prix à confirmer</h2><p class="hint">Saisissez le prix de vente homologué de chaque boisson (le même prix jour et nuit). Laissez vide celles dont vous ne connaissez pas encore le prix.</p></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
+    <div id="pr-list"></div>
+    <div class="actions">
+      <button class="btn ghost" data-close type="button">Annuler</button>
+      <button class="btn primary" id="pr-save" type="button">Enregistrer les prix</button>
     </div>
   </div>
 </div>
@@ -1044,7 +1105,11 @@ var CHANGELOG = [
     "Comptes des employés avec mot de passe, gérés par le gérant dans Réglages › Équipe",
     "Catalogue des boissons SOBRAGA chargé dans chaque nouveau commerce, avec les prix homologués confirmés (Régab 65 cl à 600 FCFA, 33 cl à 350 FCFA)",
     "Les produits dont le prix n'est pas encore confirmé sont signalés « Prix à confirmer » et ne peuvent pas être vendus à 0",
-    "Bouton « Catalogue SOBRAGA » dans Stock pour ajouter les boissons manquantes"
+    "Bouton « Catalogue SOBRAGA » dans Stock pour ajouter les boissons manquantes",
+    "Saisie rapide des prix à confirmer : un seul écran pour renseigner tous les prix du catalogue",
+    "Messages de connexion précis et bouton « Tester la connexion » (internet, base de données, service des comptes)",
+    "Pastille « En ligne / Hors ligne » toujours visible, avec les modifications gardées en attente",
+    "Les boissons SOBRAGA démarrent sans suivi de stock : plus de fausses alertes de rupture"
   ]},
   { v:"1.0", date:"13 novembre 2026", items:[
     "Nouveau design professionnel, thème clair et sombre, affichage téléphone et ordinateur",
@@ -1098,7 +1163,7 @@ function sobragaProducts(){
     var price = Number(x.prix) > 0 ? Math.trunc(Number(x.prix)) : 0;
     var block = Math.trunc(Number(x.casier)) || 0;
     return normalizeProduct({
-      id: uid(), name: x.nom, cat: x.cat || "Boissons", track: true, qty: 0, min: 0, optimal: 0,
+      id: uid(), name: x.nom, cat: x.cat || "Boissons", track: false, qty: 0, min: 0, optimal: 0,
       priceDay: price, priceNight: price, costPrice: 0,
       saleMode: block > 1 ? "bloc" : "unite", unitsPerBlock: block > 1 ? block : 1,
       priceToConfirm: !price, origin: "sobraga"
@@ -1188,6 +1253,7 @@ function persist(){
   cloud.dirty = true; cloud.rev++;
   saveCache();
   scheduleSave();
+  renderSyncPill();
 }
 var memSession = null;
 function sessionGet(key){ try{ return sessionStorage.getItem(key); }catch(e){ return memSession; } }
@@ -1356,22 +1422,34 @@ var cloud = {
 var LOGIN_ERR = "Nom du commerce, nom d'utilisateur ou mot de passe incorrect.";
 
 function CloudError(msg, kind){ var e = new Error(msg); e.kind = kind || "server"; return e; }
+function isNetErr(e){ return !!e && (e.kind === "offline" || e.kind === "unreachable" || e.kind === "timeout"); }
 async function cloudFetch(path, opts){
   opts = opts || {};
   var headers = { apikey: CLOUD.key, "Content-Type": "application/json" };
   if (opts.auth) headers.Authorization = "Bearer " + (await accessToken());
-  var res;
+  var res, ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function(){ ctl.abort(); }, opts.timeout || 20000) : null;
   try{
-    res = await fetch(CLOUD.url + path, { method: opts.method || "GET", headers: Object.assign(headers, opts.headers || {}), body: opts.body != null ? JSON.stringify(opts.body) : undefined, cache: "no-store" });
+    res = await fetch(CLOUD.url + path, { method: opts.method || "GET", headers: Object.assign(headers, opts.headers || {}), body: opts.body != null ? JSON.stringify(opts.body) : undefined, cache: "no-store", signal: ctl ? ctl.signal : undefined });
   }catch(e){
     cloud.online = false;
-    throw CloudError("Pas de connexion internet. Réessayez quand la connexion revient.", "offline");
-  }
+    /* « Failed to fetch » ne veut pas dire « pas d'internet » : on ne l'affirme que si l'appareil le dit. */
+    if (navigator.onLine === false) throw CloudError("Pas de connexion internet. Réessayez quand la connexion revient.", "offline");
+    if (e && e.name === "AbortError") throw CloudError("Le serveur met trop de temps à répondre. Réessayez dans un instant.", "timeout");
+    throw CloudError(path.indexOf("/functions/") === 0
+      ? "Le service des comptes de la caisse ne répond pas (il n'est peut-être pas encore installé sur le serveur). Appuyez sur « Tester la connexion » pour voir ce qui manque."
+      : "Le serveur de la caisse est injoignable, alors que votre appareil semble connecté. Appuyez sur « Tester la connexion » pour voir ce qui manque.", "unreachable");
+  }finally{ if (timer) clearTimeout(timer); }
   cloud.online = true;
   var text = await res.text(), data = null;
   try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
   if (!res.ok){
     var msg = data && (data.msg || data.message || data.error_description || data.error) || ("Erreur " + res.status);
+    if (res.status === 404 && (/PGRST20[25]|NOT_FOUND/.test(String(data && data.code)) || /could not find|not found|does not exist/i.test(String(msg)))){
+      var e404 = CloudError("La caisse en ligne n'est pas encore installée sur le serveur (tables ou fonctions manquantes). L'administrateur doit appliquer la migration SQL « bar_commerces » et déployer la fonction « bar-comptes ».", "setup");
+      e404.status = 404; e404.data = data;
+      throw e404;
+    }
     var err = CloudError(String(msg), res.status === 401 || res.status === 403 ? "auth" : "server");
     err.status = res.status; err.data = data;
     throw err;
@@ -1389,7 +1467,7 @@ async function accessToken(){
       var d = await cloudFetch("/auth/v1/token?grant_type=refresh_token", { method:"POST", body:{ refresh_token: cloud.auth.refresh_token } });
       setAuth(d);
     }catch(e){
-      if (e.kind === "offline") throw e;
+      if (isNetErr(e)) throw e;
       throw CloudError("Session expirée. Reconnectez-vous.", "auth");
     }
   }
@@ -1536,7 +1614,7 @@ async function saveRemote(){
       }
     }
   }catch(e){
-    cloud.lastError = e.kind === "offline" ? "Hors ligne : les modifications seront envoyées au retour de la connexion." : e.message;
+    cloud.lastError = isNetErr(e) ? "Connexion au serveur impossible pour le moment : vos modifications sont gardées sur cet appareil et seront envoyées dès que possible." : e.message;
     if (e.kind === "auth") sessionLost();
     throw e;
   }finally{
@@ -1573,7 +1651,29 @@ function refreshAfterRemote(){
     if (findTicket(currentTicketId) && findTicket(currentTicketId).status !== "payé") renderTicket(); else closeOv("ov-ticket");
   }
 }
+function syncState(){
+  if (!cloud.commerceId) return null;
+  var offline = navigator.onLine === false || !cloud.online;
+  if (offline) return { c: "off", t: "Hors ligne", bar: "Hors ligne : vos ventes sont gardées sur cet appareil et seront envoyées dès que la connexion revient." };
+  if (cloud.lastError) return { c: "err", t: "Envoi impossible", bar: "Les dernières modifications n'ont pas pu être envoyées. Elles sont gardées sur cet appareil et seront renvoyées automatiquement." };
+  if (cloud.dirty) return { c: "ok", t: "Enregistrement…" };
+  return { c: "ok", t: "En ligne" };
+}
+function renderSyncPill(){
+  var st = syncState();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-sync]"), function(e){
+    e.hidden = !st;
+    if (!st) return;
+    e.className = "syncpill " + st.c + (e.hasAttribute("data-sync-side") ? " onside" : "");
+    e.title = cloud.lastError || st.t;
+    e.textContent = "";
+    e.append(h("i"), h("span", null, st.t));
+  });
+  var bar = $("offlinebar");
+  if (bar){ bar.hidden = !(st && st.bar); bar.className = "offlinebar" + (st && st.c === "err" ? " err" : ""); bar.textContent = st && st.bar || ""; }
+}
 function renderSyncStatus(){
+  renderSyncPill();
   var dot = $("st-syncdot"), txt = $("st-synctext");
   if (!dot) return;
   var t = cloud.lastSync ? new Date(cloud.lastSync).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : null;
@@ -1582,9 +1682,45 @@ function renderSyncStatus(){
   else { dot.className = "syncdot"; txt.textContent = "Commerce « " + cloud.commerceNom + " » : données à jour en ligne" + (t ? " (" + t + ")" : "") + "."; }
 }
 setInterval(function(){ checkRemote().catch(function(){ renderSyncStatus(); }); }, 15000);
-window.addEventListener("online", function(){ checkRemote().catch(function(){}); });
+window.addEventListener("online", function(){ renderSyncStatus(); checkRemote().catch(function(){ renderSyncStatus(); }); });
+window.addEventListener("offline", renderSyncStatus);
 
 /* ---------- Connexion ---------- */
+async function runDiag(box){
+  box.hidden = false; box.textContent = "";
+  var row = function(label){
+    var r = h("div",{class:"diagrow"}, h("span",{class:"dot"}), h("div",null, h("b",null,label), h("small",null,"Test en cours…")));
+    box.append(r); return r;
+  };
+  var done = function(r, ok, text){ r.querySelector(".dot").className = "dot " + (ok ? "ok" : "ko"); r.querySelector("small").textContent = text; };
+  var on = navigator.onLine !== false;
+  done(row("Internet sur cet appareil"), on, on ? "L'appareil est connecté." : "L'appareil est hors ligne : activez le Wi-Fi ou les données mobiles.");
+  var r2 = row("Serveur de la caisse");
+  try{
+    var res = await fetch(CLOUD.url + "/auth/v1/health", { headers: { apikey: CLOUD.key }, cache: "no-store" });
+    done(r2, res.ok, res.ok ? "Le serveur répond." : "Le serveur répond avec une erreur (" + res.status + ").");
+  }catch(e){
+    done(r2, false, "Le serveur est injoignable. Certains réseaux Wi-Fi ou bloqueurs de publicités bloquent « supabase.co » : essayez avec les données mobiles.");
+  }
+  var r3 = row("Base de données de la caisse");
+  try{ await rpc("bar_nom_disponible", { p_commerce: "test" }); done(r3, true, "Prête."); }
+  catch(e){ done(r3, false, e.kind === "setup" ? "Pas encore installée : la migration SQL « bar_commerces » doit être appliquée sur Supabase." : e.message); }
+  var r4 = row("Service des comptes (bar-comptes)");
+  try{ await cloudFetch("/functions/v1/bar-comptes", { method: "POST", body: { action: "ping" } }); done(r4, true, "Disponible."); }
+  catch(e){ done(r4, false, e.kind === "setup" || e.kind === "unreachable" ? "Pas encore déployé : la fonction « bar-comptes » doit être déployée sur Supabase." : e.message); }
+}
+Array.prototype.forEach.call(document.querySelectorAll("[data-diag]"), function(b){
+  b.addEventListener("click", function(){ runDiag($(b.getAttribute("data-diag"))); });
+});
+/* Touche Entrée : passe au champ suivant encore vide au lieu d'envoyer un formulaire incomplet. */
+Array.prototype.forEach.call(document.querySelectorAll("#login-form input, #login-create input"), function(inp){
+  inp.addEventListener("keydown", function(e){
+    if (e.key !== "Enter") return;
+    var fields = Array.prototype.slice.call(inp.form.querySelectorAll("input:not([type=checkbox])"));
+    var next = fields.find(function(f){ return f !== inp && !f.value.trim() && fields.indexOf(f) > fields.indexOf(inp); }) || fields.find(function(f){ return !f.value.trim(); });
+    if (next){ e.preventDefault(); next.focus(); }
+  });
+});
 function showLoginForm(which){
   $("login-form").hidden = which !== "login";
   $("login-create").hidden = which !== "create";
@@ -1613,7 +1749,7 @@ async function cloudLogin(commerce, user, password){
   try{
     d = await cloudFetch("/auth/v1/token?grant_type=password", { method:"POST", body:{ email: email, password: password } });
   }catch(e){
-    if (e.kind === "offline") throw e;
+    if (isNetErr(e) || e.kind === "setup") throw e;
     throw CloudError(LOGIN_ERR, "login");
   }
   setAuth(d);
@@ -1649,6 +1785,7 @@ $("login-form").addEventListener("submit", async function(e){
   }catch(ex){
     resetCloud();
     err.textContent = ex.message || LOGIN_ERR;
+    if (ex.kind === "login"){ $("li-pass").focus(); $("li-pass").select(); }
   }finally{ setBusy($("li-submit"), false); }
 });
 $("open-create").addEventListener("click", function(){ showLoginForm("create"); });
@@ -2322,6 +2459,10 @@ function renderStock(){
   );
   if (admin) k.append(kpi("Valeur du stock", money(tracked.reduce(function(s,p){ return s + p.qty * p.costPrice; }, 0)), "au prix d'achat"));
 
+  $("stock-hint").hidden = !(admin && !state.settings.hideStockHint && state.products.some(function(p){ return p.origin === "sobraga" && !p.track; }));
+  var nConfirm = state.products.filter(function(p){ return p.priceToConfirm; }).length;
+  $("openprices").hidden = !admin || !nConfirm;
+  $("openprices").textContent = "Prix à confirmer (" + nConfirm + ")";
   var cats = Array.from(new Set(state.products.map(function(p){ return p.cat; }))).sort(function(a,b){ return norm(a).localeCompare(norm(b)); });
   var filters = [["all","Tous"],["low","Stock bas"],["out","Rupture"]].concat(cats.map(function(c){ return ["cat:" + c, c]; }));
   if (!filters.some(function(f){ return f[0] === stockFilter; })) stockFilter = "all";
@@ -2459,6 +2600,36 @@ function openProduct(id){
   if (!p) $("pd-name").focus();
 }
 $("addproduct").addEventListener("click", function(){ openProduct(null); });
+$("stock-hint-ok").addEventListener("click", function(){ state.settings.hideStockHint = true; persist(); renderStock(); });
+$("openprices").addEventListener("click", function(){
+  var box = $("pr-list"); box.textContent = "";
+  state.products.filter(function(p){ return p.priceToConfirm; }).forEach(function(p){
+    box.append(h("label",{class:"prrow"},
+      h("span",null,p.name,h("small",null,p.cat)),
+      h("input",{type:"number", min:"0", inputmode:"numeric", enterkeyhint:"next", "data-id":p.id, placeholder:"Prix", "aria-label":"Prix de " + p.name}),
+      h("em",null,currency())));
+  });
+  openOv("ov-prices");
+  var first = box.querySelector("input"); if (first) first.focus();
+});
+$("pr-list").addEventListener("keydown", function(e){
+  if (e.key !== "Enter") return;
+  var inputs = Array.prototype.slice.call($("pr-list").querySelectorAll("input")), i = inputs.indexOf(e.target);
+  e.preventDefault();
+  if (inputs[i + 1]) inputs[i + 1].focus(); else $("pr-save").focus();
+});
+$("pr-save").addEventListener("click", function(){
+  var n = 0;
+  Array.prototype.forEach.call($("pr-list").querySelectorAll("input"), function(inp){
+    var v = int0(inp.value), p = findProduct(inp.getAttribute("data-id"));
+    if (!p || v <= 0) return;
+    p.priceDay = v; p.priceNight = v; p.priceToConfirm = false; n++;
+  });
+  if (!n){ toast("Aucun prix saisi."); return; }
+  addLog(n + " prix confirmé" + (n > 1 ? "s" : "") + " (catalogue SOBRAGA)");
+  persist(); $("ov-prices").hidden = true; renderAll();
+  toast(n + " prix enregistré" + (n > 1 ? "s" : "") + ".");
+});
 $("addsobraga").addEventListener("click", function(){
   if (!window.CATALOGUE_SOBRAGA){ toast("Catalogue SOBRAGA introuvable (fichier catalogue-sobraga.js)."); return; }
   var n = addMissingSobraga(state);
@@ -2811,7 +2982,7 @@ $("sf-save").addEventListener("click", async function(){
       toast("Compte créé. " + name + " se connecte avec « " + cloud.commerceNom + " », « " + login + " » et son mot de passe.");
     }
   }catch(e){
-    err.textContent = e.kind === "offline" ? "Connexion internet nécessaire pour gérer les comptes." : e.message;
+    err.textContent = isNetErr(e) ? "Connexion au serveur nécessaire pour gérer les comptes. " + e.message : e.message;
   }finally{ setBusy($("sf-save"), false); }
 });
 $("sf-del").addEventListener("click", function(){
@@ -2823,7 +2994,7 @@ $("sf-del").addEventListener("click", function(){
       await barFn("supprimer_membre", { user_id: u.id }, true);
       await afterStaffChange("Employé supprimé : " + u.name);
     }catch(e){
-      $("sf-error").textContent = e.kind === "offline" ? "Connexion internet nécessaire pour gérer les comptes." : e.message;
+      $("sf-error").textContent = isNetErr(e) ? "Connexion au serveur nécessaire pour gérer les comptes. " + e.message : e.message;
     }
   });
 });
@@ -2974,7 +3145,7 @@ function renderAll(){
 function enterApp(){
   $("login").hidden = true;
   $("app").hidden = false;
-  applyBiz(); applyTheme();
+  applyBiz(); applyTheme(); renderSyncPill();
   renderWho();
   applyLayout();
   applyPermissions();

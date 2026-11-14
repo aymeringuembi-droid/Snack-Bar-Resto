@@ -67,6 +67,9 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action ?? '');
 
+    // Test de disponibilité (écran de connexion › « Tester la connexion »).
+    if (action === 'ping') return reply({ ok: true });
+
     // ---------- Création d'un commerce (ouverte à tous, comme une inscription) ----------
     if (action === 'creer_commerce') {
       const commerce = clean(body.commerce, 60);
