@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#15181b">
-<meta name="app-version" content="1.0">
+<meta name="app-version" content="1.1">
 <title>Le Baobab — Caisse</title>
 <style>
 :root{
@@ -84,6 +84,21 @@ svg.ic{flex:none;display:block}
 .linkbtn.muted{color:var(--muted)}
 .linkbtn.muted:hover{background:var(--surface2)}
 .joinform{display:flex;flex-direction:column;gap:2px;margin-top:20px}
+.loginerror{min-height:20px;font:500 13px/1.4 var(--font);color:var(--danger);margin:2px 0 8px}
+.pwwrap{position:relative}
+.pwwrap input{padding-right:52px}
+.pwwrap .eye{position:absolute;right:4px;top:4px;height:38px;min-width:44px;border:0;background:none;border-radius:9px;color:var(--muted);font:600 12px/1 var(--font)}
+.pwwrap .eye:hover{background:var(--surface2)}
+.newbiz{margin-top:22px;padding:16px;border:1.5px dashed var(--line2);border-radius:var(--r);text-align:center;background:var(--surface)}
+.newbiz p{font-size:13.5px;color:var(--muted);margin:0 0 10px}
+.newbiz .btn{width:100%}
+.infobox{padding:10px 12px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font-size:12.5px;line-height:1.45;margin:4px 0 12px}
+.infobox.warn{background:var(--warn-soft);color:var(--warn)}
+.syncdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle}
+.syncdot.off{background:var(--warn)}
+.syncdot.err{background:var(--danger)}
+.tag.confirm{background:var(--warn-soft);color:var(--warn)}
+.prodcard.toconfirm .pr{color:var(--warn)}
 .pinhint{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:12.5px;text-align:center}
 @media (min-width:900px){
   #login{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
@@ -410,30 +425,39 @@ body.app-shell .toolbtn{min-height:54px}
         <div><b data-biz="name"></b><small data-biz="tagline"></small></div>
       </div>
 
-      <div id="login-pick">
+      <form id="login-form" autocomplete="on" novalidate>
         <h2>Connexion</h2>
-        <p class="lead">Choisissez votre profil puis saisissez votre code PIN.</p>
-        <div class="staffgrid" id="staffgrid"></div>
-        <div class="pindots" id="pindots" aria-hidden="true"></div>
-        <div class="pinerror" id="pinerror" role="alert"></div>
-        <div class="keypad" id="keypad"></div>
-        <div class="pinhint" id="pinhint" hidden>Code PIN par défaut : <b>1234</b>. Pensez à le modifier dans Réglages › Équipe.</div>
-        <div class="joinlink"><button class="linkbtn" id="openjoin" type="button">Nouvel employé ? Rejoindre avec un code</button></div>
-        <p class="verline" data-appver></p>
-      </div>
-
-      <div id="login-join" hidden>
-        <h2>Rejoindre l'équipe</h2>
-        <p class="lead">Saisissez le code d'invitation fourni par le gérant, puis choisissez votre nom et un code PIN à 4 chiffres.</p>
+        <p class="lead">Saisissez le nom de votre commerce, votre nom d'utilisateur et votre mot de passe.</p>
         <div class="joinform">
-          <label class="field"><span>Code d'invitation</span><input id="join-code" autocomplete="off" style="text-transform:uppercase;letter-spacing:.16em"></label>
-          <label class="field"><span>Votre nom</span><input id="join-name" autocomplete="off"></label>
-          <label class="field"><span>Code PIN (4 chiffres)</span><input id="join-pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
-          <div class="pinerror" id="joinerror" role="alert"></div>
-          <button class="btn primary block lg" id="join-submit" type="button">Créer mon profil</button>
-          <button class="linkbtn muted" id="join-back" type="button">Retour à la connexion</button>
+          <label class="field"><span>Nom du commerce</span><input id="li-commerce" name="organization" autocomplete="organization" maxlength="60" required></label>
+          <label class="field"><span>Nom d'utilisateur</span><input id="li-user" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" required></label>
+          <label class="field"><span>Mot de passe</span><div class="pwwrap"><input id="li-pass" name="password" type="password" autocomplete="current-password" maxlength="72" required><button class="eye" type="button" data-eye="li-pass" aria-label="Afficher le mot de passe">Voir</button></div></label>
+          <div class="loginerror" id="li-error" role="alert"></div>
+          <button class="btn primary block lg" id="li-submit" type="submit">Se connecter</button>
         </div>
-      </div>
+        <div class="newbiz">
+          <p>Vous ouvrez un nouveau bar, snack ou restaurant ?</p>
+          <button class="btn lg" id="open-create" type="button"><i data-ic="plus"></i>Créer un nouveau commerce</button>
+        </div>
+        <p class="verline" data-appver></p>
+      </form>
+
+      <form id="login-create" hidden novalidate>
+        <h2>Créer un nouveau commerce</h2>
+        <p class="lead">Vous serez le gérant de ce commerce. Vous pourrez ensuite créer les comptes de vos employés dans Réglages › Équipe.</p>
+        <div class="joinform">
+          <label class="field"><span>Nom du commerce</span><input id="cr-commerce" autocomplete="organization" maxlength="60" placeholder="ex. Big bar"><div class="note" id="cr-commerce-note"></div></label>
+          <label class="field"><span>Votre nom (affiché sur les tickets)</span><input id="cr-name" autocomplete="name" maxlength="40"></label>
+          <label class="field"><span>Nom d'utilisateur (pour vous connecter)</span><input id="cr-user" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" placeholder="ex. gerant"></label>
+          <label class="field"><span>Mot de passe (6 caractères minimum)</span><div class="pwwrap"><input id="cr-pass" type="password" autocomplete="new-password" maxlength="72"><button class="eye" type="button" data-eye="cr-pass" aria-label="Afficher le mot de passe">Voir</button></div></label>
+          <label class="field"><span>Confirmer le mot de passe</span><input id="cr-pass2" type="password" autocomplete="new-password" maxlength="72"></label>
+          <div class="infobox" id="cr-catalog-info">Le catalogue des boissons SOBRAGA est ajouté automatiquement. Les prix non confirmés sont signalés « Prix à confirmer » : à compléter dans Stock avant la vente.</div>
+          <label class="switch" id="cr-takeover-wrap" hidden><input type="checkbox" id="cr-takeover">Reprendre les données déjà présentes sur cet appareil (produits, tickets, journal, réglages)</label>
+          <div class="loginerror" id="cr-error" role="alert"></div>
+          <button class="btn primary block lg" id="cr-submit" type="submit">Créer le commerce</button>
+          <button class="linkbtn muted" id="cr-back" type="button">J'ai déjà un compte : me connecter</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -480,6 +504,7 @@ body.app-shell .toolbtn{min-height:54px}
         <div class="toolbar">
           <label class="searchbox"><i data-ic="search"></i><input type="search" id="stocksearch" placeholder="Rechercher un produit" aria-label="Rechercher un produit"></label>
           <button class="btn primary" id="addproduct" type="button" data-admin><i data-ic="plus"></i>Produit</button>
+          <button class="btn" id="addsobraga" type="button" data-admin title="Ajoute les boissons SOBRAGA qui ne sont pas encore dans vos produits"><i data-ic="plus"></i>Catalogue SOBRAGA</button>
           <label class="btn" data-admin title="Format : nom, catégorie, stock, seuil, prix jour, prix nuit, stock optimal"><input type="file" id="importfile" accept=".csv,.txt" hidden><i data-ic="upload"></i>Importer CSV</label>
         </div>
         <div class="chiprow" id="stockfilters" style="margin-bottom:12px"></div>
@@ -686,6 +711,7 @@ body.app-shell .toolbtn{min-height:54px}
     <label class="field"><span>Nom</span><input id="pd-name" autocomplete="off"></label>
     <label class="field"><span>Catégorie</span><input id="pd-cat" list="pd-cats" autocomplete="off"></label>
     <datalist id="pd-cats"></datalist>
+    <div class="infobox warn" id="pd-confirm" hidden>Prix à confirmer : ce produit vient du catalogue SOBRAGA sans prix homologué confirmé. Saisissez le prix de vente pour pouvoir le vendre.</div>
     <div class="g2">
       <label class="field"><span id="pd-pricedaylabel">Prix jour</span><input id="pd-priceday" type="number" min="0" inputmode="numeric"></label>
       <label class="field"><span id="pd-pricenightlabel">Prix nuit</span><input id="pd-pricenight" type="number" min="0" inputmode="numeric"></label>
@@ -734,7 +760,7 @@ body.app-shell .toolbtn{min-height:54px}
       </div>
       <div class="g2">
         <label class="field"><span>Devise</span><input id="st-currency" maxlength="6" placeholder="FCFA"></label>
-        <label class="field"><span>Code d'invitation employés</span><input id="st-invite" maxlength="16" style="text-transform:uppercase"></label>
+        <label class="field"><span>Commerce (nom de connexion)</span><input id="st-commerce" readonly><div class="note">Nom à saisir sur l'écran de connexion. Il ne change pas si vous modifiez le nom affiché.</div></label>
       </div>
       <label class="field"><span>Message en bas du ticket</span><input id="st-footer" maxlength="80"></label>
       <div class="field"><span>Couleur de la marque</span><div class="swatches" id="st-accents"></div></div>
@@ -753,7 +779,7 @@ body.app-shell .toolbtn{min-height:54px}
     <div id="st-pane-team" hidden>
       <div class="card" id="st-stafflist" style="margin-bottom:14px;box-shadow:none"></div>
       <button class="btn block" id="st-addstaff" type="button"><i data-ic="plus"></i>Ajouter un employé</button>
-      <p class="hint" style="margin-top:12px">Seul le rôle « Gérant » accède au bilan, aux réglages, aux prix et aux corrections de stock.</p>
+      <p class="hint" style="margin-top:12px">Chaque employé se connecte avec le nom du commerce, son nom d'utilisateur et son mot de passe. Seul le rôle « Gérant » accède au bilan, aux réglages, aux prix et aux corrections de stock.</p>
     </div>
 
     <div id="st-pane-tables" hidden>
@@ -782,7 +808,8 @@ body.app-shell .toolbtn{min-height:54px}
     </div>
 
     <div id="st-pane-data" hidden>
-      <p class="hint" style="margin:0 0 14px">Les données sont enregistrées sur cet appareil uniquement. Faites une sauvegarde régulière, et utilisez-la pour transférer la caisse vers un autre appareil.</p>
+      <p class="hint" style="margin:0 0 14px"><span class="syncdot" id="st-syncdot"></span><span id="st-synctext"></span></p>
+      <p class="hint" style="margin:0 0 14px">Les données du commerce sont enregistrées en ligne et partagées entre tous les appareils connectés au commerce. Une copie reste sur cet appareil pour continuer à encaisser sans connexion : elle est envoyée dès que la connexion revient. Vous pouvez aussi télécharger une sauvegarde.</p>
       <div class="g2">
         <button class="btn" id="exportdata" type="button"><i data-ic="download"></i>Sauvegarder</button>
         <label class="btn"><input type="file" id="importdata" accept=".json" hidden><i data-ic="upload"></i>Restaurer</label>
@@ -795,10 +822,13 @@ body.app-shell .toolbtn{min-height:54px}
 <div class="overlay" id="ov-staff" hidden>
   <div class="sheet" role="dialog" aria-modal="true">
     <div class="sheet-head"><div class="t"><h2 id="sf-title"></h2></div><button class="iconbtn" data-close type="button" aria-label="Fermer"><i data-ic="x"></i></button></div>
-    <label class="field"><span>Nom</span><input id="sf-name" maxlength="24" autocomplete="off"></label>
     <div class="g2">
+      <label class="field"><span>Nom (affiché sur les tickets)</span><input id="sf-name" maxlength="40" autocomplete="off"></label>
       <label class="field"><span>Rôle</span><select id="sf-role"></select></label>
-      <label class="field"><span>Code PIN (4 chiffres)</span><input id="sf-pin" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+    </div>
+    <div class="g2">
+      <label class="field"><span>Nom d'utilisateur (connexion)</span><input id="sf-user" maxlength="30" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+      <label class="field"><span id="sf-passlabel">Mot de passe</span><input id="sf-pass" type="password" maxlength="72" autocomplete="new-password"><div class="note" id="sf-passnote"></div></label>
     </div>
     <div class="pinerror" id="sf-error" role="alert" style="text-align:left"></div>
     <div class="actions">
@@ -875,6 +905,7 @@ body.app-shell .toolbtn{min-height:54px}
   <table id="os-lines"></table>
   <p class="c" style="margin-top:10px">Quantités calculées pour atteindre le stock optimal.</p>
 </div>
+<script src="catalogue-sobraga.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1004,8 +1035,17 @@ function slug(s){ return norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")
    1. augmenter APP_VERSION ici ET la balise <meta name="app-version"> en haut du fichier ;
    2. ajouter une entrée en tête de CHANGELOG ;
    3. si le format des données change, ajouter une étape dans MIGRATIONS (jamais de suppression de données). */
-var APP_VERSION = "1.0";
+var APP_VERSION = "1.1";
 var CHANGELOG = [
+  { v:"1.1", date:"14 novembre 2026", items:[
+    "Connexion par commerce : nom du commerce, nom d'utilisateur et mot de passe",
+    "Création d'un nouveau commerce directement depuis l'écran de connexion",
+    "Données enregistrées en ligne et partagées entre les appareils du commerce (copie de secours sur l'appareil, fonctionne sans connexion)",
+    "Comptes des employés avec mot de passe, gérés par le gérant dans Réglages › Équipe",
+    "Catalogue des boissons SOBRAGA chargé dans chaque nouveau commerce, avec les prix homologués confirmés (Régab 65 cl à 600 FCFA, 33 cl à 350 FCFA)",
+    "Les produits dont le prix n'est pas encore confirmé sont signalés « Prix à confirmer » et ne peuvent pas être vendus à 0",
+    "Bouton « Catalogue SOBRAGA » dans Stock pour ajouter les boissons manquantes"
+  ]},
   { v:"1.0", date:"13 novembre 2026", items:[
     "Nouveau design professionnel, thème clair et sombre, affichage téléphone et ordinateur",
     "Établissement personnalisable : nom, adresse, téléphone, devise, couleur, message du ticket",
@@ -1026,7 +1066,12 @@ function cmpVersion(a, b){
 }
 /* Migrations des données, appliquées une seule fois dans l'ordre, au premier lancement d'une nouvelle version.
    Exemple pour une future 1.1 : { v:"1.1", run:function(s){ s.products.forEach(function(p){ if (p.tva == null) p.tva = 0; }); } } */
-var MIGRATIONS = [];
+var MIGRATIONS = [
+  /* 1.1 : les données passent en ligne, par commerce. L'équipe vient désormais des comptes du commerce
+     (table bar_membres) : l'ancienne liste locale (codes PIN) est conservée telle quelle dans la copie
+     de l'appareil, mais n'est plus utilisée pour se connecter. Aucune donnée supprimée. */
+  { v:"1.1", run:function(s){ s.products.forEach(function(p){ if (p.priceToConfirm == null) p.priceToConfirm = false; }); } }
+];
 function migrate(s){
   var from = s.dataVersion || "0";
   MIGRATIONS.forEach(function(m){
@@ -1041,38 +1086,55 @@ function migrate(s){
 /* ---------- État ---------- */
 var LS_KEY = "baobab-caisse-state";
 var state = null;
-var DEFAULT_BIZ = { name:"Le Baobab", tagline:"Bar-restaurant", address:"", phone:"", currency:"FCFA", footer:"Merci de votre visite !" };
+var DEFAULT_BIZ = { name:"Caisse", tagline:"Bar & snack", address:"", phone:"", currency:"FCFA", footer:"Merci de votre visite !" };
 function defaultSettings(){
   return { nightStartHour: 20, nightEndHour: 6, aiApiKey: "", layoutOverride: null, theme: null, accent: "terracotta", inviteCode: "BAOBAB", autoUpdate: true, lastSeenVersion: null, biz: Object.assign({}, DEFAULT_BIZ) };
 }
+/* Produits du catalogue SOBRAGA (fichier catalogue-sobraga.js, modifiable sans toucher à la caisse). */
+function sobragaProducts(){
+  var c = window.CATALOGUE_SOBRAGA;
+  var list = c && Array.isArray(c.produits) ? c.produits : [];
+  return list.filter(function(x){ return x && x.nom; }).map(function(x){
+    var price = Number(x.prix) > 0 ? Math.trunc(Number(x.prix)) : 0;
+    var block = Math.trunc(Number(x.casier)) || 0;
+    return normalizeProduct({
+      id: uid(), name: x.nom, cat: x.cat || "Boissons", track: true, qty: 0, min: 0, optimal: 0,
+      priceDay: price, priceNight: price, costPrice: 0,
+      saleMode: block > 1 ? "bloc" : "unite", unitsPerBlock: block > 1 ? block : 1,
+      priceToConfirm: !price, origin: "sobraga"
+    });
+  });
+}
+function productKey(name){ return norm(name).replace(/[^a-z0-9]+/g, ""); }
+/* Ajoute les boissons SOBRAGA absentes (comparaison sur le nom). Renvoie le nombre ajouté. */
+function addMissingSobraga(s){
+  var have = {};
+  s.products.forEach(function(p){ have[productKey(p.name)] = true; });
+  var added = 0;
+  sobragaProducts().forEach(function(p){
+    if (have[productKey(p.name)]) return;
+    s.products.push(p); have[productKey(p.name)] = true; added++;
+  });
+  return added;
+}
 function defaultState(){
   return {
-    staff: [
-      { id:"u1", name:"Awa", role:"Serveuse", pin:"1234" },
-      { id:"u2", name:"Serge", role:"Barman", pin:"1234" },
-      { id:"u3", name:"Gérant", role:"Admin", pin:"1234" }
-    ],
+    staff: [],
     tables: ["T1","T2","T3","T4","T5","T6","T7","T8","T9"],
-    products: [
-      { id:"p1", name:"Régab 33cl", cat:"Bières", qty:20, min:5, optimal:24, priceDay:1200, priceNight:1400, costPrice:700, saleMode:"bloc", unitsPerBlock:24 },
-      { id:"p2", name:"Castel 65cl", cat:"Bières", qty:15, min:5, optimal:20, priceDay:2000, priceNight:2400, costPrice:1200, saleMode:"bloc", unitsPerBlock:12 },
-      { id:"p3", name:"Heineken 33cl", cat:"Bières", qty:10, min:4, optimal:20, priceDay:1800, priceNight:2200, costPrice:1100, saleMode:"bloc", unitsPerBlock:24 },
-      { id:"p4", name:"Mojito", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:4000, priceNight:4500, costPrice:1500, saleMode:"unite", unitsPerBlock:1, track:false },
-      { id:"p5", name:"Piña Colada", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:4500, priceNight:5000, costPrice:1700, saleMode:"unite", unitsPerBlock:1, track:false },
-      { id:"p6", name:"Punch coco", cat:"Cocktails", qty:0, min:0, optimal:0, priceDay:3500, priceNight:4000, costPrice:1300, saleMode:"unite", unitsPerBlock:1, track:false },
-      { id:"p7", name:"Coca-Cola 33cl", cat:"Softs", qty:30, min:8, optimal:40, priceDay:1000, priceNight:1000, costPrice:500, saleMode:"bloc", unitsPerBlock:24 },
-      { id:"p8", name:"Eau minérale 50cl", cat:"Softs", qty:40, min:10, optimal:50, priceDay:800, priceNight:800, costPrice:400, saleMode:"bloc", unitsPerBlock:24 },
-      { id:"p9", name:"Jus de bissap", cat:"Softs", qty:12, min:4, optimal:20, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p10", name:"Brochettes de bœuf (3)", cat:"Snacks", qty:18, min:5, optimal:24, priceDay:2500, priceNight:2500, costPrice:1400, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p11", name:"Frites", cat:"Snacks", qty:25, min:6, optimal:30, priceDay:2000, priceNight:2000, costPrice:900, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p12", name:"Beignets (5)", cat:"Snacks", qty:20, min:5, optimal:24, priceDay:1500, priceNight:1500, costPrice:700, saleMode:"unite", unitsPerBlock:1 },
-      { id:"p13", name:"Poulet braisé (1/4)", cat:"Snacks", qty:10, min:3, optimal:15, priceDay:3500, priceNight:3500, costPrice:1800, saleMode:"unite", unitsPerBlock:1 }
-    ].map(normalizeProduct),
+    products: [],
     tickets: [],
     log: [],
     ticketSeq: 0,
+    dataVersion: APP_VERSION,
     settings: defaultSettings()
   };
+}
+/* État de départ d'un nouveau commerce : catalogue SOBRAGA, tables par défaut. */
+function freshCommerceState(commerceName){
+  var s = defaultState();
+  s.settings.biz.name = commerceName || DEFAULT_BIZ.name;
+  s.products = sobragaProducts();
+  return s;
 }
 function int0(v){ return Math.max(0, Math.trunc(Number(v)) || 0); }
 function normalizeProduct(p){
@@ -1088,7 +1150,10 @@ function normalizeProduct(p){
     qty: track ? qty : 0, min: min, optimal: optimal, priceDay: priceDay, priceNight: priceNight,
     costPrice: int0(p.costPrice), saleMode: saleMode,
     unitsPerBlock: saleMode === "bloc" ? Math.max(1, Math.trunc(Number(p.unitsPerBlock)) || 1) : 1,
-    track: track
+    track: track,
+    /* Prix pas encore confirmé (catalogue) : vente bloquée tant que le prix est à 0. */
+    priceToConfirm: !!p.priceToConfirm && priceDay <= 0 && priceNight <= 0,
+    origin: p.origin ? String(p.origin) : undefined
   };
 }
 function normalize(s){
@@ -1097,7 +1162,7 @@ function normalize(s){
   var set = Object.assign(defaultSettings(), s.settings || {});
   set.biz = Object.assign({}, DEFAULT_BIZ, (s.settings && s.settings.biz) || {});
   return {
-    staff: Array.isArray(s.staff) && s.staff.length ? s.staff : d.staff,
+    staff: Array.isArray(s.staff) ? s.staff : [],
     tables: Array.isArray(s.tables) && s.tables.length ? s.tables : d.tables,
     products: (Array.isArray(s.products) ? s.products : d.products).map(normalizeProduct),
     tickets: Array.isArray(s.tickets) ? s.tickets : [],
@@ -1107,13 +1172,22 @@ function normalize(s){
     settings: set
   };
 }
-function load(){
-  try{ return migrate(normalize(JSON.parse(localStorage.getItem(LS_KEY)))); }
-  catch(e){ return defaultState(); }
+/* Ancienne caisse (version 1.0) : données locales de l'appareil, jamais effacées.
+   Elles peuvent être reprises à la création d'un commerce. */
+function loadLegacy(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    var s = JSON.parse(raw);
+    if (!s || typeof s !== "object" || !Array.isArray(s.products)) return null;
+    return migrate(normalize(s));
+  }catch(e){ return null; }
 }
 function persist(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-  catch(e){ toast("Enregistrement impossible sur cet appareil."); }
+  if (!cloud.commerceId) return;
+  cloud.dirty = true; cloud.rev++;
+  saveCache();
+  scheduleSave();
 }
 var memSession = null;
 function sessionGet(key){ try{ return sessionStorage.getItem(key); }catch(e){ return memSession; } }
@@ -1121,10 +1195,10 @@ function sessionSet(key, val){ memSession = val; try{ sessionStorage.setItem(key
 function sessionClear(key){ memSession = null; try{ sessionStorage.removeItem(key); }catch(e){} }
 function uid(){ return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-var session = null; // {staffId}
+var session = null; // {staffId} = identifiant Supabase de l'utilisateur connecté
 function currentStaff(){ return state.staff.find(function(u){ return u.id === (session && session.staffId); }) || { name:"—", role:"" }; }
 function hasAdmin(){ return state.staff.some(function(u){ return u.role === "Admin"; }); }
-function isAdmin(){ return !hasAdmin() || currentStaff().role === "Admin"; }
+function isAdmin(){ return currentStaff().role === "Admin"; }
 function roleLabel(r){ return r === "Admin" ? "Gérant" : (r || "Employé"); }
 function addLog(text){
   state.log.unshift({ t: Date.now(), text: text, by: session ? currentStaff().name : null });
@@ -1215,7 +1289,7 @@ function applyTheme(){
 }
 function applyBiz(){
   var b = state.settings.biz;
-  var vals = { name: b.name, tagline: b.tagline, initials: initials(b.name) };
+  var vals = { name: b.name || DEFAULT_BIZ.name, tagline: b.tagline, initials: initials(b.name || DEFAULT_BIZ.name) };
   Array.prototype.forEach.call(document.querySelectorAll("[data-biz]"), function(e){ e.textContent = vals[e.getAttribute("data-biz")] || ""; });
   document.title = b.name + " — Caisse";
 }
@@ -1246,10 +1320,6 @@ document.addEventListener("keydown", function(e){
     var open = Array.prototype.filter.call(document.querySelectorAll(".overlay"), function(o){ return !o.hidden; });
     if (open.length){ closeOv(open[open.length-1].id); return; }
   }
-  if (!$("login").hidden && !$("login-pick").hidden){
-    if (/^\d$/.test(e.key)) pressKey(e.key);
-    else if (e.key === "Backspace") pressKey("del");
-  }
 });
 var confirmCb = null;
 function askConfirm(title, body, yesLabel, cb){
@@ -1261,54 +1331,390 @@ function askConfirm(title, body, yesLabel, cb){
 }
 $("cf-yes").addEventListener("click", function(){ $("ov-confirm").hidden = true; var cb = confirmCb; confirmCb = null; if (cb) cb(); });
 
+/* ---------- En ligne (Supabase) ----------
+   Comptes par commerce : tables bar_commerces / bar_membres / bar_donnees et fonction serveur
+   « bar-comptes » (voir supabase/ dans le dépôt). Appels HTTP directs, sans bibliothèque externe.
+   La clé ci-dessous est la clé publique (publishable) du projet : elle ne donne accès qu'à ce que
+   les règles RLS autorisent. */
+var CLOUD = {
+  url: "https://tffitzlikulunrzoyxss.supabase.co",
+  key: "sb_publishable_EgeLdwdwb0iwz-Xb9qEBxw_7veCXIWn"
+};
+var CLOUD_SESSION_KEY = "caisse-session-commerce";
+var CACHE_PREFIX = "caisse-commerce:";
+var LEGACY_TAKEN_KEY = "caisse-donnees-locales-reprises";
+var cloud = {
+  auth: null,          // { access_token, refresh_token, expires_at, user_id }
+  commerceId: null, commerceNom: "",
+  staff: [],           // membres du commerce, au format de state.staff
+  version: 0,          // version de bar_donnees connue
+  base: null,          // dernières données reçues du serveur (pour fusionner sans rien perdre)
+  dirty: false, rev: 0, saving: false, saveTimer: null,
+  online: true, lastSync: null, lastError: null,
+  pendingInitial: null // données de départ d'un commerce qui vient d'être créé
+};
+var LOGIN_ERR = "Nom du commerce, nom d'utilisateur ou mot de passe incorrect.";
+
+function CloudError(msg, kind){ var e = new Error(msg); e.kind = kind || "server"; return e; }
+async function cloudFetch(path, opts){
+  opts = opts || {};
+  var headers = { apikey: CLOUD.key, "Content-Type": "application/json" };
+  if (opts.auth) headers.Authorization = "Bearer " + (await accessToken());
+  var res;
+  try{
+    res = await fetch(CLOUD.url + path, { method: opts.method || "GET", headers: Object.assign(headers, opts.headers || {}), body: opts.body != null ? JSON.stringify(opts.body) : undefined, cache: "no-store" });
+  }catch(e){
+    cloud.online = false;
+    throw CloudError("Pas de connexion internet. Réessayez quand la connexion revient.", "offline");
+  }
+  cloud.online = true;
+  var text = await res.text(), data = null;
+  try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
+  if (!res.ok){
+    var msg = data && (data.msg || data.message || data.error_description || data.error) || ("Erreur " + res.status);
+    var err = CloudError(String(msg), res.status === 401 || res.status === 403 ? "auth" : "server");
+    err.status = res.status; err.data = data;
+    throw err;
+  }
+  return data;
+}
+function setAuth(d){
+  cloud.auth = { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || Math.floor(Date.now()/1000) + (d.expires_in || 3600), user_id: d.user && d.user.id || (cloud.auth && cloud.auth.user_id) };
+  saveCloudSession();
+}
+async function accessToken(){
+  if (!cloud.auth) throw CloudError("Session expirée. Reconnectez-vous.", "auth");
+  if (Date.now()/1000 > cloud.auth.expires_at - 60){
+    try{
+      var d = await cloudFetch("/auth/v1/token?grant_type=refresh_token", { method:"POST", body:{ refresh_token: cloud.auth.refresh_token } });
+      setAuth(d);
+    }catch(e){
+      if (e.kind === "offline") throw e;
+      throw CloudError("Session expirée. Reconnectez-vous.", "auth");
+    }
+  }
+  return cloud.auth.access_token;
+}
+function rpc(name, args, auth){ return cloudFetch("/rest/v1/rpc/" + name, { method:"POST", body: args, auth: auth }); }
+async function barFn(action, body, auth){
+  var d = await cloudFetch("/functions/v1/bar-comptes", { method:"POST", body: Object.assign({ action: action }, body), auth: auth });
+  if (!d || d.error) throw CloudError(d && d.error || "Erreur du serveur.", "server");
+  return d;
+}
+
+/* Session et copie locale */
+function saveCloudSession(){
+  try{
+    if (!cloud.auth) localStorage.removeItem(CLOUD_SESSION_KEY);
+    else localStorage.setItem(CLOUD_SESSION_KEY, JSON.stringify({ auth: cloud.auth, commerceId: cloud.commerceId, commerceNom: cloud.commerceNom }));
+  }catch(e){}
+}
+function readCloudSession(){ try{ return JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)); }catch(e){ return null; } }
+function payloadOf(s){ var o = Object.assign({}, s); delete o.staff; return JSON.parse(JSON.stringify(o)); }
+function saveCache(){
+  if (!cloud.commerceId || !state) return;
+  try{
+    localStorage.setItem(CACHE_PREFIX + cloud.commerceId, JSON.stringify({
+      state: payloadOf(state), staff: cloud.staff, version: cloud.version, base: cloud.base, dirty: cloud.dirty, nom: cloud.commerceNom
+    }));
+  }catch(e){ toast("Enregistrement impossible sur cet appareil (mémoire pleine ?)."); }
+}
+function readCache(id){ try{ return JSON.parse(localStorage.getItem(CACHE_PREFIX + id)); }catch(e){ return null; } }
+function lastCommerceName(){ try{ return localStorage.getItem("caisse-dernier-commerce") || ""; }catch(e){ return ""; } }
+
+/* Fusion à trois (dernières données communes, cet appareil, serveur) : quand deux appareils ont
+   modifié en même temps, rien n'est perdu. Tickets et produits fusionnés un par un ; pour le stock,
+   les ventes des deux appareils sont additionnées. */
+function same(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
+function mergeList(base, local, remote, onConflict){
+  var idx = function(list){ var m = {}; (list || []).forEach(function(x){ if (x && x.id != null) m[x.id] = x; }); return m; };
+  var B = idx(base), L = idx(local), R = idx(remote), out = [], seen = {};
+  var pick = function(id){
+    if (seen[id]) return; seen[id] = true;
+    var b = B[id], l = L[id], r = R[id];
+    if (b){
+      if (!l && !r) return;
+      if (!l) { if (!same(r, b)) out.push(r); return; }      // supprimé ici, modifié ailleurs : on garde
+      if (!r) { if (!same(l, b)) out.push(l); return; }      // supprimé ailleurs, modifié ici : on garde
+      if (same(l, b)) out.push(r); else if (same(r, b)) out.push(l); else out.push(onConflict(b, l, r));
+      return;
+    }
+    out.push(l || r);
+  };
+  (remote || []).forEach(function(x){ pick(x.id); });
+  (local || []).forEach(function(x){ pick(x.id); });
+  return out;
+}
+function mergeState(base, local, remote){
+  if (!base) base = remote;
+  var pickSide = function(key){ return same(local[key], base[key]) ? remote[key] : local[key]; };
+  var merged = Object.assign({}, local);
+  merged.tickets = mergeList(base.tickets, local.tickets, remote.tickets, function(b, l, r){
+    if (r.paidAt && !l.paidAt) return r;
+    return l;
+  });
+  merged.products = mergeList(base.products, local.products, remote.products, function(b, l, r){
+    var p = Object.assign({}, l);
+    p.qty = Math.max(0, (Number(r.qty) || 0) + (Number(l.qty) || 0) - (Number(b.qty) || 0));
+    return p;
+  });
+  var logs = {}, log = [];
+  (remote.log || []).concat(local.log || []).forEach(function(e){
+    var k = e.t + "|" + e.text + "|" + (e.by || "");
+    if (!logs[k]){ logs[k] = true; log.push(e); }
+  });
+  log.sort(function(a, b){ return b.t - a.t; });
+  merged.log = log;
+  merged.ticketSeq = Math.max(Number(local.ticketSeq) || 0, Number(remote.ticketSeq) || 0);
+  merged.tables = pickSide("tables");
+  merged.settings = pickSide("settings");
+  return merged;
+}
+
+/* Chargement et enregistrement des données du commerce */
+async function loadMembers(){
+  var rows = await cloudFetch("/rest/v1/bar_membres?commerce_id=eq." + encodeURIComponent(cloud.commerceId) + "&select=user_id,identifiant,nom,role,est_admin&order=nom", { auth: true });
+  cloud.staff = (rows || []).map(function(m){ return { id: m.user_id, name: m.nom, role: m.est_admin ? "Admin" : (m.role || "Employé"), login: m.identifiant }; });
+  if (state) state.staff = cloud.staff.slice();
+  saveCache();
+}
+function applyRemote(payload, version){
+  var remote = migrate(normalize(payload));
+  if (cloud.dirty && state){
+    var base = cloud.base ? migrate(normalize(cloud.base)) : null;
+    state = mergeState(base, payloadOf(state), payloadOf(remote));
+    state = migrate(normalize(state));
+  } else {
+    state = remote;
+  }
+  state.staff = cloud.staff.slice();
+  cloud.base = payloadOf(remote);
+  cloud.version = version;
+}
+async function pullRemote(){
+  var rows = await cloudFetch("/rest/v1/bar_donnees?commerce_id=eq." + encodeURIComponent(cloud.commerceId) + "&select=payload,version", { auth: true });
+  var row = rows && rows[0];
+  var payload = row ? row.payload : {}, version = row ? Number(row.version) || 0 : 0;
+  var empty = !payload || !Array.isArray(payload.products);
+  if (empty){
+    // Commerce tout neuf : données de départ (catalogue SOBRAGA, ou données reprises de cet appareil).
+    if (!cloud.dirty || !state){
+      state = cloud.pendingInitial || freshCommerceState(cloud.commerceNom);
+      state.staff = cloud.staff.slice();
+      addLogRaw(cloud.pendingInitial ? "Commerce créé avec les données de cet appareil" : "Commerce créé avec le catalogue SOBRAGA");
+    }
+    cloud.pendingInitial = null;
+    cloud.base = null; cloud.version = version;
+    cloud.dirty = true;
+  } else {
+    applyRemote(payload, version);
+  }
+  cloud.lastSync = Date.now();
+  saveCache();
+  if (cloud.dirty) await saveRemote();
+}
+function addLogRaw(text){ state.log.unshift({ t: Date.now(), text: text, by: session ? currentStaff().name : null }); }
+function scheduleSave(){
+  clearTimeout(cloud.saveTimer);
+  cloud.saveTimer = setTimeout(function(){ saveRemote().catch(function(){}); }, 800);
+}
+async function saveRemote(){
+  if (!cloud.commerceId || !cloud.auth) return;
+  if (cloud.saving) return; // l'envoi en cours reprendra les nouvelles modifications
+  cloud.saving = true;
+  try{
+    for (var attempt = 0; attempt < 4 && cloud.dirty; attempt++){
+      var rev = cloud.rev, payload = payloadOf(state);
+      var v = await rpc("bar_enregistrer", { p_commerce: cloud.commerceId, p_payload: payload, p_version: cloud.version }, true);
+      if (v != null){
+        cloud.version = Number(v); cloud.base = payload; cloud.lastSync = Date.now(); cloud.lastError = null;
+        cloud.dirty = cloud.rev !== rev; // modifié pendant l'envoi : on renvoie
+        saveCache();
+      } else {
+        // Un autre appareil a enregistré entre-temps : on fusionne puis on réessaie.
+        await pullRemoteForMerge();
+      }
+    }
+  }catch(e){
+    cloud.lastError = e.kind === "offline" ? "Hors ligne : les modifications seront envoyées au retour de la connexion." : e.message;
+    if (e.kind === "auth") sessionLost();
+    throw e;
+  }finally{
+    cloud.saving = false;
+    renderSyncStatus();
+  }
+}
+async function pullRemoteForMerge(){
+  var rows = await cloudFetch("/rest/v1/bar_donnees?commerce_id=eq." + encodeURIComponent(cloud.commerceId) + "&select=payload,version", { auth: true });
+  var row = rows && rows[0];
+  if (!row) return;
+  applyRemote(row.payload, Number(row.version) || 0);
+  saveCache();
+  refreshAfterRemote();
+}
+/* Récupère les modifications faites sur les autres appareils. */
+async function checkRemote(){
+  if (!cloud.commerceId || !cloud.auth || cloud.saving || $("app").hidden) return;
+  if (cloud.dirty){ return saveRemote(); }
+  var rows = await cloudFetch("/rest/v1/bar_donnees?commerce_id=eq." + encodeURIComponent(cloud.commerceId) + "&select=version", { auth: true });
+  var v = rows && rows[0] ? Number(rows[0].version) || 0 : 0;
+  cloud.lastSync = Date.now(); cloud.lastError = null;
+  if (v !== cloud.version){
+    await pullRemoteForMerge();
+  }
+  renderSyncStatus();
+}
+function refreshAfterRemote(){
+  if ($("app").hidden) return;
+  applyBiz(); applyTheme();
+  var open = Array.prototype.filter.call(document.querySelectorAll(".overlay"), function(o){ return !o.hidden; }).map(function(o){ return o.id; });
+  if (!open.length) renderAll();
+  else if (open.length === 1 && open[0] === "ov-ticket"){
+    if (findTicket(currentTicketId) && findTicket(currentTicketId).status !== "payé") renderTicket(); else closeOv("ov-ticket");
+  }
+}
+function renderSyncStatus(){
+  var dot = $("st-syncdot"), txt = $("st-synctext");
+  if (!dot) return;
+  var t = cloud.lastSync ? new Date(cloud.lastSync).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : null;
+  if (cloud.lastError){ dot.className = "syncdot " + (cloud.online ? "err" : "off"); txt.textContent = cloud.lastError; }
+  else if (cloud.dirty){ dot.className = "syncdot off"; txt.textContent = "Envoi des dernières modifications en cours…"; }
+  else { dot.className = "syncdot"; txt.textContent = "Commerce « " + cloud.commerceNom + " » : données à jour en ligne" + (t ? " (" + t + ")" : "") + "."; }
+}
+setInterval(function(){ checkRemote().catch(function(){ renderSyncStatus(); }); }, 15000);
+window.addEventListener("online", function(){ checkRemote().catch(function(){}); });
+
 /* ---------- Connexion ---------- */
-var selectedStaffId = null, pin = "";
-function renderStaffGrid(){
-  var box = $("staffgrid"); box.textContent = "";
-  state.staff.forEach(function(u){
-    box.append(h("button", { class:"staffcard", type:"button", "aria-pressed": String(u.id === selectedStaffId),
-      onclick:function(){ selectedStaffId = u.id; pin = ""; $("pinerror").textContent = ""; renderStaffGrid(); renderPinDots(); }
-    },
-      h("span",{class:"av"}, initials(u.name)),
-      h("b", null, u.name),
-      h("span", {class:"role"}, roleLabel(u.role))
-    ));
+function showLoginForm(which){
+  $("login-form").hidden = which !== "login";
+  $("login-create").hidden = which !== "create";
+  $("li-error").textContent = ""; $("cr-error").textContent = "";
+  if (which === "create"){
+    var legacy = loadLegacy(), taken = null;
+    try{ taken = localStorage.getItem(LEGACY_TAKEN_KEY); }catch(e){}
+    var hasData = !!legacy && (legacy.tickets.length > 0 || legacy.log.length > 0);
+    $("cr-takeover-wrap").hidden = !hasData;
+    $("cr-takeover").checked = hasData && !taken;
+    $("cr-commerce").focus();
+  } else {
+    if (!$("li-commerce").value) $("li-commerce").value = lastCommerceName();
+    ($("li-commerce").value ? $("li-user") : $("li-commerce")).focus();
+  }
+}
+function setBusy(btn, busy, label){
+  btn.disabled = busy;
+  if (busy){ btn.dataset.label = btn.textContent; btn.textContent = label; }
+  else if (btn.dataset.label){ btn.textContent = btn.dataset.label; }
+}
+async function cloudLogin(commerce, user, password){
+  var email = await rpc("bar_email_connexion", { p_commerce: commerce, p_identifiant: user });
+  if (!email) throw CloudError(LOGIN_ERR, "login");
+  var d;
+  try{
+    d = await cloudFetch("/auth/v1/token?grant_type=password", { method:"POST", body:{ email: email, password: password } });
+  }catch(e){
+    if (e.kind === "offline") throw e;
+    throw CloudError(LOGIN_ERR, "login");
+  }
+  setAuth(d);
+  var rows = await cloudFetch("/rest/v1/bar_membres?user_id=eq." + encodeURIComponent(cloud.auth.user_id) + "&select=commerce_id,bar_commerces(nom)", { auth: true });
+  if (!rows || !rows[0]) throw CloudError("Ce compte n'est rattaché à aucun commerce actif.", "login");
+  await openCommerce(rows[0].commerce_id, rows[0].bar_commerces ? rows[0].bar_commerces.nom : commerce);
+}
+async function openCommerce(id, nom){
+  if (cloud.commerceId !== id){ cloud.version = 0; cloud.base = null; cloud.dirty = false; state = null; }
+  cloud.commerceId = id; cloud.commerceNom = nom;
+  saveCloudSession();
+  try{ localStorage.setItem("caisse-dernier-commerce", nom); }catch(e){}
+  var cache = readCache(id);
+  if (cache && cache.state && !state){
+    state = migrate(normalize(cache.state));
+    cloud.staff = cache.staff || []; cloud.version = cache.version || 0; cloud.base = cache.base || null; cloud.dirty = !!cache.dirty;
+  }
+  session = { staffId: cloud.auth.user_id };
+  await loadMembers();
+  await pullRemote();
+  if (!cloud.staff.some(function(u){ return u.id === session.staffId; })) throw CloudError("Ce compte n'est rattaché à aucun commerce actif.", "login");
+}
+$("login-form").addEventListener("submit", async function(e){
+  e.preventDefault();
+  var commerce = $("li-commerce").value.trim(), user = $("li-user").value.trim(), pass = $("li-pass").value, err = $("li-error");
+  if (!commerce || !user || !pass){ err.textContent = "Remplissez les trois champs."; return; }
+  err.textContent = "";
+  setBusy($("li-submit"), true, "Connexion…");
+  try{
+    await cloudLogin(commerce, user, pass);
+    $("li-pass").value = "";
+    enterApp();
+  }catch(ex){
+    resetCloud();
+    err.textContent = ex.message || LOGIN_ERR;
+  }finally{ setBusy($("li-submit"), false); }
+});
+$("open-create").addEventListener("click", function(){ showLoginForm("create"); });
+$("cr-back").addEventListener("click", function(){ showLoginForm("login"); });
+$("cr-commerce").addEventListener("blur", async function(){
+  var v = $("cr-commerce").value.trim(), note = $("cr-commerce-note");
+  note.textContent = "";
+  if (v.length < 2) return;
+  try{
+    var ok = await rpc("bar_nom_disponible", { p_commerce: v });
+    if ($("cr-commerce").value.trim() === v) note.textContent = ok ? "Ce nom est disponible." : "Ce nom est déjà utilisé : choisissez-en un autre.";
+  }catch(e){}
+});
+$("login-create").addEventListener("submit", async function(e){
+  e.preventDefault();
+  var commerce = $("cr-commerce").value.trim(), name = $("cr-name").value.trim(), user = $("cr-user").value.trim();
+  var pass = $("cr-pass").value, pass2 = $("cr-pass2").value, err = $("cr-error");
+  if (commerce.length < 2){ err.textContent = "Indiquez le nom du commerce (2 caractères minimum)."; return; }
+  if (!name){ err.textContent = "Indiquez votre nom."; return; }
+  if (user.length < 2){ err.textContent = "Choisissez un nom d'utilisateur (2 caractères minimum)."; return; }
+  if (pass.length < 6){ err.textContent = "Le mot de passe doit contenir au moins 6 caractères."; return; }
+  if (pass !== pass2){ err.textContent = "Les deux mots de passe ne sont pas identiques."; return; }
+  err.textContent = "";
+  var takeover = !$("cr-takeover-wrap").hidden && $("cr-takeover").checked;
+  setBusy($("cr-submit"), true, "Création…");
+  try{
+    var created = await barFn("creer_commerce", { commerce: commerce, nom: name, identifiant: user, mot_de_passe: pass });
+    if (takeover){
+      var legacy = loadLegacy();
+      if (legacy){
+        if (!legacy.settings.biz.name || legacy.settings.biz.name === "Le Baobab") legacy.settings.biz.name = created.commerce || commerce;
+        addMissingSobraga(legacy);
+        cloud.pendingInitial = legacy;
+        try{ localStorage.setItem(LEGACY_TAKEN_KEY, created.commerce_id); }catch(ex){}
+      }
+    }
+    await cloudLogin(created.commerce || commerce, user, pass);
+    $("cr-pass").value = ""; $("cr-pass2").value = "";
+    enterApp();
+    toast("Commerce créé. Bienvenue !");
+  }catch(ex){
+    if (cloud.auth) resetCloud();
+    err.textContent = ex.message;
+  }finally{ setBusy($("cr-submit"), false); }
+});
+Array.prototype.forEach.call(document.querySelectorAll("[data-eye]"), function(b){
+  b.addEventListener("click", function(){
+    var inp = $(b.getAttribute("data-eye")), show = inp.type === "password";
+    inp.type = show ? "text" : "password";
+    b.textContent = show ? "Cacher" : "Voir";
+    b.setAttribute("aria-label", show ? "Cacher le mot de passe" : "Afficher le mot de passe");
   });
-  $("pinhint").hidden = !state.staff.some(function(u){ return u.role === "Admin" && u.pin === "1234"; });
+});
+function resetCloud(){
+  clearTimeout(cloud.saveTimer);
+  cloud.auth = null; cloud.commerceId = null; cloud.commerceNom = ""; cloud.staff = [];
+  cloud.version = 0; cloud.base = null; cloud.dirty = false; cloud.lastError = null; cloud.pendingInitial = null;
+  saveCloudSession();
+  session = null;
+  state = defaultState();
 }
-function renderPinDots(){
-  var box = $("pindots"); box.textContent = "";
-  for (var i=0;i<4;i++) box.append(h("i", { class: i < pin.length ? "on" : "" }));
-}
-function pinError(msg){
-  $("pinerror").textContent = msg;
-  pin = ""; renderPinDots();
-  var d = $("pindots"); d.classList.remove("err"); void d.offsetWidth; d.classList.add("err");
-}
-function tryLogin(){
-  var u = state.staff.find(function(x){ return x.id === selectedStaffId; });
-  if (!u){ pinError("Choisissez d'abord votre profil."); return; }
-  if (pin !== u.pin){ pinError("Code incorrect. Réessayez."); return; }
-  session = { staffId: u.id };
-  sessionSet("baobab-session", u.id);
-  pin = "";
-  enterApp();
-}
-function pressKey(k){
-  if (k === "clear") pin = "";
-  else if (k === "del") pin = pin.slice(0,-1);
-  else if (pin.length < 4) pin += k;
-  $("pinerror").textContent = "";
-  renderPinDots();
-  if (pin.length === 4) tryLogin();
-}
-function renderKeypad(){
-  var box = $("keypad"); box.textContent = "";
-  ["1","2","3","4","5","6","7","8","9","clear","0","del"].forEach(function(k){
-    var aux = k === "clear" || k === "del";
-    box.append(h("button", { type:"button", class: aux ? "aux" : "", "aria-label": k === "clear" ? "Effacer" : k === "del" ? "Supprimer le dernier chiffre" : k,
-      onclick:function(){ pressKey(k); } }, k === "clear" ? "Effacer" : k === "del" ? icon("back", 20) : k));
-  });
+function sessionLost(){
+  if ($("app").hidden) return;
+  saveCache();
+  logout(true);
+  $("li-error").textContent = "Votre session a expiré. Reconnectez-vous : vos modifications sont conservées sur cet appareil.";
 }
 function tickClock(){
   var d = new Date();
@@ -1316,26 +1722,6 @@ function tickClock(){
   var s = d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
   $("clock-date").textContent = s.charAt(0).toUpperCase() + s.slice(1);
 }
-$("openjoin").addEventListener("click", function(){ $("login-pick").hidden = true; $("login-join").hidden = false; $("join-code").focus(); });
-$("join-back").addEventListener("click", function(){ $("login-join").hidden = true; $("login-pick").hidden = false; });
-$("join-submit").addEventListener("click", function(){
-  var code = $("join-code").value.trim().toUpperCase();
-  var name = $("join-name").value.trim();
-  var pinv = $("join-pin").value.trim();
-  var err = $("joinerror");
-  if (code !== String(state.settings.inviteCode || "").toUpperCase() || !code){ err.textContent = "Code d'invitation invalide."; return; }
-  if (!name){ err.textContent = "Indiquez votre nom."; return; }
-  if (!/^\d{4}$/.test(pinv)){ err.textContent = "Le code PIN doit contenir 4 chiffres."; return; }
-  var u = { id: uid(), name: name, role: "Employé", pin: pinv };
-  state.staff.push(u);
-  addLog("Nouvel employé : " + name);
-  persist();
-  toast("Profil créé. Vous pouvez vous connecter.");
-  $("login-join").hidden = true; $("login-pick").hidden = false;
-  $("join-code").value = ""; $("join-name").value = ""; $("join-pin").value = ""; err.textContent = "";
-  selectedStaffId = u.id;
-  renderStaffGrid();
-});
 
 /* ---------- Navigation ---------- */
 var PAGES = [
@@ -1378,7 +1764,7 @@ function renderTools(){
     box.append(h("button",{class:"iconbtn", type:"button", title: dark ? "Passer en thème clair" : "Passer en thème sombre", "aria-label":"Changer de thème", onclick:toggleTheme}, icon(dark ? "sun" : "moon", 19)));
     box.append(h("button",{class:"iconbtn", type:"button", title:"Affichage : " + (lo === "pc" ? "ordinateur" : lo === "phone" ? "téléphone" : "automatique"), "aria-label":"Changer le mode d'affichage", onclick:cycleLayout}, icon(lo === "pc" ? "monitor" : lo === "phone" ? "phone" : "auto", 19)));
     if (isAdmin()) box.append(h("button",{class:"iconbtn", type:"button", title:"Réglages", "aria-label":"Réglages", onclick:openSettings}, icon("sliders", 19)));
-    box.append(h("button",{class:"iconbtn", type:"button", title:"Déconnexion", "aria-label":"Déconnexion", onclick:logout}, icon("logout", 19)));
+    box.append(h("button",{class:"iconbtn", type:"button", title:"Déconnexion", "aria-label":"Déconnexion", onclick:function(){ logout(); }}, icon("logout", 19)));
   });
 }
 function toggleTheme(){
@@ -1619,6 +2005,10 @@ function addToTicket(productId){
   var t = findTicket(currentTicketId); if (!t || t.status === "payé") return;
   var p = findProduct(productId); if (!p) return;
   var price = activePrice(p) || 0;
+  if (p.priceToConfirm && price <= 0){
+    toast("Prix à confirmer : " + (isAdmin() ? "saisissez le prix de « " + p.name + " » dans Stock." : "demandez au gérant de saisir le prix de « " + p.name + " »."));
+    return;
+  }
   var existing = t.lines.find(function(l){ return l.pid === productId && !l.offeredToTableId && l.price === price; });
   if (existing) existing.qty += 1;
   else t.lines.push({ pid: p.id, name: p.name, price: price, cost: p.costPrice || 0, qty: 1, offeredToTableId: null });
@@ -1641,11 +2031,12 @@ function renderTicketCatalog(){
   if (!list.length) box.append(h("div",{class:"empty", style:"grid-column:1/-1"},"Aucun article trouvé."));
   list.forEach(function(p){
     var st = stockStatus(p);
-    box.append(h("button",{class:"prodcard", type:"button", onclick:function(){ addToTicket(p.id); }},
+    var toConfirm = p.priceToConfirm && !(activePrice(p) > 0);
+    box.append(h("button",{class:"prodcard" + (toConfirm ? " toconfirm" : ""), type:"button", onclick:function(){ addToTicket(p.id); }},
       prodIcon(p.cat),
       h("span",{class:"tx"},
         h("span",{class:"nm"}, p.name),
-        h("span",{class:"pr"}, money(activePrice(p))),
+        h("span",{class:"pr"}, toConfirm ? "Prix à confirmer" : money(activePrice(p))),
         st === "none" ? null : h("span",{class:"st" + (st === "out" ? " out" : "")}, st === "out" ? "Rupture" : p.qty + " en stock")
       )
     ));
@@ -1955,7 +2346,8 @@ function renderStock(){
     var sub = [p.cat, p.priceDay === p.priceNight ? money(p.priceDay) : "jour " + fmtNum(p.priceDay) + " · nuit " + money(p.priceNight)];
     if (admin && p.costPrice > 0 && p.priceDay > 0) sub.push("marge " + Math.round((p.priceDay - p.costPrice) / p.priceDay * 100) + " %");
     var target = p.optimal || p.min * 2 || p.qty || 1;
-    var info = h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag), h("div",{class:"sub"}, sub.join(" · ")));
+    if (p.priceToConfirm) sub[1] = "prix à confirmer";
+    var info = h("div",{class:"info"}, h("div",{class:"name"}, p.name, tag, p.priceToConfirm ? h("span",{class:"tag confirm"},"Prix à confirmer") : null), h("div",{class:"sub"}, sub.join(" · ")));
     if (p.track) info.append(h("div",{class:"meter " + st, title: p.qty + " en stock" + (p.optimal ? " sur " + p.optimal + " (optimal)" : "")}, h("i",{style:"width:" + Math.max(0, Math.min(100, Math.round(p.qty/target*100))) + "%"})));
     var side = h("div",{class:"side2"});
     if (p.track){
@@ -2061,11 +2453,20 @@ function openProduct(id){
   $("pd-salemode").value = p ? p.saleMode : "unite";
   $("pd-unitsperblock").value = p && p.saleMode === "bloc" ? p.unitsPerBlock : 12;
   $("pd-del").hidden = !p;
+  $("pd-confirm").hidden = !(p && p.priceToConfirm);
   syncProductForm();
   openOv("ov-product");
   if (!p) $("pd-name").focus();
 }
 $("addproduct").addEventListener("click", function(){ openProduct(null); });
+$("addsobraga").addEventListener("click", function(){
+  if (!window.CATALOGUE_SOBRAGA){ toast("Catalogue SOBRAGA introuvable (fichier catalogue-sobraga.js)."); return; }
+  var n = addMissingSobraga(state);
+  if (!n){ toast("Toutes les boissons du catalogue SOBRAGA sont déjà dans vos produits."); return; }
+  addLog("Catalogue SOBRAGA : " + n + " produit" + (n > 1 ? "s ajoutés" : " ajouté"));
+  persist(); renderAll();
+  toast(n + " boisson" + (n > 1 ? "s ajoutées" : " ajoutée") + ". Vérifiez les prix signalés « à confirmer ».");
+});
 $("pd-salemode").addEventListener("change", syncProductForm);
 $("pd-track").addEventListener("change", syncProductForm);
 $("pd-save").addEventListener("click", function(){
@@ -2078,7 +2479,9 @@ $("pd-save").addEventListener("click", function(){
     track: $("pd-track").checked,
     qty: $("pd-qty").value, min: $("pd-min").value, optimal: int0($("pd-optimal").value),
     priceDay: priceDay, priceNight: night === "" ? priceDay : int0(night),
-    costPrice: $("pd-cost").value, saleMode: $("pd-salemode").value, unitsPerBlock: $("pd-unitsperblock").value
+    costPrice: $("pd-cost").value, saleMode: $("pd-salemode").value, unitsPerBlock: $("pd-unitsperblock").value,
+    priceToConfirm: editingProductId ? findProduct(editingProductId).priceToConfirm : false,
+    origin: editingProductId ? findProduct(editingProductId).origin : undefined
   });
   if (editingProductId){
     var p = findProduct(editingProductId), before = p.qty;
@@ -2293,6 +2696,7 @@ function renderSettings(){
     ));
   });
   renderUpdatesPane();
+  renderSyncStatus();
   var tl = $("st-tablelist"); tl.textContent = "";
   state.tables.forEach(function(tid){
     var busy = openTicketsForTable(tid).length > 0;
@@ -2304,7 +2708,7 @@ function openSettings(){
   if (!isAdmin()) return;
   var s = state.settings, b = s.biz;
   $("st-name").value = b.name; $("st-tagline").value = b.tagline; $("st-address").value = b.address; $("st-phone").value = b.phone;
-  $("st-currency").value = b.currency; $("st-footer").value = b.footer; $("st-invite").value = s.inviteCode;
+  $("st-currency").value = b.currency; $("st-footer").value = b.footer; $("st-commerce").value = cloud.commerceNom;
   $("st-night").value = s.nightStartHour; $("st-nightend").value = s.nightEndHour;
   $("st-newtable").value = "";
   stAccent = s.accent;
@@ -2314,13 +2718,10 @@ function openSettings(){
 $("st-savebiz").addEventListener("click", function(){
   var name = $("st-name").value.trim();
   if (!name){ toast("Le nom de l'établissement est obligatoire."); return; }
-  var invite = $("st-invite").value.trim().toUpperCase();
-  if (invite.length < 4){ toast("Le code d'invitation doit contenir au moins 4 caractères."); return; }
   state.settings.biz = {
     name: name, tagline: $("st-tagline").value.trim(), address: $("st-address").value.trim(), phone: $("st-phone").value.trim(),
     currency: $("st-currency").value.trim() || "FCFA", footer: $("st-footer").value.trim()
   };
-  state.settings.inviteCode = invite;
   state.settings.accent = stAccent;
   addLog("Réglages de l'établissement modifiés");
   persist(); applyBiz(); applyTheme(); renderAll();
@@ -2366,7 +2767,11 @@ function openStaff(id){
   var u = id ? state.staff.find(function(x){ return x.id === id; }) : null;
   $("sf-title").textContent = u ? "Modifier " + u.name : "Nouvel employé";
   $("sf-name").value = u ? u.name : "";
-  $("sf-pin").value = u ? u.pin : "";
+  $("sf-user").value = u ? (u.login || "") : "";
+  $("sf-user").readOnly = !!u;
+  $("sf-pass").value = "";
+  $("sf-passlabel").textContent = u ? "Nouveau mot de passe" : "Mot de passe";
+  $("sf-passnote").textContent = u ? "Laisser vide pour ne pas le changer." : "6 caractères minimum. Communiquez-le à l'employé.";
   var sel = $("sf-role"); sel.textContent = "";
   var roles = ROLES.slice();
   if (u && !roles.some(function(r){ return r[0] === u.role; })) roles.push([u.role, u.role]);
@@ -2378,30 +2783,48 @@ function openStaff(id){
   if (!u) $("sf-name").focus();
 }
 $("st-addstaff").addEventListener("click", function(){ openStaff(null); });
-$("sf-save").addEventListener("click", function(){
-  var name = $("sf-name").value.trim(), role = $("sf-role").value, pinv = $("sf-pin").value.trim(), err = $("sf-error");
+async function afterStaffChange(text){
+  addLog(text);
+  persist();
+  try{ await loadMembers(); }catch(e){}
+  $("ov-staff").hidden = true; renderSettings(); renderWho();
+  if (!isAdmin()){ closeOv("ov-settings"); applyPermissions(); goPage("salle"); }
+}
+$("sf-save").addEventListener("click", async function(){
+  var name = $("sf-name").value.trim(), role = $("sf-role").value, login = $("sf-user").value.trim(), pass = $("sf-pass").value, err = $("sf-error");
   var u = editingStaffId ? state.staff.find(function(x){ return x.id === editingStaffId; }) : null;
   if (!name){ err.textContent = "Le nom est obligatoire."; return; }
-  if (!/^\d{4}$/.test(pinv)){ err.textContent = "Le code PIN doit contenir 4 chiffres."; return; }
+  if (!u && login.length < 2){ err.textContent = "Choisissez un nom d'utilisateur (2 caractères minimum)."; return; }
+  if ((!u || pass) && pass.length < 6){ err.textContent = "Le mot de passe doit contenir au moins 6 caractères."; return; }
   if (u && u.role === "Admin" && role !== "Admin" && adminCount() <= 1){ err.textContent = "Il doit rester au moins un gérant."; return; }
-  if (u){
-    u.name = name; u.role = role; u.pin = pinv;
-    addLog("Employé modifié : " + name);
-  } else {
-    state.staff.push({ id: uid(), name: name, role: role, pin: pinv });
-    addLog("Employé ajouté : " + name + " (" + roleLabel(role) + ")");
-  }
-  persist(); $("ov-staff").hidden = true; renderSettings(); renderWho(); renderStaffGrid();
-  if (!isAdmin()){ closeOv("ov-settings"); applyPermissions(); goPage("salle"); }
+  err.textContent = "";
+  setBusy($("sf-save"), true, "Enregistrement…");
+  try{
+    if (u){
+      var body = { user_id: u.id, nom: name, role: role };
+      if (pass) body.mot_de_passe = pass;
+      await barFn("modifier_membre", body, true);
+      await afterStaffChange("Employé modifié : " + name + (pass ? " (nouveau mot de passe)" : ""));
+    } else {
+      await barFn("ajouter_membre", { nom: name, identifiant: login, role: role, mot_de_passe: pass }, true);
+      await afterStaffChange("Employé ajouté : " + name + " (" + roleLabel(role) + ", utilisateur « " + login + " »)");
+      toast("Compte créé. " + name + " se connecte avec « " + cloud.commerceNom + " », « " + login + " » et son mot de passe.");
+    }
+  }catch(e){
+    err.textContent = e.kind === "offline" ? "Connexion internet nécessaire pour gérer les comptes." : e.message;
+  }finally{ setBusy($("sf-save"), false); }
 });
 $("sf-del").addEventListener("click", function(){
   var u = state.staff.find(function(x){ return x.id === editingStaffId; });
   if (!u || u.id === session.staffId) return;
   if (u.role === "Admin" && adminCount() <= 1){ $("sf-error").textContent = "Il doit rester au moins un gérant."; return; }
-  askConfirm("Supprimer " + u.name + " ?", "Cet employé ne pourra plus se connecter. Ses tickets restent dans le journal.", "Supprimer", function(){
-    state.staff = state.staff.filter(function(x){ return x.id !== u.id; });
-    addLog("Employé supprimé : " + u.name);
-    persist(); $("ov-staff").hidden = true; renderSettings(); renderStaffGrid();
+  askConfirm("Supprimer " + u.name + " ?", "Ce compte ne pourra plus se connecter. Ses tickets restent dans le journal.", "Supprimer", async function(){
+    try{
+      await barFn("supprimer_membre", { user_id: u.id }, true);
+      await afterStaffChange("Employé supprimé : " + u.name);
+    }catch(e){
+      $("sf-error").textContent = e.kind === "offline" ? "Connexion internet nécessaire pour gérer les comptes." : e.message;
+    }
   });
 });
 
@@ -2421,12 +2844,13 @@ $("importdata").addEventListener("change", function(e){
     }catch(err){}
     e.target.value = "";
     if (!incoming){ toast("Ce fichier n'est pas une sauvegarde valide."); return; }
-    askConfirm("Restaurer cette sauvegarde ?", "Toutes les données actuelles de cet appareil (produits, tickets, équipe, réglages) seront remplacées par celles du fichier.", "Restaurer", function(){
+    askConfirm("Restaurer cette sauvegarde ?", "Les données du commerce (produits, tickets, réglages) seront remplacées par celles du fichier, sur tous les appareils. Les comptes de l'équipe ne changent pas.", "Restaurer", function(){
       state = incoming;
+      state.staff = cloud.staff.slice();
+      addLog("Sauvegarde restaurée");
       persist();
       $("ov-settings").hidden = true;
-      if (!state.staff.some(function(u){ return u.id === session.staffId; })){ logout(); toast("Sauvegarde restaurée. Reconnectez-vous."); return; }
-      applyBiz(); applyTheme(); applyLayout(); applyPermissions(); renderWho(); renderStaffGrid(); goPage("salle");
+      applyBiz(); applyTheme(); applyLayout(); applyPermissions(); renderWho(); goPage("salle");
       toast("Sauvegarde restaurée.");
     });
   };
@@ -2550,18 +2974,29 @@ function renderAll(){
 function enterApp(){
   $("login").hidden = true;
   $("app").hidden = false;
+  applyBiz(); applyTheme();
   renderWho();
   applyLayout();
   applyPermissions();
   goPage("salle");
 }
-function logout(){
-  session = null; sessionClear("baobab-session");
+function logout(silent){
+  var unsent = cloud.dirty;
+  saveCache();
+  if (unsent && !silent) saveRemote().catch(function(){});
+  var nom = cloud.commerceNom;
+  if (cloud.auth && !silent){
+    var tk = cloud.auth.access_token;
+    fetch(CLOUD.url + "/auth/v1/logout", { method:"POST", headers:{ apikey: CLOUD.key, Authorization: "Bearer " + tk } }).catch(function(){});
+  }
   Array.prototype.forEach.call(document.querySelectorAll(".overlay"), function(o){ o.hidden = true; });
+  resetCloud();
   $("app").hidden = true; $("login").hidden = false;
-  selectedStaffId = null; pin = "";
-  renderStaffGrid(); renderPinDots();
   document.body.classList.remove("app-shell");
+  applyBiz(); applyTheme();
+  $("li-commerce").value = nom || lastCommerceName(); $("li-user").value = ""; $("li-pass").value = "";
+  showLoginForm("login");
+  if (unsent && !silent) toast("Certaines modifications n'étaient pas encore envoyées : elles le seront à la prochaine connexion sur cet appareil.");
 }
 window.addEventListener("resize", applyLayout);
 if (window.matchMedia){
@@ -2578,19 +3013,31 @@ function init(){
   Array.prototype.forEach.call(document.querySelectorAll("i[data-ic]"), function(e){
     e.replaceWith(icon(e.getAttribute("data-ic"), Number(e.getAttribute("data-size")) || 18));
   });
-  state = load();
-  persist();
+  state = defaultState();
   Array.prototype.forEach.call(document.querySelectorAll("[data-appver]"), function(e){ e.textContent = "Version " + APP_VERSION; });
   applyTheme();
   applyBiz();
   tickClock();
-  renderStaffGrid();
-  renderPinDots();
-  renderKeypad();
-  var savedId = sessionGet("baobab-session");
-  if (savedId && state.staff.some(function(u){ return u.id === savedId; })){
-    session = { staffId: savedId };
-    enterApp();
+  showLoginForm("login");
+  /* Session déjà ouverte sur cet appareil : on rouvre la caisse tout de suite avec la copie locale
+     (fonctionne même sans connexion), puis on se met à jour avec le serveur. */
+  var saved = readCloudSession(), cache = saved && saved.commerceId ? readCache(saved.commerceId) : null;
+  if (saved && saved.auth && cache && cache.state){
+    cloud.auth = saved.auth; cloud.commerceId = saved.commerceId; cloud.commerceNom = saved.commerceNom || cache.nom || "";
+    state = migrate(normalize(cache.state));
+    cloud.staff = cache.staff || []; state.staff = cloud.staff.slice();
+    cloud.version = cache.version || 0; cloud.base = cache.base || null; cloud.dirty = !!cache.dirty;
+    session = { staffId: saved.auth.user_id };
+    if (cloud.staff.some(function(u){ return u.id === session.staffId; })){
+      enterApp();
+      loadMembers().then(function(){
+        if (!cloud.staff.some(function(u){ return u.id === session.staffId; })){ logout(true); $("li-error").textContent = "Ce compte n'a plus accès au commerce."; return; }
+        renderWho(); applyPermissions();
+        return checkRemote();
+      }).catch(function(e){ if (e && e.kind === "auth") sessionLost(); renderSyncStatus(); });
+    } else {
+      resetCloud();
+    }
   }
   showWhatsNew();
   if (state.settings.autoUpdate !== false) checkForUpdate(false);

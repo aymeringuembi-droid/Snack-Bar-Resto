@@ -1,12 +1,23 @@
-# Caisse bar & snack — version 1.0
+# Caisse bar & snack — version 1.1
 
-Application de caisse pour bar, snack et restaurant. Un seul fichier HTML, sans dépendance externe : elle fonctionne aussi sans connexion une fois chargée.
+Application de caisse pour bar, snack et restaurant. Un seul fichier HTML, sans bibliothèque externe, reliée à Supabase : chaque commerce a son compte, ses utilisateurs et ses données en ligne. Une copie reste sur chaque appareil pour continuer à encaisser sans connexion.
 
 ## Utilisation
 
-Ouvrir `GestionBar-app.html` dans un navigateur, ou déployer tel quel (c'est ce que fait `vercel.json`).
+Déployer le dépôt tel quel (c'est ce que fait `vercel.json`) : `GestionBar-app.html` + `catalogue-sobraga.js`.
 
-Connexion de démonstration : Awa / Serge / Gérant, code PIN `1234`. Code d'invitation par défaut : `BAOBAB`. Les deux se changent dans Réglages.
+- **Connexion** : nom du commerce, nom d'utilisateur, mot de passe (majuscules, accents et espaces ne comptent pas dans les noms).
+- **Créer un nouveau commerce** : bouton sur l'écran de connexion. Crée le commerce et son premier utilisateur (gérant). Si l'appareil contient des données de l'ancienne caisse (version 1.0), elles peuvent être reprises.
+- **Employés** : le gérant crée leurs comptes dans Réglages › Équipe (nom d'utilisateur + mot de passe).
+
+### Catalogue SOBRAGA
+
+Tout nouveau commerce démarre avec les boissons SOBRAGA définies dans **`catalogue-sobraga.js`** — le seul fichier à modifier pour corriger les prix. `prix: null` signifie « prix à confirmer » : le produit est signalé dans la caisse et le stock, et ne peut pas être vendu tant que le gérant n'a pas saisi son prix. Seuls les prix de la Régab sont confirmés (janvier 2026 : 600 FCFA la 65 cl, 350 FCFA la 33 cl). Le bouton « Catalogue SOBRAGA » (Stock) ajoute les boissons manquantes à un commerce existant.
+
+### Supabase
+
+- `supabase/migrations/20261114120000_bar_commerces.sql` : tables `bar_commerces`, `bar_membres`, `bar_donnees` (séparées des tables de BIG Gestion), règles RLS, fonctions `bar_email_connexion`, `bar_nom_disponible`, `bar_enregistrer`.
+- `supabase/functions/bar-comptes` : création des commerces et des comptes (clé service côté serveur). Déploiement : `supabase functions deploy bar-comptes --no-verify-jwt`.
 
 ## Fonctionnalités
 
@@ -34,4 +45,4 @@ Pour publier une nouvelle version (ex. 1.1), dans `GestionBar-app.html` :
 
 ## Limites à connaître
 
-Les données sont enregistrées uniquement dans le navigateur de l'appareil utilisé (`localStorage`). Il n'y a pas de synchronisation entre un téléphone et un ordinateur : utiliser Réglages → Données pour sauvegarder et restaurer. Les codes PIN protègent l'usage courant, pas contre une personne qui a accès au navigateur. Pour une synchronisation en temps réel et de vrais comptes, il faut une base de données partagée (ex. Supabase).
+Les données d'un commerce sont enregistrées en un seul bloc. Quand deux appareils modifient en même temps, la caisse fusionne les deux versions (tickets un par un, ventes et entrées de stock additionnées) ; pour un même ticket modifié des deux côtés, la version encaissée l'emporte. Les autres appareils voient les changements en 15 secondes environ. Deux tickets créés au même moment sur deux appareils peuvent recevoir le même numéro. Tout utilisateur du commerce peut techniquement lire toutes les données du commerce (les droits « gérant » sont appliqués dans l'application).
